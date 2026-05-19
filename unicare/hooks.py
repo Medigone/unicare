@@ -245,5 +245,6 @@ app_license = "mit"
 fixtures = [
 	"Wilaya",
 	"Commune",
+	"Custom HTML Block",
 ]
 
