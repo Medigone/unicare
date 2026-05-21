@@ -1,4 +1,17 @@
 import frappe
+from erpnext.selling.doctype.customer.customer import Customer
+
+
+class CustomCustomer(Customer):
+	def autoname(self):
+		from frappe.model.naming import make_autoname
+
+		self.name = make_autoname("CLI-.#####")
+
+	def validate(self):
+		super().validate()
+		if self.customer_name:
+			self.customer_name = self.customer_name.upper()
 
 
 @frappe.whitelist()
