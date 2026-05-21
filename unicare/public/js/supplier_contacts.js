@@ -1,5 +1,57 @@
+function sync_supplier_disabled_from_statut(frm) {
+	if (!frm.fields_dict.custom_statut) {
+		return;
+	}
+
+	frm.set_value("disabled", frm.doc.custom_statut === "Exclu" ? 1 : 0);
+}
+
+function setup_supplier_name_uppercase(frm) {
+	const field = frm.fields_dict.supplier_name;
+	if (!field?.$input || field.$input.data("uppercase-bound")) {
+		return;
+	}
+
+	field.$input.data("uppercase-bound", true);
+	field.$input.on("input", function () {
+		const value = $(this).val();
+		const upper = value.toUpperCase();
+		if (value !== upper) {
+			$(this).val(upper);
+			frm.doc.supplier_name = upper;
+		}
+	});
+}
+
 frappe.ui.form.on("Supplier", {
+	setup(frm) {
+		if (frm.doc.__islocal && !frm.doc.custom_statut) {
+			frm.set_value("custom_statut", "Actif");
+		}
+	},
+
+	custom_statut(frm) {
+		sync_supplier_disabled_from_statut(frm);
+	},
+
+	supplier_name(frm) {
+		if (frm.doc.supplier_name && frm.doc.supplier_name !== frm.doc.supplier_name.toUpperCase()) {
+			frm.set_value("supplier_name", frm.doc.supplier_name.toUpperCase());
+		}
+	},
+
 	refresh(frm) {
+		setup_supplier_name_uppercase(frm);
+
+		if (frm.fields_dict.disabled) {
+			frm.set_df_property("disabled", "hidden", 1);
+		}
+
+		if (frm.doc.__islocal && !frm.doc.custom_statut) {
+			frm.set_value("custom_statut", "Actif");
+		}
+
+		sync_supplier_disabled_from_statut(frm);
 		if (!frm.fields_dict.custom_contact_html_custom) {
 			return;
 		}

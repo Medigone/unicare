@@ -1,4 +1,29 @@
 import frappe
+from erpnext.buying.doctype.supplier.supplier import Supplier
+
+
+class CustomSupplier(Supplier):
+	def autoname(self):
+		from frappe.model.naming import make_autoname
+
+		self.name = make_autoname("FR-.#####")
+
+	def validate(self):
+		if not self.custom_statut:
+			self.custom_statut = "Exclu" if self.disabled else "Actif"
+
+		self.disabled = 1 if self.custom_statut == "Exclu" else 0
+
+		if (
+			frappe.defaults.get_global_default("supp_master_name") == "Naming Series"
+			and not self.naming_series
+		):
+			self.naming_series = "FR-.#####"
+
+		super().validate()
+
+		if self.supplier_name:
+			self.supplier_name = self.supplier_name.upper()
 
 
 @frappe.whitelist()

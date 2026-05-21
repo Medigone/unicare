@@ -47,7 +47,9 @@ doctype_js = {
 	"Customer": "public/js/customer_contacts.js",
 	"Supplier": "public/js/supplier_contacts.js",
 }
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {
+	"Supplier": "public/js/supplier_list.js",
+}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -134,6 +136,7 @@ doctype_js = {
 
 override_doctype_class = {
 	"Customer": "unicare.customer_hooks.CustomCustomer",
+	"Supplier": "unicare.supplier_hooks.CustomSupplier",
 }
 
 # Document Events
