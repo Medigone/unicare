@@ -1,5 +1,7 @@
 frappe.ui.form.on("Customer", {
 	refresh(frm) {
+		setup_customer_name_uppercase(frm);
+
 		if (!frm.fields_dict.custom_contact_html_custom) {
 			return;
 		}
@@ -149,4 +151,26 @@ frappe.ui.form.on("Customer", {
 			);
 		});
 	},
+	customer_name(frm) {
+		if (frm.doc.customer_name && frm.doc.customer_name !== frm.doc.customer_name.toUpperCase()) {
+			frm.set_value("customer_name", frm.doc.customer_name.toUpperCase());
+		}
+	},
 });
+
+function setup_customer_name_uppercase(frm) {
+	const field = frm.fields_dict.customer_name;
+	if (!field?.$input || field.$input.data("uppercase-bound")) {
+		return;
+	}
+
+	field.$input.data("uppercase-bound", true);
+	field.$input.on("input", function () {
+		const value = $(this).val();
+		const upper = value.toUpperCase();
+		if (value !== upper) {
+			$(this).val(upper);
+			frm.doc.customer_name = upper;
+		}
+	});
+}
