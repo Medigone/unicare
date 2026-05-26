@@ -8,7 +8,7 @@ app_license = "mit"
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -179,10 +179,15 @@ override_doctype_class = {
 
 # Overriding Methods
 # ------------------------------
-#
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "unicare.event.get_events"
-# }
+
+override_whitelisted_methods = {
+	"erpnext.accounts.doctype.account.chart_of_accounts.chart_of_accounts.get_charts_for_country": (
+		"unicare.chart_of_accounts.patch.get_charts_for_country"
+	),
+	"erpnext.accounts.doctype.account.chart_of_accounts.chart_of_accounts.get_chart": (
+		"unicare.chart_of_accounts.patch.get_chart"
+	),
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,

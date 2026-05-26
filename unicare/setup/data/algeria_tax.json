@@ -1,0 +1,11 @@
+{
+	"Algeria TVA 19%": {
+		"account_name": "TVA 19%",
+		"tax_rate": 19.0,
+		"default": 1
+	},
+	"Algeria TVA 9%": {
+		"account_name": "TVA 9%",
+		"tax_rate": 9.0
+	}
+}
