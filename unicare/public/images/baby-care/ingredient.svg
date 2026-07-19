@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 600" role="img" aria-labelledby="title">
+	<title id="title">Ingredients vegetaux selectionnes</title>
+	<rect width="560" height="600" fill="#d9e3e6"/>
+	<circle cx="274" cy="302" r="174" fill="#eef4f6"/>
+	<g fill="none" stroke="#56727a" stroke-linecap="round" stroke-width="5">
+		<path d="M86 513c62-151 160-270 327-379"/>
+		<path d="M183 390c-80-8-122-54-126-128 72 2 119 43 126 128ZM270 303c-21-93 12-159 94-198 21 84-10 151-94 198ZM343 253c83-15 141 13 173 83-74 24-133-4-173-83ZM157 432c5-67 41-109 107-128-1 62-37 105-107 128Z"/>
+	</g>
+	<g>
+		<circle cx="391" cy="426" r="93" fill="#c4a789"/>
+		<circle cx="391" cy="426" r="65" fill="#e9d8c3"/>
+		<circle cx="391" cy="426" r="22" fill="#c5d4d8"/>
+		<g fill="#faf8f4">
+			<ellipse cx="391" cy="363" rx="17" ry="41"/><ellipse cx="391" cy="489" rx="17" ry="41"/>
+			<ellipse cx="328" cy="426" rx="41" ry="17"/><ellipse cx="454" cy="426" rx="41" ry="17"/>
+			<ellipse cx="347" cy="382" rx="17" ry="41" transform="rotate(-45 347 382)"/>
+			<ellipse cx="435" cy="470" rx="17" ry="41" transform="rotate(-45 435 470)"/>
+			<ellipse cx="435" cy="382" rx="41" ry="17" transform="rotate(-45 435 382)"/>
+			<ellipse cx="347" cy="470" rx="41" ry="17" transform="rotate(-45 347 470)"/>
+		</g>
+	</g>
+</svg>

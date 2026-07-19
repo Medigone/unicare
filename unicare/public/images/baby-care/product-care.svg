@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 400" role="img" aria-labelledby="title">
+	<title id="title">Flacon de soin Unicare</title>
+	<ellipse cx="212" cy="344" rx="120" ry="25" fill="#3e3934" opacity=".09"/>
+	<path d="M150 127c0-18 14-32 32-32h61c18 0 32 14 32 32l-10 215H160Z" fill="#fbfaf7"/>
+	<rect x="177" y="65" width="70" height="49" rx="13" fill="#56727a"/>
+	<path d="M193 65V43h38v22" fill="#445c63"/>
+	<rect x="171" y="185" width="83" height="92" rx="8" fill="#eaf1f3"/>
+	<text x="212" y="215" fill="#3e3934" font-family="Georgia,serif" font-size="18" text-anchor="middle">unicare</text>
+	<text x="212" y="239" fill="#56727a" font-family="Arial,sans-serif" font-size="7" letter-spacing="1.5" text-anchor="middle">BABY CARE</text>
+	<path d="M198 258c9-11 19-11 28 0-9 7-19 7-28 0Z" fill="#c5d4d8"/>
+	<g fill="none" stroke="#56727a" stroke-linecap="round" opacity=".33">
+		<path d="M87 305c-6-67 17-112 70-135M325 308c10-52-5-91-44-118"/>
+		<path d="M107 254c-23-7-39-22-48-45 27 3 44 18 48 45ZM309 255c24-8 39-24 45-48-27 6-42 22-45 48Z"/>
+	</g>
+</svg>

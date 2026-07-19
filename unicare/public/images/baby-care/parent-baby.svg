@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 760" role="img" aria-labelledby="title desc">
+	<title id="title">Moment de soin entre un parent et son bebe</title>
+	<desc id="desc">Illustration abstraite et douce d un parent portant son bebe.</desc>
+	<rect width="640" height="760" fill="#eaf1f3"/>
+	<circle cx="440" cy="176" r="182" fill="#f7fafb"/>
+	<path d="M78 760c7-192 99-311 245-311 162 0 247 116 259 311Z" fill="#56727a"/>
+	<circle cx="295" cy="265" r="112" fill="#bd9f8b"/>
+	<path d="M190 256c13-110 80-177 177-138 56 23 76 76 59 139-20-76-86-97-152-71-36 14-61 38-84 70Z" fill="#544b45"/>
+	<circle cx="417" cy="428" r="74" fill="#d3b8a3"/>
+	<path d="M339 428c10-75 55-120 119-91 38 18 49 57 34 98-14-47-55-60-95-44-24 9-42 23-58 37Z" fill="#665a50"/>
+	<path d="M170 650c77-110 166-146 278-99" fill="none" stroke="#c5a892" stroke-linecap="round" stroke-width="58"/>
+	<path d="M470 760c5-99-29-174-99-224" fill="none" stroke="#f4eee6" stroke-width="116"/>
+	<path d="M116 98c59 13 95 48 107 105-57-12-92-47-107-105Z" fill="#c5d4d8" opacity=".66"/>
+</svg>

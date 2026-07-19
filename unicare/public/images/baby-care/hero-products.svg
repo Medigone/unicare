@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 720" role="img" aria-labelledby="title desc">
+	<title id="title">Gamme de soins pour bebe</title>
+	<desc id="desc">Flacons de soins minimalistes sur un podium creme.</desc>
+	<rect width="680" height="720" fill="#eaf1f3"/>
+	<circle cx="520" cy="140" r="180" fill="#f7fafb"/>
+	<path d="M70 520c135-85 402-82 550 7v193H70z" fill="#d5e0e4"/>
+	<ellipse cx="355" cy="554" rx="243" ry="56" fill="#c5d4d8"/>
+	<g opacity=".34" fill="none" stroke="#56727a" stroke-width="3">
+		<path d="M95 410c41-89 87-131 139-146-16 82-61 139-139 146Z"/>
+		<path d="M585 363c-24-70-60-107-108-125 5 70 42 117 108 125Z"/>
+		<path d="M154 387c47-32 81-61 104-91M531 336c-22-29-42-52-62-72"/>
+	</g>
+	<g>
+		<rect x="144" y="283" width="138" height="282" rx="27" fill="#faf9f5"/>
+		<rect x="174" y="239" width="78" height="58" rx="14" fill="#56727a"/>
+		<rect x="191" y="211" width="44" height="36" rx="8" fill="#445c63"/>
+		<rect x="160" y="370" width="106" height="102" rx="9" fill="#eaf1f3"/>
+		<text x="213" y="400" fill="#3e3934" font-family="Georgia,serif" font-size="20" text-anchor="middle">unicare</text>
+		<text x="213" y="428" fill="#56727a" font-family="Arial,sans-serif" font-size="9" letter-spacing="2" text-anchor="middle">GEL DOUCEUR</text>
+		<path d="M198 446c13-15 27-16 40 0-14 9-27 9-40 0Z" fill="#c5d4d8"/>
+	</g>
+	<g>
+		<rect x="322" y="230" width="153" height="339" rx="34" fill="#f8f6f0"/>
+		<rect x="355" y="177" width="87" height="69" rx="18" fill="#8a9ea4"/>
+		<path d="M374 177v-31h50v31" fill="#445c63"/>
+		<rect x="340" y="334" width="117" height="126" rx="10" fill="#e8eef0"/>
+		<text x="398" y="371" fill="#3e3934" font-family="Georgia,serif" font-size="22" text-anchor="middle">unicare</text>
+		<text x="398" y="401" fill="#56727a" font-family="Arial,sans-serif" font-size="9" letter-spacing="2" text-anchor="middle">LAIT CONFORT</text>
+		<circle cx="398" cy="431" r="12" fill="#c5d4d8"/>
+	</g>
+	<g>
+		<path d="M492 350c0-17 14-31 31-31h68c17 0 31 14 31 31l-13 217H505Z" fill="#f4f1e9"/>
+		<path d="M515 296h84l-7 31h-71Z" fill="#6d868d"/>
+		<rect x="516" y="408" width="89" height="82" rx="8" fill="#eaf1f3"/>
+		<text x="560" y="434" fill="#3e3934" font-family="Georgia,serif" font-size="16" text-anchor="middle">unicare</text>
+		<text x="560" y="458" fill="#56727a" font-family="Arial,sans-serif" font-size="8" letter-spacing="1.5" text-anchor="middle">BAUME</text>
+	</g>
+</svg>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360" role="img" aria-labelledby="title">
+	<title id="title">Routine de soin douce pour bebe</title>
+	<rect width="520" height="360" fill="#eaf1f3"/>
+	<circle cx="389" cy="87" r="109" fill="#f7fafb"/>
+	<path d="M0 270c133-71 342-68 520 9v81H0Z" fill="#d5e0e4"/>
+	<g transform="translate(116 55)">
+		<rect x="0" y="92" width="112" height="164" rx="24" fill="#faf9f5"/>
+		<rect x="25" y="55" width="62" height="49" rx="13" fill="#56727a"/>
+		<rect x="17" y="154" width="78" height="60" rx="8" fill="#e8eef0"/>
+		<text x="56" y="181" fill="#3e3934" font-family="Georgia,serif" font-size="15" text-anchor="middle">unicare</text>
+		<text x="56" y="199" fill="#56727a" font-family="Arial,sans-serif" font-size="6" letter-spacing="1.5" text-anchor="middle">BABY CARE</text>
+	</g>
+	<g fill="none" stroke="#56727a" stroke-linecap="round" stroke-width="3" opacity=".6">
+		<path d="M326 286c4-102 44-172 121-210"/>
+		<path d="M379 190c-49-6-77-34-83-82 46 3 75 30 83 82ZM411 142c50-4 84 18 102 63-47 8-82-13-102-63Z"/>
+	</g>
+</svg>
