@@ -34,7 +34,7 @@ def get_context(context):
 		"terms": "#",
 	}
 	context.images = {
-		"hero": "/assets/unicare/images/baby-care/hero-products.svg?v=2",
+		"hero": "/assets/unicare/images/baby-care/composition_produits_hero.png?v=1",
 		"products": "/assets/unicare/images/baby-care/product-care.svg?v=2",
 		"family": "/assets/unicare/images/baby-care/parent_baby.png?v=1",
 		"ingredient": "/assets/unicare/images/baby-care/ingredients.png?v=1",
