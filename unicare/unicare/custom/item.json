@@ -1,5 +1,30 @@
 {
- "custom_fields": [],
+ "custom_fields": [
+  {
+   "dt": "Item",
+   "fieldname": "custom_section_conditionnement",
+   "fieldtype": "Section Break",
+   "insert_after": "item_group",
+   "is_system_generated": 0,
+   "label": "Conditionnement",
+   "module": "Conditionnement",
+   "name": "Item-custom_section_conditionnement"
+  },
+  {
+   "dt": "Item",
+   "fieldname": "custom_type_conditionnement",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "insert_after": "custom_section_conditionnement",
+   "is_system_generated": 0,
+   "label": "Type conditionnement",
+   "module": "Conditionnement",
+   "name": "Item-custom_type_conditionnement",
+   "options": "\nFût\nConditionnement\nProduit fini\nAutre",
+   "reqd": 1
+  }
+ ],
  "custom_perms": [],
  "doctype": "Item",
  "links": [],

@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-12 18:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "controle",
+  "obligatoire",
+  "conforme",
+  "controle_par",
+  "date_heure",
+  "observation"
+ ],
+ "fields": [
+  {
+   "fieldname": "controle",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Contrôle",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "obligatoire",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Obligatoire"
+  },
+  {
+   "default": "0",
+   "fieldname": "conforme",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Conforme"
+  },
+  {
+   "fieldname": "controle_par",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Contrôlé par",
+   "options": "User"
+  },
+  {
+   "fieldname": "date_heure",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Date / heure"
+  },
+  {
+   "fieldname": "observation",
+   "fieldtype": "Small Text",
+   "label": "Observation"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-12 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Conditionnement",
+ "name": "Checklist Preparation",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

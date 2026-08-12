@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-12 18:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "has_batch_no",
+  "qty",
+  "uom",
+  "lot_fournisseur",
+  "batch_no",
+  "expiry_date",
+  "manufacturing_date",
+  "warehouse"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Article",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nom",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fetch_from": "item_code.has_batch_no",
+   "fieldname": "has_batch_no",
+   "fieldtype": "Check",
+   "label": "Suivi par lot",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantité",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "item_code.stock_uom",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Unité",
+   "options": "UOM",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.has_batch_no",
+   "fieldname": "lot_fournisseur",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lot fournisseur"
+  },
+  {
+   "depends_on": "eval:doc.has_batch_no",
+   "fieldname": "batch_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "N° lot interne"
+  },
+  {
+   "depends_on": "eval:doc.has_batch_no",
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Date de péremption"
+  },
+  {
+   "depends_on": "eval:doc.has_batch_no",
+   "fieldname": "manufacturing_date",
+   "fieldtype": "Date",
+   "label": "Date de fabrication"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Entrepôt",
+   "options": "Warehouse",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-12 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Conditionnement",
+ "name": "Ligne Reception Matiere",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

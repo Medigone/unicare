@@ -46,6 +46,7 @@ required_apps = ["erpnext"]
 doctype_js = {
 	"Customer": "public/js/customer_contacts.js",
 	"Supplier": "public/js/supplier_contacts.js",
+	"Item": "public/js/item.js",
 }
 doctype_list_js = {
 	"Supplier": "public/js/supplier_list.js",
@@ -137,6 +138,7 @@ home_page = "unicare"
 override_doctype_class = {
 	"Customer": "unicare.customer_hooks.CustomCustomer",
 	"Supplier": "unicare.supplier_hooks.CustomSupplier",
+	"Item": "unicare.conditionnement.item_hooks.CustomItem",
 }
 
 # Document Events
@@ -253,9 +255,49 @@ override_whitelisted_methods = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+doc_events = {
+	"Item": {
+		"validate": "unicare.conditionnement.item_hooks.validate_item",
+	},
+}
+
 fixtures = [
 	"Wilaya",
 	"Commune",
 	"Custom HTML Block",
+	{
+		"dt": "Role",
+		"filters": [
+			[
+				"name",
+				"in",
+				[
+					"Magasinier Conditionnement",
+					"Opérateur Conditionnement",
+					"Responsable Conditionnement",
+				],
+			]
+		],
+	},
+	{
+		"dt": "Workflow State",
+		"filters": [
+			["name", "in", ["Brouillon", "Préparé", "En production", "Terminé", "Annulé"]]
+		],
+	},
+	{
+		"dt": "Workflow Action Master",
+		"filters": [
+			[
+				"name",
+				"in",
+				["Préparer", "Démarrer la production", "Clôturer", "Annuler"],
+			]
+		],
+	},
+	{
+		"dt": "Workflow",
+		"filters": [["name", "=", "Ordre de Conditionnement"]],
+	},
 ]
 

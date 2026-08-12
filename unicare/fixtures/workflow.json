@@ -1,0 +1,151 @@
+[
+  {
+   "doctype": "Workflow",
+   "document_type": "Ordre de Conditionnement",
+   "is_active": 1,
+   "name": "Ordre de Conditionnement",
+   "override_status": 0,
+   "send_email_alert": 0,
+   "workflow_name": "Ordre de Conditionnement",
+   "workflow_state_field": "workflow_state",
+   "states": [
+    {
+     "allow_edit": "All",
+     "doc_status": "0",
+     "is_optional_state": 0,
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "states",
+     "parenttype": "Workflow",
+     "state": "Brouillon"
+    },
+    {
+     "allow_edit": "All",
+     "doc_status": "0",
+     "is_optional_state": 0,
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "states",
+     "parenttype": "Workflow",
+     "state": "Préparé"
+    },
+    {
+     "allow_edit": "All",
+     "doc_status": "0",
+     "is_optional_state": 0,
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "states",
+     "parenttype": "Workflow",
+     "state": "En production"
+    },
+    {
+     "allow_edit": "System Manager",
+     "doc_status": "0",
+     "is_optional_state": 0,
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "states",
+     "parenttype": "Workflow",
+     "state": "Terminé"
+    },
+    {
+     "allow_edit": "System Manager",
+     "doc_status": "0",
+     "is_optional_state": 0,
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "states",
+     "parenttype": "Workflow",
+     "state": "Annulé"
+    }
+   ],
+   "transitions": [
+    {
+     "action": "Préparer",
+     "allow_self_approval": 1,
+     "allowed": "Opérateur Conditionnement",
+     "next_state": "Préparé",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "Brouillon"
+    },
+    {
+     "action": "Préparer",
+     "allow_self_approval": 1,
+     "allowed": "Responsable Conditionnement",
+     "next_state": "Préparé",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "Brouillon"
+    },
+    {
+     "action": "Démarrer la production",
+     "allow_self_approval": 1,
+     "allowed": "Opérateur Conditionnement",
+     "next_state": "En production",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "Préparé"
+    },
+    {
+     "action": "Démarrer la production",
+     "allow_self_approval": 1,
+     "allowed": "Responsable Conditionnement",
+     "next_state": "En production",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "Préparé"
+    },
+    {
+     "action": "Clôturer",
+     "allow_self_approval": 1,
+     "allowed": "Opérateur Conditionnement",
+     "next_state": "Terminé",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "En production"
+    },
+    {
+     "action": "Clôturer",
+     "allow_self_approval": 1,
+     "allowed": "Responsable Conditionnement",
+     "next_state": "Terminé",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "En production"
+    },
+    {
+     "action": "Annuler",
+     "allow_self_approval": 1,
+     "allowed": "Responsable Conditionnement",
+     "next_state": "Annulé",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "Brouillon"
+    },
+    {
+     "action": "Annuler",
+     "allow_self_approval": 1,
+     "allowed": "Responsable Conditionnement",
+     "next_state": "Annulé",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "Préparé"
+    },
+    {
+     "action": "Annuler",
+     "allow_self_approval": 1,
+     "allowed": "Responsable Conditionnement",
+     "next_state": "Annulé",
+     "parent": "Ordre de Conditionnement",
+     "parentfield": "transitions",
+     "parenttype": "Workflow",
+     "state": "En production"
+    }
+   ]
+  }
+]

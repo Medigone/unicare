@@ -1,0 +1,37 @@
+[
+  {
+   "doctype": "Workflow State",
+   "icon": "file-text",
+   "name": "Brouillon",
+   "style": "Primary",
+   "workflow_state_name": "Brouillon"
+  },
+  {
+   "doctype": "Workflow State",
+   "icon": "ok-sign",
+   "name": "Préparé",
+   "style": "Warning",
+   "workflow_state_name": "Préparé"
+  },
+  {
+   "doctype": "Workflow State",
+   "icon": "play",
+   "name": "En production",
+   "style": "Info",
+   "workflow_state_name": "En production"
+  },
+  {
+   "doctype": "Workflow State",
+   "icon": "ok-sign",
+   "name": "Terminé",
+   "style": "Success",
+   "workflow_state_name": "Terminé"
+  },
+  {
+   "doctype": "Workflow State",
+   "icon": "remove",
+   "name": "Annulé",
+   "style": "Danger",
+   "workflow_state_name": "Annulé"
+  }
+]

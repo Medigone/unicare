@@ -1,0 +1,354 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-08-12 18:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "produit_fini",
+  "nom_produit",
+  "column_break_main",
+  "date_prevue",
+  "workflow_state",
+  "section_quantites",
+  "qty_prevue",
+  "uom",
+  "column_break_qty",
+  "qty_reelle_pf",
+  "qty_rebut",
+  "rendement_reel",
+  "recette__mati\u00e8res_tab",
+  "recette",
+  "section_matieres",
+  "matieres",
+  "pr\u00e9paration_tab",
+  "section_checklist",
+  "checklist",
+  "lot_tab",
+  "section_lot",
+  "lot_pf",
+  "generer_lot_pf",
+  "column_break_lot",
+  "entrep\u00f4ts_tab",
+  "warehouse_mp",
+  "warehouse_conditionnement",
+  "column_break_ldrm",
+  "warehouse_atelier",
+  "warehouse_pf",
+  "warehouse_rebuts",
+  "stock_tab",
+  "section_stock_entries",
+  "stock_entry_preparation",
+  "column_break_se",
+  "stock_entry_production",
+  "stock_entry_rebuts"
+ ],
+ "fields": [
+  {
+   "default": "OC-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "OC-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recette",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Recette",
+   "options": "Recette de Conditionnement",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "recette.produit_fini",
+   "fieldname": "produit_fini",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Produit fini",
+   "options": "Item",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "produit_fini.item_name",
+   "fieldname": "nom_produit",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nom du produit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date_prevue",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date pr\u00e9vue",
+   "reqd": 1
+  },
+  {
+   "default": "Brouillon",
+   "fieldname": "workflow_state",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Statut",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "section_quantites",
+   "fieldtype": "Section Break",
+   "label": "Quantit\u00e9s"
+  },
+  {
+   "fieldname": "qty_prevue",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantit\u00e9 pr\u00e9vue",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "produit_fini.stock_uom",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "Unit\u00e9",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "column_break_qty",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty_reelle_pf",
+   "fieldtype": "Float",
+   "label": "Quantit\u00e9 r\u00e9elle PF",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "qty_rebut",
+   "fieldtype": "Float",
+   "label": "Quantit\u00e9 rebut",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "rendement_reel",
+   "fieldtype": "Percent",
+   "label": "Rendement r\u00e9el (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_lot",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lot_pf",
+   "fieldtype": "Link",
+   "label": "Lot produit fini",
+   "no_copy": 1,
+   "options": "Batch"
+  },
+  {
+   "depends_on": "eval:doc.produit_fini && doc.workflow_state != \"Termin\u00e9\" && doc.workflow_state != \"Annul\u00e9\"",
+   "fieldname": "generer_lot_pf",
+   "fieldtype": "Button",
+   "label": "G\u00e9n\u00e9rer un lot"
+  },
+  {
+   "fieldname": "column_break_lot",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "warehouse_mp",
+   "fieldtype": "Link",
+   "label": "Magasin F\u00fbt",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "warehouse_conditionnement",
+   "fieldtype": "Link",
+   "label": "Magasin conditionnement",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "warehouse_atelier",
+   "fieldtype": "Link",
+   "label": "Atelier",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "warehouse_pf",
+   "fieldtype": "Link",
+   "label": "Magasin produits finis",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "warehouse_rebuts",
+   "fieldtype": "Link",
+   "label": "Magasin rebuts",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "section_matieres",
+   "fieldtype": "Section Break",
+   "label": "Mati\u00e8res"
+  },
+  {
+   "fieldname": "matieres",
+   "fieldtype": "Table",
+   "label": "Mati\u00e8res",
+   "options": "Matiere Ordre Conditionnement"
+  },
+  {
+   "fieldname": "section_checklist",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "checklist",
+   "fieldtype": "Table",
+   "label": "Checklist",
+   "options": "Checklist Preparation"
+  },
+  {
+   "fieldname": "section_stock_entries",
+   "fieldtype": "Section Break",
+   "label": "\u00c9critures de stock"
+  },
+  {
+   "fieldname": "stock_entry_preparation",
+   "fieldtype": "Link",
+   "label": "Transfert pr\u00e9paration",
+   "no_copy": 1,
+   "options": "Stock Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_se",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "stock_entry_production",
+   "fieldtype": "Link",
+   "label": "Repack production",
+   "no_copy": 1,
+   "options": "Stock Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stock_entry_rebuts",
+   "fieldtype": "Link",
+   "label": "Transfert rebuts",
+   "no_copy": 1,
+   "options": "Stock Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lot_tab",
+   "fieldtype": "Tab Break",
+   "label": "Lot"
+  },
+  {
+   "fieldname": "entrep\u00f4ts_tab",
+   "fieldtype": "Tab Break",
+   "label": "Entrep\u00f4ts"
+  },
+  {
+   "fieldname": "column_break_ldrm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pr\u00e9paration_tab",
+   "fieldtype": "Tab Break",
+   "label": "Pr\u00e9paration"
+  },
+  {
+   "fieldname": "stock_tab",
+   "fieldtype": "Tab Break",
+   "label": "Stock"
+  },
+  {
+   "fieldname": "recette__mati\u00e8res_tab",
+   "fieldtype": "Tab Break",
+   "label": "Recette / Mati\u00e8res"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-08-12 21:37:56.181009",
+ "modified_by": "Administrator",
+ "module": "Conditionnement",
+ "name": "Ordre de Conditionnement",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Magasinier Conditionnement"
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Op\u00e9rateur Conditionnement",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "Responsable Conditionnement",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "produit_fini,nom_produit,lot_pf",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Blue",
+   "title": "Brouillon"
+  },
+  {
+   "color": "Orange",
+   "title": "Pr\u00e9par\u00e9"
+  },
+  {
+   "color": "Yellow",
+   "title": "En production"
+  },
+  {
+   "color": "Green",
+   "title": "Termin\u00e9"
+  },
+  {
+   "color": "Red",
+   "title": "Annul\u00e9"
+  }
+ ],
+ "title_field": "nom_produit",
+ "track_changes": 1
+}

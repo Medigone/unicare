@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "creation": "2026-08-12 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_entrepots",
+  "warehouse_mp",
+  "warehouse_conditionnement",
+  "column_break_wh",
+  "warehouse_atelier",
+  "warehouse_pf",
+  "warehouse_rebuts",
+  "section_production",
+  "rendement_tolerance_pct"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_entrepots",
+   "fieldtype": "Section Break",
+   "label": "Entrepôts"
+  },
+  {
+   "fieldname": "warehouse_mp",
+   "fieldtype": "Link",
+   "label": "Magasin Fût / matières",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "warehouse_conditionnement",
+   "fieldtype": "Link",
+   "label": "Magasin articles de conditionnement",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_wh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "warehouse_atelier",
+   "fieldtype": "Link",
+   "label": "Atelier conditionnement",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "warehouse_pf",
+   "fieldtype": "Link",
+   "label": "Magasin produits finis",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "warehouse_rebuts",
+   "fieldtype": "Link",
+   "label": "Magasin rebuts / pertes",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "section_production",
+   "fieldtype": "Section Break",
+   "label": "Production"
+  },
+  {
+   "default": "10",
+   "description": "Écart de rendement (en %) au-delà duquel un avertissement est affiché à la clôture.",
+   "fieldname": "rendement_tolerance_pct",
+   "fieldtype": "Percent",
+   "label": "Tolérance de rendement (%)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-12 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Conditionnement",
+ "name": "Parametres Conditionnement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Magasinier Conditionnement",
+   "write": 0
+  },
+  {
+   "read": 1,
+   "role": "Opérateur Conditionnement"
+  },
+  {
+   "read": 1,
+   "role": "Responsable Conditionnement",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

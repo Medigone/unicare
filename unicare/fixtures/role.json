@@ -1,0 +1,23 @@
+[
+  {
+   "desk_access": 1,
+   "doctype": "Role",
+   "is_custom": 1,
+   "name": "Magasinier Conditionnement",
+   "role_name": "Magasinier Conditionnement"
+  },
+  {
+   "desk_access": 1,
+   "doctype": "Role",
+   "is_custom": 1,
+   "name": "Opérateur Conditionnement",
+   "role_name": "Opérateur Conditionnement"
+  },
+  {
+   "desk_access": 1,
+   "doctype": "Role",
+   "is_custom": 1,
+   "name": "Responsable Conditionnement",
+   "role_name": "Responsable Conditionnement"
+  }
+]

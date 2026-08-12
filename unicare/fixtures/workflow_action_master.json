@@ -1,0 +1,22 @@
+[
+  {
+   "doctype": "Workflow Action Master",
+   "name": "Préparer",
+   "workflow_action_name": "Préparer"
+  },
+  {
+   "doctype": "Workflow Action Master",
+   "name": "Démarrer la production",
+   "workflow_action_name": "Démarrer la production"
+  },
+  {
+   "doctype": "Workflow Action Master",
+   "name": "Clôturer",
+   "workflow_action_name": "Clôturer"
+  },
+  {
+   "doctype": "Workflow Action Master",
+   "name": "Annuler",
+   "workflow_action_name": "Annuler"
+  }
+]

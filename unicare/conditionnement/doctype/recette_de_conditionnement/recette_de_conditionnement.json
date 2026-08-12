@@ -1,0 +1,146 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:REC-{produit_fini}-{#####}",
+ "creation": "2026-08-12 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "produit_fini",
+  "nom_produit",
+  "column_break_main",
+  "actif",
+  "section_quantites",
+  "quantite_base",
+  "uom",
+  "column_break_qty",
+  "rendement_theorique",
+  "section_ingredients",
+  "ingredients"
+ ],
+ "fields": [
+  {
+   "fieldname": "produit_fini",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Produit fini",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "produit_fini.item_name",
+   "fieldname": "nom_produit",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nom du produit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "actif",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Actif"
+  },
+  {
+   "fieldname": "section_quantites",
+   "fieldtype": "Section Break",
+   "label": "Quantités"
+  },
+  {
+   "default": "1",
+   "description": "Quantité de produit fini à laquelle les ingrédients sont exprimés (ex. 1000 bouteilles).",
+   "fieldname": "quantite_base",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantité de base",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "produit_fini.stock_uom",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "Unité",
+   "options": "UOM",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_qty",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "100",
+   "fieldname": "rendement_theorique",
+   "fieldtype": "Percent",
+   "label": "Rendement théorique (%)"
+  },
+  {
+   "fieldname": "section_ingredients",
+   "fieldtype": "Section Break",
+   "label": "Ingrédients"
+  },
+  {
+   "fieldname": "ingredients",
+   "fieldtype": "Table",
+   "label": "Ingrédients",
+   "options": "Ingredient Recette",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Ordre de Conditionnement",
+   "link_fieldname": "recette"
+  }
+ ],
+ "modified": "2026-08-12 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Conditionnement",
+ "name": "Recette de Conditionnement",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Magasinier Conditionnement"
+  },
+  {
+   "read": 1,
+   "role": "Opérateur Conditionnement"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "Responsable Conditionnement",
+   "write": 1
+  }
+ ],
+ "search_fields": "produit_fini,nom_produit",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "nom_produit",
+ "track_changes": 1
+}
