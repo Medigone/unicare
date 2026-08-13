@@ -404,9 +404,11 @@ function wizard_host(frm) {
 
 function render_wizard_shell(frm, $host) {
 	const state = frm.doc.workflow_state || "Brouillon";
-	const product = frm.doc.nom_produit || frm.doc.produit_fini || __("Nouvel ordre");
+	const product = __("Ordre de Conditionnement");
 	const tech_link = frappe.user.has_role("System Manager")
-		? `<a href="#" class="ordre-wizard-tech">${__("Formulaire technique")}</a>`
+		? `<button type="button" class="btn btn-sm btn-default ordre-wizard-tech">${__(
+				"Formulaire technique"
+		  )}</button>`
 		: "";
 
 	const steps = WIZARD_STEPS.map((step, idx) => {
@@ -422,6 +424,7 @@ function render_wizard_shell(frm, $host) {
 		<div class="ordre-wizard">
 			<div class="ordre-wizard-header">
 				<h3 class="ordre-wizard-title">${frappe.utils.escape_html(product)}</h3>
+				${tech_link}
 			</div>
 			<ol class="ordre-wizard-steps">${steps}</ol>
 			<div class="ordre-wizard-panel">
@@ -434,17 +437,16 @@ function render_wizard_shell(frm, $host) {
 					<div class="ow-table-host" data-table="checklist"></div>
 					<div class="ow-table-host" data-table="rebuts"></div>
 				</div>
-				<details class="ordre-wizard-accordion">
-					<summary>${__("Entrepôts")}</summary>
-					<div class="ow-slot ow-warehouses"></div>
-				</details>
-				<details class="ordre-wizard-accordion">
-					<summary>${__("Transferts")}</summary>
-					<div class="ow-slot ow-stock-links"></div>
-				</details>
+				<div class="ow-section">
+					<h5>${__("Entrepôts")}</h5>
+					<div class="ow-fields ow-warehouses"></div>
+				</div>
+				<div class="ow-section ow-section-transferts">
+					<h5>${__("Transferts")}</h5>
+					<div class="ow-stock-links"></div>
+				</div>
 				<div class="ordre-wizard-actions"></div>
 			</div>
-			${tech_link}
 		</div>
 	`);
 
@@ -457,9 +459,14 @@ function render_wizard_shell(frm, $host) {
 
 function render_tech_toggle(frm, $host) {
 	$host.html(
-		`<div class="ordre-wizard"><a href="#" class="ordre-wizard-tech">${__(
-			"Revenir à l'assistant"
-		)}</a></div>`
+		`<div class="ordre-wizard">
+			<div class="ordre-wizard-header">
+				<h3 class="ordre-wizard-title">${__("Formulaire technique")}</h3>
+				<button type="button" class="btn btn-sm btn-default ordre-wizard-tech">${__(
+					"Revenir à l'assistant"
+				)}</button>
+			</div>
+		</div>`
 	);
 	$host.find(".ordre-wizard-tech").on("click", (e) => {
 		e.preventDefault();
@@ -577,7 +584,6 @@ function tables_for_state(state) {
 function place_fields(frm) {
 	const $main = frm.fields_dict.interface_wizard.$wrapper.find(".ow-main");
 	const $wh = frm.fields_dict.interface_wizard.$wrapper.find(".ow-warehouses");
-	const $stock = frm.fields_dict.interface_wizard.$wrapper.find(".ow-stock-links");
 	if (!$main.length) {
 		return;
 	}
@@ -590,10 +596,7 @@ function place_fields(frm) {
 			move_field(frm, fieldname, $wh);
 		}
 	);
-	["stock_entry_preparation", "stock_entry_production", "stock_entry_rebuts"].forEach((fieldname) => {
-		move_field(frm, fieldname, $stock);
-	});
-
+	render_stock_links(frm);
 	render_html_tables(frm);
 }
 
@@ -625,6 +628,55 @@ function restore_fields(frm) {
 		if ($home && $home.length) {
 			field.$wrapper.appendTo($home);
 		}
+	});
+}
+
+function render_stock_links(frm) {
+	const $slot = frm.fields_dict.interface_wizard.$wrapper.find(".ow-stock-links");
+	const $section = frm.fields_dict.interface_wizard.$wrapper.find(".ow-section-transferts");
+	if (!$slot.length) {
+		return;
+	}
+	const items = [
+		{
+			label: __("Transfert préparation"),
+			doctype: "Stock Entry",
+			name: frm.doc.stock_entry_preparation,
+		},
+		{
+			label: __("Repack production"),
+			doctype: "Stock Entry",
+			name: frm.doc.stock_entry_production,
+		},
+		{
+			label: __("Transfert rebuts"),
+			doctype: "Stock Entry",
+			name: frm.doc.stock_entry_rebuts,
+		},
+	];
+	if (!items.some((item) => item.name)) {
+		$section.hide();
+		return;
+	}
+	$section.show();
+	$slot.empty();
+	items.forEach((item) => {
+		if (!item.name) {
+			$slot.append(
+				`<div class="ow-stock-card"><span>${frappe.utils.escape_html(item.label)}</span><b>—</b></div>`
+			);
+			return;
+		}
+		const $card = $(
+			`<a href="#" class="ow-stock-card is-link"><span>${frappe.utils.escape_html(
+				item.label
+			)}</span><b>${frappe.utils.escape_html(item.name)}</b></a>`
+		);
+		$card.on("click", (e) => {
+			e.preventDefault();
+			frappe.set_route("Form", item.doctype, item.name);
+		});
+		$slot.append($card);
 	});
 }
 
