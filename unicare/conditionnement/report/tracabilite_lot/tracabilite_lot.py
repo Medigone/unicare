@@ -57,6 +57,7 @@ def get_columns():
 			"width": 140,
 		},
 		{"label": _("Qté réelle"), "fieldname": "qty_reelle", "fieldtype": "Float", "width": 110},
+		{"label": _("Qté rebut"), "fieldname": "qty_rebut", "fieldtype": "Float", "width": 110},
 		{"label": _("Qté PF"), "fieldname": "qty_reelle_pf", "fieldtype": "Float", "width": 110},
 		{"label": _("Date"), "fieldname": "date_prevue", "fieldtype": "Date", "width": 110},
 	]
@@ -124,21 +125,8 @@ def get_data(batch_no):
 	for line in parents:
 		if line.parent in seen:
 			continue
-		ordre = frappe.db.get_value(
-			"Ordre de Conditionnement",
-			line.parent,
-			[
-				"name",
-				"workflow_state",
-				"produit_fini",
-				"nom_produit",
-				"lot_pf",
-				"qty_reelle_pf",
-				"date_prevue",
-			],
-			as_dict=True,
-		)
-		if not ordre or ordre.workflow_state == "Annulé":
+		ordre = _get_ordre(line.parent)
+		if not ordre:
 			continue
 		data.append(
 			{
@@ -155,5 +143,51 @@ def get_data(batch_no):
 				"date_prevue": ordre.date_prevue,
 			}
 		)
+		seen.add(ordre.name)
+
+	rebuts = frappe.get_all(
+		"Rebut Ordre Conditionnement",
+		filters={"batch_no": batch_no},
+		fields=["parent", "item_code", "qty"],
+	)
+	for line in rebuts:
+		ordre = _get_ordre(line.parent)
+		if not ordre:
+			continue
+		data.append(
+			{
+				"sens": _("Lot MP → rebut"),
+				"ordre": ordre.name,
+				"statut": ordre.workflow_state,
+				"produit_fini": ordre.produit_fini,
+				"nom_produit": ordre.nom_produit,
+				"lot_pf": ordre.lot_pf,
+				"item_code": line.item_code,
+				"lot_mp": batch_no,
+				"qty_rebut": line.qty,
+				"qty_reelle_pf": ordre.qty_reelle_pf,
+				"date_prevue": ordre.date_prevue,
+			}
+		)
 
 	return data
+
+
+def _get_ordre(name):
+	ordre = frappe.db.get_value(
+		"Ordre de Conditionnement",
+		name,
+		[
+			"name",
+			"workflow_state",
+			"produit_fini",
+			"nom_produit",
+			"lot_pf",
+			"qty_reelle_pf",
+			"date_prevue",
+		],
+		as_dict=True,
+	)
+	if not ordre or ordre.workflow_state == "Annulé":
+		return None
+	return ordre

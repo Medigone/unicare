@@ -4,5 +4,5 @@
 from frappe.model.document import Document
 
 
-class LigneReceptionMatiere(Document):
+class LigneChecklistOrdreConditionnement(Document):
 	pass

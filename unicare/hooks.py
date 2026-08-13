@@ -25,7 +25,7 @@ required_apps = ["erpnext"]
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/unicare/css/unicare.css"
+app_include_css = "/assets/unicare/css/ordre_conditionnement.css"
 # app_include_js = "/assets/unicare/js/unicare.js"
 
 # include js, css files in header of web template
@@ -47,6 +47,7 @@ doctype_js = {
 	"Customer": "public/js/customer_contacts.js",
 	"Supplier": "public/js/supplier_contacts.js",
 	"Item": "public/js/item.js",
+	"Purchase Receipt": "conditionnement/purchase_receipt.js",
 }
 doctype_list_js = {
 	"Supplier": "public/js/supplier_list.js",
@@ -258,6 +259,9 @@ override_whitelisted_methods = {
 doc_events = {
 	"Item": {
 		"validate": "unicare.conditionnement.item_hooks.validate_item",
+	},
+	"Purchase Receipt": {
+		"before_submit": "unicare.conditionnement.purchase_receipt_hooks.before_submit",
 	},
 }
 

@@ -4,5 +4,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestReceptionDeMatieres(FrappeTestCase):
+class TestRebutOrdreConditionnement(FrappeTestCase):
 	pass

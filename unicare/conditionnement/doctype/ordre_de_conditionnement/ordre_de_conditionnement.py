@@ -1,13 +1,14 @@
 # Copyright (c) 2026, IntraPro and contributors
 # For license information, please see license.txt
 
+from collections import defaultdict
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, flt
 
 from unicare.conditionnement.constants import (
-	CHECKLIST_DEFAUT,
 	STATUT_ANNULE,
 	STATUT_BROUILLON,
 	STATUT_EN_PRODUCTION,
@@ -29,11 +30,13 @@ from unicare.conditionnement.stock import (
 class OrdredeConditionnement(Document):
 	def before_insert(self):
 		self.set_defaults()
-		self.ensure_checklist()
+		self.apply_recette()
+		self.apply_checklist()
 
 	def validate(self):
 		self.set_defaults()
-		self.ensure_checklist()
+		self.apply_checklist()
+		self.calculate_qty_rebut()
 		self.calculate_rendement()
 		self.validate_quantities()
 		self.validate_state()
@@ -65,11 +68,36 @@ class OrdredeConditionnement(Document):
 		if not self.workflow_state:
 			self.workflow_state = STATUT_BROUILLON
 
-	def ensure_checklist(self):
-		if self.checklist:
+	def apply_recette(self):
+		if self.matieres or not self.recette or flt(self.qty_prevue) <= 0:
 			return
-		for row in CHECKLIST_DEFAUT:
+		data = charger_recette(self.recette, self.qty_prevue)
+		self.produit_fini = data.get("produit_fini")
+		if data.get("uom"):
+			self.uom = data.get("uom")
+		for row in data.get("matieres") or []:
+			self.append("matieres", row)
+
+	def apply_checklist(self):
+		if not self.modele_checklist:
+			return
+
+		state = self.workflow_state or STATUT_BROUILLON
+		previous = self.get_doc_before_save() if not self.is_new() else None
+		model_changed = bool(previous and previous.modele_checklist != self.modele_checklist)
+
+		if model_changed and state != STATUT_BROUILLON:
+			frappe.throw(_("Impossible de changer le modèle de checklist après la planification."))
+
+		if self.checklist and not (model_changed and state == STATUT_BROUILLON):
+			return
+
+		self.set("checklist", [])
+		for row in charger_checklist(self.modele_checklist):
 			self.append("checklist", row)
+
+	def calculate_qty_rebut(self):
+		self.qty_rebut = sum(flt(row.qty) for row in self.rebuts)
 
 	def calculate_rendement(self):
 		if flt(self.qty_prevue) > 0 and flt(self.qty_reelle_pf) > 0:
@@ -101,6 +129,7 @@ class OrdredeConditionnement(Document):
 	def validate_preparation(self):
 		self.validate_warehouses()
 		self.validate_recette_active()
+		self.validate_checklist_modele()
 		self.validate_checklist()
 		self.validate_matieres_for_preparation()
 
@@ -118,6 +147,12 @@ class OrdredeConditionnement(Document):
 			frappe.throw(_("Sélectionnez une recette."))
 		if not frappe.db.get_value("Recette de Conditionnement", self.recette, "actif"):
 			frappe.throw(_("La recette {0} n'est pas active.").format(self.recette))
+
+	def validate_checklist_modele(self):
+		if not self.modele_checklist:
+			frappe.throw(_("Sélectionnez un modèle de checklist."))
+		if not frappe.db.get_value("Checklist Ordre Conditionnement", self.modele_checklist, "actif"):
+			frappe.throw(_("Le modèle de checklist {0} n'est pas actif.").format(self.modele_checklist))
 
 	def validate_checklist(self):
 		if not self.checklist:
@@ -167,6 +202,8 @@ class OrdredeConditionnement(Document):
 	def validate_cloture(self):
 		if flt(self.qty_reelle_pf) <= 0:
 			frappe.throw(_("Indiquez la quantité réelle de produit fini avant de clôturer."))
+		if item_has_batch(self.produit_fini) and not self.lot_pf:
+			frappe.throw(_("Générez ou sélectionnez le lot produit fini avant de clôturer."))
 		if not self.matieres:
 			frappe.throw(_("Aucune matière consommée."))
 		for row in self.matieres:
@@ -175,7 +212,68 @@ class OrdredeConditionnement(Document):
 			if item_has_batch(row.item_code) and not row.batch_no:
 				frappe.throw(_("Le lot est obligatoire pour {0}.").format(row.item_code))
 
+		self.validate_rebuts()
+		self.validate_cloture_quantities()
 		self.warn_rendement()
+
+	def validate_rebuts(self):
+		if self.rebuts and not self.warehouse_rebuts:
+			frappe.throw(_("Renseignez le magasin rebuts pour enregistrer les rebus matières."))
+
+		matiere_items = {row.item_code for row in self.matieres}
+		for row in self.rebuts:
+			if flt(row.qty) <= 0:
+				frappe.throw(_("La quantité de rebut de {0} doit être supérieure à 0.").format(row.item_code))
+			if row.item_code not in matiere_items:
+				frappe.throw(
+					_("Le rebut {0} doit correspondre à une matière de l'ordre.").format(row.item_code)
+				)
+			if item_has_batch(row.item_code) and not row.batch_no:
+				frappe.throw(_("Indiquez le lot pour le rebut {0}.").format(row.item_code))
+
+	def validate_cloture_quantities(self):
+		prepared = defaultdict(float)
+		consumed = defaultdict(float)
+		for row in self.matieres:
+			key = _item_lot_key(row.item_code, row.batch_no)
+			prepared[key] += flt(row.qty_theorique)
+			consumed[key] += flt(row.qty_reelle)
+
+		scrap = defaultdict(float)
+		for row in self.rebuts:
+			key = _item_lot_key(row.item_code, row.batch_no)
+			scrap[key] += flt(row.qty)
+
+		keys = set(prepared) | set(consumed) | set(scrap)
+		for key in keys:
+			item_code, batch_no = key
+			used = consumed.get(key, 0) + scrap.get(key, 0)
+			label = f"{item_code} / {batch_no}" if batch_no else item_code
+			if used > prepared.get(key, 0) + 0.0001:
+				frappe.throw(
+					_(
+						"Quantité consommée + rebut ({0}) supérieure à la quantité préparée ({1}) pour {2}."
+					).format(used, prepared.get(key, 0), label)
+				)
+
+			if not self.warehouse_atelier or used <= 0:
+				continue
+			if item_has_batch(item_code):
+				available = get_batch_available_qty(item_code, self.warehouse_atelier, batch_no)
+			else:
+				available = flt(
+					frappe.db.get_value(
+						"Bin",
+						{"item_code": item_code, "warehouse": self.warehouse_atelier},
+						"actual_qty",
+					)
+				)
+			if available + 0.0001 < used:
+				frappe.throw(
+					_("Stock atelier insuffisant pour {0} : {1} disponible, {2} requis.").format(
+						label, available, used
+					)
+				)
 
 	def warn_rendement(self):
 		parametres = get_parametres()
@@ -196,6 +294,7 @@ class OrdredeConditionnement(Document):
 			self.create_preparation_transfer()
 		elif new_state == STATUT_TERMINE:
 			self.create_production_repack()
+			self.create_rebuts_transfer()
 		elif new_state == STATUT_ANNULE:
 			self.cancel_linked_stock_entries()
 
@@ -259,14 +358,10 @@ class OrdredeConditionnement(Document):
 				}
 			)
 
-		qty_pf = flt(self.qty_reelle_pf)
-		qty_rebut = flt(self.qty_rebut)
-		qty_to_produce = qty_pf + qty_rebut if self.warehouse_rebuts and qty_rebut > 0 else qty_pf
-
 		items.append(
 			{
 				"item_code": self.produit_fini,
-				"qty": qty_to_produce,
+				"qty": flt(self.qty_reelle_pf),
 				"uom": self.uom,
 				"t_warehouse": self.warehouse_pf,
 				"batch_no": self.lot_pf,
@@ -283,24 +378,31 @@ class OrdredeConditionnement(Document):
 		)
 		self.db_set("stock_entry_production", se.name)
 
-		if qty_rebut > 0 and self.warehouse_rebuts:
-			rebuts = create_stock_entry(
-				purpose="Material Transfer",
-				items=[
-					{
-						"item_code": self.produit_fini,
-						"qty": self.qty_rebut,
-						"uom": self.uom,
-						"s_warehouse": self.warehouse_pf,
-						"t_warehouse": self.warehouse_rebuts,
-						"batch_no": self.lot_pf,
-					}
-				],
-				company=get_company(),
-				remarks=_("Rebuts {0}").format(self.name),
-				ordre=self.name,
+	def create_rebuts_transfer(self):
+		if self.stock_entry_rebuts or not self.rebuts:
+			return
+
+		items = []
+		for row in self.rebuts:
+			items.append(
+				{
+					"item_code": row.item_code,
+					"qty": row.qty,
+					"uom": row.uom,
+					"s_warehouse": self.warehouse_atelier,
+					"t_warehouse": self.warehouse_rebuts,
+					"batch_no": row.batch_no,
+				}
 			)
-			self.db_set("stock_entry_rebuts", rebuts.name)
+
+		se = create_stock_entry(
+			purpose="Material Transfer",
+			items=items,
+			company=get_company(),
+			remarks=_("Rebuts matières {0}").format(self.name),
+			ordre=self.name,
+		)
+		self.db_set("stock_entry_rebuts", se.name)
 
 	def cancel_linked_stock_entries(self):
 		for field in ("stock_entry_rebuts", "stock_entry_production", "stock_entry_preparation"):
@@ -352,6 +454,20 @@ def charger_recette(recette, qty_prevue):
 
 
 @frappe.whitelist()
+def charger_checklist(modele_checklist):
+	if not modele_checklist:
+		frappe.throw(_("Sélectionnez un modèle de checklist."))
+
+	doc = frappe.get_doc("Checklist Ordre Conditionnement", modele_checklist)
+	if not cint(doc.actif):
+		frappe.throw(_("Le modèle de checklist {0} n'est pas actif.").format(modele_checklist))
+	if not doc.lignes:
+		frappe.throw(_("Le modèle de checklist {0} n'a aucune ligne.").format(modele_checklist))
+
+	return [{"controle": row.controle, "obligatoire": cint(row.obligatoire)} for row in doc.lignes]
+
+
+@frappe.whitelist()
 def generer_lot_pf(produit_fini, ordre=None):
 	if not produit_fini:
 		frappe.throw(_("Sélectionnez d'abord le produit fini."))
@@ -378,3 +494,9 @@ def get_stock_disponible(item_code, warehouse, batch_no=None):
 	return flt(
 		frappe.db.get_value("Bin", {"item_code": item_code, "warehouse": warehouse}, "actual_qty")
 	)
+
+
+def _item_lot_key(item_code, batch_no):
+	if item_has_batch(item_code):
+		return (item_code, batch_no or "")
+	return (item_code, "")

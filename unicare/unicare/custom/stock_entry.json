@@ -21,18 +21,6 @@
    "name": "Stock Entry-custom_ordre_conditionnement",
    "options": "Ordre de Conditionnement",
    "read_only": 1
-  },
-  {
-   "dt": "Stock Entry",
-   "fieldname": "custom_reception_de_matieres",
-   "fieldtype": "Link",
-   "insert_after": "custom_ordre_conditionnement",
-   "is_system_generated": 0,
-   "label": "Réception de matières",
-   "module": "Conditionnement",
-   "name": "Stock Entry-custom_reception_de_matieres",
-   "options": "Reception de Matieres",
-   "read_only": 1
   }
  ],
  "custom_perms": [

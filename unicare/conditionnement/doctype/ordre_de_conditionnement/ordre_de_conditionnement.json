@@ -7,8 +7,12 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
+  "interface_wizard",
+  "section_after_wizard",
   "produit_fini",
   "nom_produit",
+  "recette",
+  "modele_checklist",
   "column_break_main",
   "date_prevue",
   "workflow_state",
@@ -20,9 +24,10 @@
   "qty_rebut",
   "rendement_reel",
   "recette__mati\u00e8res_tab",
-  "recette",
   "section_matieres",
   "matieres",
+  "section_rebuts",
+  "rebuts",
   "pr\u00e9paration_tab",
   "section_checklist",
   "checklist",
@@ -53,27 +58,27 @@
    "hidden": 1,
    "label": "Naming Series",
    "options": "OC-.YYYY.-.#####",
+   "read_only": 1,
    "reqd": 1
   },
   {
-   "fieldname": "recette",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Recette",
-   "options": "Recette de Conditionnement",
-   "reqd": 1,
-   "search_index": 1
+   "fieldname": "interface_wizard",
+   "fieldtype": "HTML",
+   "label": ""
   },
   {
-   "fetch_from": "recette.produit_fini",
+   "fieldname": "section_after_wizard",
+   "fieldtype": "Section Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
    "fieldname": "produit_fini",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Produit fini",
+   "label": "Produit \u00e0 fabriquer",
+   "link_filters": "[[\"Item\",\"custom_type_conditionnement\",\"=\",\"Produit fini\"],[\"Item\",\"is_stock_item\",\"=\",1],[\"Item\",\"disabled\",\"=\",0]]",
    "options": "Item",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -83,6 +88,30 @@
    "in_list_view": 1,
    "label": "Nom du produit",
    "read_only": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "depends_on": "eval:doc.produit_fini",
+   "fieldname": "recette",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Recette",
+   "link_filters": "[[\"Recette de Conditionnement\",\"produit_fini\",\"=\",\"eval:doc.produit_fini\"],[\"Recette de Conditionnement\",\"actif\",\"=\",1]]",
+   "options": "Recette de Conditionnement",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "modele_checklist",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Modèle de checklist",
+   "link_filters": "[[\"Checklist Ordre Conditionnement\",\"actif\",\"=\",1]]",
+   "options": "Checklist Ordre Conditionnement",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_main",
@@ -95,14 +124,14 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Date pr\u00e9vue",
-   "reqd": 1
+   "reqd": 1,
+   "allow_in_quick_entry": 1
   },
   {
    "default": "Brouillon",
    "fieldname": "workflow_state",
    "fieldtype": "Data",
    "hidden": 1,
-   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Statut",
    "no_copy": 1
@@ -118,9 +147,11 @@
    "in_list_view": 1,
    "label": "Quantit\u00e9 pr\u00e9vue",
    "non_negative": 1,
-   "reqd": 1
+   "reqd": 1,
+   "allow_in_quick_entry": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fetch_from": "produit_fini.stock_uom",
    "fieldname": "uom",
    "fieldtype": "Link",
@@ -141,7 +172,8 @@
    "fieldname": "qty_rebut",
    "fieldtype": "Float",
    "label": "Quantit\u00e9 rebut",
-   "non_negative": 1
+   "non_negative": 1,
+   "read_only": 1
   },
   {
    "fieldname": "rendement_reel",
@@ -210,6 +242,17 @@
    "fieldtype": "Table",
    "label": "Mati\u00e8res",
    "options": "Matiere Ordre Conditionnement"
+  },
+  {
+   "fieldname": "section_rebuts",
+   "fieldtype": "Section Break",
+   "label": "Rebuts mati\u00e8res"
+  },
+  {
+   "fieldname": "rebuts",
+   "fieldtype": "Table",
+   "label": "Rebuts",
+   "options": "Rebut Ordre Conditionnement"
   },
   {
    "fieldname": "section_checklist",
@@ -284,9 +327,10 @@
    "label": "Recette / Mati\u00e8res"
   }
  ],
+ "quick_entry": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-12 21:37:56.181009",
+ "modified": "2026-08-13 15:40:00.000000",
  "modified_by": "Administrator",
  "module": "Conditionnement",
  "name": "Ordre de Conditionnement",

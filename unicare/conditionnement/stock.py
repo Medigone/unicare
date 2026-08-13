@@ -87,7 +87,7 @@ def get_batch_available_qty(item_code, warehouse, batch_no):
 	return flt(qty)
 
 
-def create_stock_entry(purpose, items, company, remarks=None, ordre=None, reception=None):
+def create_stock_entry(purpose, items, company, remarks=None, ordre=None):
 	if not items:
 		frappe.throw(_("Aucun article à mouvementer en stock."))
 
@@ -98,8 +98,6 @@ def create_stock_entry(purpose, items, company, remarks=None, ordre=None, recept
 	se.set_stock_entry_type()
 	if ordre and se.meta.has_field("custom_ordre_conditionnement"):
 		se.custom_ordre_conditionnement = ordre
-	if reception and se.meta.has_field("custom_reception_de_matieres"):
-		se.custom_reception_de_matieres = reception
 
 	for item in items:
 		qty = flt(item.get("qty"))
@@ -116,7 +114,7 @@ def create_stock_entry(purpose, items, company, remarks=None, ordre=None, recept
 		row.s_warehouse = item.get("s_warehouse")
 		row.t_warehouse = item.get("t_warehouse")
 		row.is_finished_item = cint_bool(item.get("is_finished_item"))
-		row.allow_zero_valuation_rate = 1
+		row.allow_zero_valuation_rate = 0 if row.is_finished_item else 1
 		row.use_serial_batch_fields = 1
 		if item.get("batch_no"):
 			row.batch_no = item["batch_no"]

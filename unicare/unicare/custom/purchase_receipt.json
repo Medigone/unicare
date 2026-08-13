@@ -1,0 +1,36 @@
+{
+ "custom_fields": [],
+ "custom_perms": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Magasinier Conditionnement",
+   "share": 0,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Opérateur Conditionnement"
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "read": 1,
+   "role": "Responsable Conditionnement",
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "doctype": "Purchase Receipt",
+ "property_setters": [],
+ "sync_on_migrate": 1
+}
