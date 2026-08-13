@@ -428,7 +428,6 @@ function render_wizard_shell(frm, $host) {
 				<h4>${frappe.utils.escape_html(panel_title(state))}</h4>
 				${panel_hint(state)}
 				${recap_html(frm)}
-				<div class="ordre-wizard-links"></div>
 				<div class="ow-fields ow-main"></div>
 				<div class="ow-html-tables">
 					<div class="ow-table-host" data-table="matieres"></div>
@@ -438,6 +437,10 @@ function render_wizard_shell(frm, $host) {
 				<details class="ordre-wizard-accordion">
 					<summary>${__("Entrepôts")}</summary>
 					<div class="ow-slot ow-warehouses"></div>
+				</details>
+				<details class="ordre-wizard-accordion">
+					<summary>${__("Transferts")}</summary>
+					<div class="ow-slot ow-stock-links"></div>
 				</details>
 				<div class="ordre-wizard-actions"></div>
 			</div>
@@ -549,24 +552,16 @@ function recap_html(frm) {
 
 function fields_for_state(state) {
 	const plan = ["recette", "produit_fini", "nom_produit", "date_prevue", "qty_prevue", "uom", "modele_checklist"];
-	const produce = ["lot_pf", "generer_lot_pf", "stock_entry_preparation"];
-	const close = [
-		"qty_reelle_pf",
-		"qty_rebut",
-		"rendement_reel",
-		"lot_pf",
-		"generer_lot_pf",
-		"stock_entry_preparation",
-		"stock_entry_production",
-		"stock_entry_rebuts",
-	];
 	if (state === "Brouillon") {
 		return plan;
 	}
 	if (state === "Préparé") {
-		return produce;
+		return ["lot_pf", "generer_lot_pf"];
 	}
-	return close;
+	if (state === "En production") {
+		return ["qty_reelle_pf", "qty_rebut", "rendement_reel", "lot_pf", "generer_lot_pf"];
+	}
+	return ["lot_pf"];
 }
 
 function tables_for_state(state) {
@@ -582,6 +577,7 @@ function tables_for_state(state) {
 function place_fields(frm) {
 	const $main = frm.fields_dict.interface_wizard.$wrapper.find(".ow-main");
 	const $wh = frm.fields_dict.interface_wizard.$wrapper.find(".ow-warehouses");
+	const $stock = frm.fields_dict.interface_wizard.$wrapper.find(".ow-stock-links");
 	if (!$main.length) {
 		return;
 	}
@@ -594,8 +590,10 @@ function place_fields(frm) {
 			move_field(frm, fieldname, $wh);
 		}
 	);
+	["stock_entry_preparation", "stock_entry_production", "stock_entry_rebuts"].forEach((fieldname) => {
+		move_field(frm, fieldname, $stock);
+	});
 
-	render_stock_links(frm);
 	render_html_tables(frm);
 }
 
@@ -628,26 +626,6 @@ function restore_fields(frm) {
 			field.$wrapper.appendTo($home);
 		}
 	});
-}
-
-function render_stock_links(frm) {
-	const $links = frm.fields_dict.interface_wizard.$wrapper.find(".ordre-wizard-links");
-	if (!$links.length) {
-		return;
-	}
-	$links.empty();
-	const add = (label, doctype, name) => {
-		if (!name) {
-			return;
-		}
-		const $btn = $(`<button type="button" class="btn btn-sm btn-default"></button>`).text(label);
-		$btn.on("click", () => frappe.set_route("Form", doctype, name));
-		$links.append($btn);
-	};
-	add(__("Transfert préparation"), "Stock Entry", frm.doc.stock_entry_preparation);
-	add(__("Repack production"), "Stock Entry", frm.doc.stock_entry_production);
-	add(__("Transfert rebuts"), "Stock Entry", frm.doc.stock_entry_rebuts);
-	add(__("Lot PF"), "Batch", frm.doc.lot_pf);
 }
 
 function should_show_save(frm) {
