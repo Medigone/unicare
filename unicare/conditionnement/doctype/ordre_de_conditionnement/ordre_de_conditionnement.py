@@ -40,6 +40,7 @@ class OrdredeConditionnement(Document):
 		self.calculate_rendement()
 		self.stamp_step_times()
 		self.validate_quantities()
+		self.validate_planning_fields_locked()
 		self.validate_state()
 
 	def on_update(self):
@@ -122,6 +123,21 @@ class OrdredeConditionnement(Document):
 	def validate_quantities(self):
 		if flt(self.qty_prevue) <= 0:
 			frappe.throw(_("La quantité prévue doit être supérieure à 0."))
+
+	def validate_planning_fields_locked(self):
+		if self.is_new():
+			return
+		state = self.workflow_state or STATUT_BROUILLON
+		if state == STATUT_BROUILLON:
+			return
+		locked = {
+			"date_prevue": _("La date prévue ne peut être modifiée qu'en Brouillon."),
+			"recette": _("La recette ne peut être modifiée qu'en Brouillon."),
+			"qty_prevue": _("La quantité prévue ne peut être modifiée qu'en Brouillon."),
+		}
+		for fieldname, message in locked.items():
+			if self.has_value_changed(fieldname):
+				frappe.throw(message)
 
 	def validate_state(self):
 		previous = self.get_doc_before_save()

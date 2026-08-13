@@ -10,6 +10,7 @@ const WIZARD_STEPS = [
 
 frappe.ui.form.on("Ordre de Conditionnement", {
 	onload(frm) {
+		hide_native_workflow_buttons(frm);
 		if (frm.is_new()) {
 			frappe.db.get_doc("Parametres Conditionnement").then((p) => {
 				if (!frm.doc.warehouse_mp && p.warehouse_mp) {
@@ -33,6 +34,10 @@ frappe.ui.form.on("Ordre de Conditionnement", {
 	refresh(frm) {
 		frm._ow_expect_clean = !frm.doc.__unsaved && !frm.is_new();
 		frm._ow_sync = true;
+		const planning_locked = (frm.doc.workflow_state || "Brouillon") !== "Brouillon";
+		["date_prevue", "recette", "qty_prevue"].forEach((fieldname) => {
+			frm.set_df_property(fieldname, "read_only", planning_locked);
+		});
 		frm.set_query("recette", () => ({
 			filters: {
 				actif: 1,
@@ -424,9 +429,14 @@ function render_wizard_shell(frm, $host) {
 		<div class="ordre-wizard">
 			<div class="ordre-wizard-header">
 				<h3 class="ordre-wizard-title">${frappe.utils.escape_html(product)}</h3>
-				${tech_link}
+				<div class="ordre-wizard-header-right">
+					<div class="ordre-wizard-actions"></div>
+					${tech_link}
+				</div>
 			</div>
-			<ol class="ordre-wizard-steps">${steps}</ol>
+			<div class="ordre-wizard-stepper">
+				<ol class="ordre-wizard-steps">${steps}</ol>
+			</div>
 			<div class="ordre-wizard-panel">
 				<h4>${frappe.utils.escape_html(panel_title(state))}</h4>
 				${panel_hint(state)}
@@ -460,7 +470,6 @@ function render_wizard_shell(frm, $host) {
 						<div class="ow-table-host" data-table="suivi"></div>
 					</div>
 				</div>
-				<div class="ordre-wizard-actions"></div>
 			</div>
 		</div>
 	`);
@@ -568,7 +577,6 @@ function recap_html(frm) {
 	return `<div class="ordre-wizard-recap">
 		<div><span>${__("Quantité prévue")}</span><b>${fmt(frm.doc.qty_prevue)}</b></div>
 		<div><span>${__("Quantité réelle PF")}</span><b>${fmt(frm.doc.qty_reelle_pf)}</b></div>
-		<div><span>${__("Rebuts")}</span><b>${fmt(frm.doc.qty_rebut)}</b></div>
 		<div><span>${__("Rendement")}</span><b>${fmt(frm.doc.rendement_reel)}%</b></div>
 	</div>`;
 }
@@ -582,7 +590,7 @@ function fields_for_state(state) {
 		return [...always, "lot_pf", "generer_lot_pf"];
 	}
 	if (state === "En production") {
-		return [...always, "qty_reelle_pf", "qty_rebut", "rendement_reel", "lot_pf", "generer_lot_pf"];
+		return [...always, "qty_reelle_pf", "rendement_reel", "lot_pf", "generer_lot_pf"];
 	}
 	return [...always, "lot_pf"];
 }
@@ -999,6 +1007,10 @@ function hide_native_workflow_buttons(frm) {
 			this.frm.page.clear_actions_menu();
 			this.frm.page.hide_actions_menu();
 			this.frm.page.btn_primary.addClass("hide");
+			this.frm.page.btn_secondary.addClass("hide");
+			if (this.frm.page.actions_btn_group) {
+				this.frm.page.actions_btn_group.addClass("hide");
+			}
 		};
 	}
 	frm.states.show_actions();

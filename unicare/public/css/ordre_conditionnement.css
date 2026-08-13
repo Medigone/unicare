@@ -1,3 +1,7 @@
+.ordre-wizard-form:not(.tech-mode) .page-head .actions-btn-group {
+	display: none !important;
+}
+
 .ordre-wizard-form:not(.tech-mode) .form-tabs-list,
 .ordre-wizard-form:not(.tech-mode) .form-tabs {
 	display: none !important;
@@ -48,14 +52,15 @@
 	font-family: Inter, "Segoe UI", Arial, sans-serif;
 	color: var(--ow-text);
 	margin: 0 0 1.5rem;
+	padding-top: 0.85rem;
 }
 
 .ordre-wizard-header {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: flex-start;
 	gap: 1rem;
-	margin-bottom: 1.25rem;
+	margin-bottom: 1rem;
 }
 
 .ordre-wizard-title {
@@ -64,8 +69,17 @@
 	font-weight: 600;
 }
 
-.ordre-wizard-header .ordre-wizard-tech {
+.ordre-wizard-header-right {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.5rem;
 	flex-shrink: 0;
+}
+
+.ordre-wizard-header .ordre-wizard-tech {
 	margin: 0;
 }
 
@@ -75,13 +89,21 @@
 	font-size: 0.9rem;
 }
 
+.ordre-wizard-stepper {
+	background: #fff;
+	border: 1px solid var(--ow-border);
+	border-radius: 16px;
+	padding: 1rem 1.1rem 0.9rem;
+	margin: 0 0 1.15rem;
+}
+
 .ordre-wizard-steps {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 0;
 	list-style: none;
 	padding: 0;
-	margin: 0 0 1.35rem;
+	margin: 0;
 	align-items: start;
 }
 
@@ -242,8 +264,9 @@
 .ordre-wizard-actions {
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: flex-end;
 	gap: 0.5rem;
-	margin-top: 1rem;
+	margin: 0;
 }
 
 .ordre-wizard-actions .ow-btn-save {

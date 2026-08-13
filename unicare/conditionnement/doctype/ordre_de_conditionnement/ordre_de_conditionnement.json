@@ -111,6 +111,7 @@
    "label": "Recette",
    "link_filters": "[[\"Recette de Conditionnement\",\"produit_fini\",\"=\",\"eval:doc.produit_fini\"],[\"Recette de Conditionnement\",\"actif\",\"=\",1]]",
    "options": "Recette de Conditionnement",
+   "read_only_depends_on": "eval:doc.workflow_state && doc.workflow_state != \"Brouillon\"",
    "reqd": 1,
    "search_index": 1
   },
@@ -130,14 +131,15 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_in_quick_entry": 1,
    "default": "Today",
    "fieldname": "date_prevue",
    "fieldtype": "Date",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Date pr\u00e9vue",
-   "reqd": 1,
-   "allow_in_quick_entry": 1
+   "read_only_depends_on": "eval:doc.workflow_state && doc.workflow_state != \"Brouillon\"",
+   "reqd": 1
   },
   {
    "default": "Brouillon",
@@ -159,6 +161,7 @@
    "in_list_view": 1,
    "label": "Quantit\u00e9 pr\u00e9vue",
    "non_negative": 1,
+   "read_only_depends_on": "eval:doc.workflow_state && doc.workflow_state != \"Brouillon\"",
    "reqd": 1,
    "allow_in_quick_entry": 1
   },
@@ -419,7 +422,7 @@
  "quick_entry": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-13 18:50:00.000000",
+ "modified": "2026-08-13 19:16:00.000000",
  "modified_by": "Administrator",
  "module": "Conditionnement",
  "name": "Ordre de Conditionnement",
