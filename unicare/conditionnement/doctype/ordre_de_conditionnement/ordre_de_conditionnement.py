@@ -6,7 +6,7 @@ from collections import defaultdict
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, now_datetime, time_diff_in_seconds
 
 from unicare.conditionnement.constants import (
 	STATUT_ANNULE,
@@ -38,6 +38,7 @@ class OrdredeConditionnement(Document):
 		self.apply_checklist()
 		self.calculate_qty_rebut()
 		self.calculate_rendement()
+		self.stamp_step_times()
 		self.validate_quantities()
 		self.validate_state()
 
@@ -95,6 +96,19 @@ class OrdredeConditionnement(Document):
 		self.set("checklist", [])
 		for row in charger_checklist(self.modele_checklist):
 			self.append("checklist", row)
+
+	def stamp_step_times(self, now=None):
+		now = now or now_datetime()
+		if not self.date_heure_planification:
+			self.date_heure_planification = now
+		if self.is_new():
+			return
+		previous = self.get_doc_before_save()
+		old_state = (previous.workflow_state if previous else STATUT_BROUILLON) or STATUT_BROUILLON
+		new_state = self.workflow_state or STATUT_BROUILLON
+		if old_state == new_state:
+			return
+		apply_step_stamps(self, old_state, new_state, now)
 
 	def calculate_qty_rebut(self):
 		self.qty_rebut = sum(flt(row.qty) for row in self.rebuts)
@@ -500,3 +514,35 @@ def _item_lot_key(item_code, batch_no):
 	if item_has_batch(item_code):
 		return (item_code, batch_no or "")
 	return (item_code, "")
+
+
+def _minutes_between(start, end):
+	if not start or not end:
+		return 0
+	return cint(time_diff_in_seconds(end, start) / 60)
+
+
+def apply_step_stamps(doc, old_state, new_state, now):
+	if old_state == new_state:
+		return
+
+	if new_state == STATUT_PREPARE:
+		if not doc.date_heure_preparation:
+			doc.date_heure_preparation = now
+			doc.duree_planification = _minutes_between(doc.date_heure_planification, now)
+	elif new_state == STATUT_EN_PRODUCTION:
+		if not doc.date_heure_production:
+			doc.date_heure_production = now
+			doc.duree_preparation = _minutes_between(doc.date_heure_preparation, now)
+	elif new_state == STATUT_TERMINE:
+		if not doc.date_heure_cloture:
+			doc.date_heure_cloture = now
+			if old_state == STATUT_EN_PRODUCTION:
+				doc.duree_production = _minutes_between(doc.date_heure_production, now)
+			elif old_state == STATUT_PREPARE:
+				doc.duree_preparation = _minutes_between(doc.date_heure_preparation, now)
+			doc.duree_totale = _minutes_between(doc.date_heure_planification, now)
+	elif new_state == STATUT_ANNULE:
+		if not doc.date_heure_annulation:
+			doc.date_heure_annulation = now
+			doc.duree_totale = _minutes_between(doc.date_heure_planification, now)

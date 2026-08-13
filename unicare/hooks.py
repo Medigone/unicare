@@ -265,10 +265,11 @@ doc_events = {
 	},
 }
 
+fixture_auto_order = True
+
 fixtures = [
 	"Wilaya",
 	"Commune",
-	"Custom HTML Block",
 	{
 		"dt": "Role",
 		"filters": [
@@ -302,6 +303,24 @@ fixtures = [
 	{
 		"dt": "Workflow",
 		"filters": [["name", "=", "Ordre de Conditionnement"]],
+	},
+	{
+		"dt": "Custom HTML Block",
+		"filters": [
+			[
+				"name",
+				"in",
+				[
+					"Accueil",
+					"Actions Rapides - Commercial accueil",
+					"Actions Rapides - Conditionnement",
+				],
+			]
+		],
+	},
+	{
+		"dt": "Workspace",
+		"filters": [["name", "=", "Home"]],
 	},
 ]
 

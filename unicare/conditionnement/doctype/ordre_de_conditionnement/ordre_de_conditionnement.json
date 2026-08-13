@@ -48,7 +48,19 @@
   "stock_entry_preparation",
   "column_break_se",
   "stock_entry_production",
-  "stock_entry_rebuts"
+  "stock_entry_rebuts",
+  "suivi_tab",
+  "section_suivi",
+  "date_heure_planification",
+  "date_heure_preparation",
+  "date_heure_production",
+  "date_heure_cloture",
+  "date_heure_annulation",
+  "column_break_suivi",
+  "duree_planification",
+  "duree_preparation",
+  "duree_production",
+  "duree_totale"
  ],
  "fields": [
   {
@@ -325,12 +337,89 @@
    "fieldname": "recette__mati\u00e8res_tab",
    "fieldtype": "Tab Break",
    "label": "Recette / Mati\u00e8res"
+  },
+  {
+   "fieldname": "suivi_tab",
+   "fieldtype": "Tab Break",
+   "label": "Suivi"
+  },
+  {
+   "fieldname": "section_suivi",
+   "fieldtype": "Section Break",
+   "label": "Suivi des \u00e9tapes"
+  },
+  {
+   "fieldname": "date_heure_planification",
+   "fieldtype": "Datetime",
+   "label": "Date / heure planification",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_heure_preparation",
+   "fieldtype": "Datetime",
+   "label": "Date / heure pr\u00e9paration",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_heure_production",
+   "fieldtype": "Datetime",
+   "label": "Date / heure production",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_heure_cloture",
+   "fieldtype": "Datetime",
+   "label": "Date / heure cl\u00f4ture",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_heure_annulation",
+   "fieldtype": "Datetime",
+   "label": "Date / heure annulation",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_suivi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "duree_planification",
+   "fieldtype": "Int",
+   "label": "Dur\u00e9e planification (min)",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "duree_preparation",
+   "fieldtype": "Int",
+   "label": "Dur\u00e9e pr\u00e9paration (min)",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "duree_production",
+   "fieldtype": "Int",
+   "label": "Dur\u00e9e production (min)",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "duree_totale",
+   "fieldtype": "Int",
+   "label": "Dur\u00e9e totale (min)",
+   "non_negative": 1,
+   "read_only": 1
   }
  ],
  "quick_entry": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-13 15:40:00.000000",
+ "modified": "2026-08-13 18:50:00.000000",
  "modified_by": "Administrator",
  "module": "Conditionnement",
  "name": "Ordre de Conditionnement",

@@ -326,6 +326,34 @@
 	margin-bottom: 1rem;
 }
 
+.ow-tabs {
+	display: flex;
+	gap: 0.15rem;
+	margin: 0.25rem 0 1rem;
+	border-bottom: 1px solid var(--ow-border);
+}
+
+.ow-tab {
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -1px;
+	padding: 0.55rem 0.95rem;
+	color: var(--ow-muted);
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+.ow-tab.is-active {
+	color: var(--ow-text);
+	font-weight: 600;
+	border-bottom-color: var(--ow-primary);
+}
+
+.ow-tab-panel[hidden] {
+	display: none !important;
+}
+
 .ow-field .clearfix,
 .ow-field .frappe-control > .form-group > .clearfix,
 .ow-field .control-label {

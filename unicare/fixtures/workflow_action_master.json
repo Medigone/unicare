@@ -1,22 +1,30 @@
 [
-  {
-   "doctype": "Workflow Action Master",
-   "name": "Préparer",
-   "workflow_action_name": "Préparer"
-  },
-  {
-   "doctype": "Workflow Action Master",
-   "name": "Démarrer la production",
-   "workflow_action_name": "Démarrer la production"
-  },
-  {
-   "doctype": "Workflow Action Master",
-   "name": "Clôturer",
-   "workflow_action_name": "Clôturer"
-  },
-  {
-   "doctype": "Workflow Action Master",
-   "name": "Annuler",
-   "workflow_action_name": "Annuler"
-  }
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-08-13 17:56:38.891384",
+  "name": "Préparer",
+  "workflow_action_name": "Préparer"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-08-13 17:56:38.918230",
+  "name": "Démarrer la production",
+  "workflow_action_name": "Démarrer la production"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-08-13 17:56:38.941523",
+  "name": "Clôturer",
+  "workflow_action_name": "Clôturer"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-08-13 17:56:38.966186",
+  "name": "Annuler",
+  "workflow_action_name": "Annuler"
+ }
 ]

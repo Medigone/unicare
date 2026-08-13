@@ -7,6 +7,8 @@ from frappe.utils import cint
 
 from unicare.conditionnement.doctype.ordre_de_conditionnement.ordre_de_conditionnement import (
 	_item_lot_key,
+	_minutes_between,
+	apply_step_stamps,
 )
 from unicare.conditionnement.purchase_receipt_hooks import _ensure_native_batch
 from unicare.conditionnement.stock import item_has_batch
@@ -98,6 +100,44 @@ class TestOrdreDeConditionnement(FrappeTestCase):
 		doc.apply_checklist()
 		self.assertEqual(len(doc.checklist), 1)
 		self.assertEqual(doc.checklist[0].controle, "Déjà là")
+
+	def test_minutes_between_rounds_to_int(self):
+		self.assertEqual(_minutes_between("2026-08-13 10:00:00", "2026-08-13 10:45:00"), 45)
+		self.assertEqual(_minutes_between(None, "2026-08-13 10:00:00"), 0)
+
+	def test_step_stamps_full_cycle(self):
+		doc = frappe._dict(date_heure_planification="2026-08-13 08:00:00")
+
+		apply_step_stamps(doc, "Brouillon", "Préparé", "2026-08-13 08:30:00")
+		self.assertEqual(str(doc.date_heure_preparation), "2026-08-13 08:30:00")
+		self.assertEqual(doc.duree_planification, 30)
+
+		apply_step_stamps(doc, "Préparé", "En production", "2026-08-13 09:10:00")
+		self.assertEqual(str(doc.date_heure_production), "2026-08-13 09:10:00")
+		self.assertEqual(doc.duree_preparation, 40)
+
+		apply_step_stamps(doc, "En production", "Terminé", "2026-08-13 11:10:00")
+		self.assertEqual(str(doc.date_heure_cloture), "2026-08-13 11:10:00")
+		self.assertEqual(doc.duree_production, 120)
+		self.assertEqual(doc.duree_totale, 190)
+
+		apply_step_stamps(doc, "En production", "Terminé", "2026-08-13 12:00:00")
+		self.assertEqual(str(doc.date_heure_cloture), "2026-08-13 11:10:00")
+		self.assertEqual(doc.duree_totale, 190)
+
+	def test_step_stamps_close_from_prepare(self):
+		doc = frappe._dict(date_heure_planification="2026-08-13 08:00:00")
+		apply_step_stamps(doc, "Brouillon", "Préparé", "2026-08-13 08:20:00")
+		apply_step_stamps(doc, "Préparé", "Terminé", "2026-08-13 09:00:00")
+		self.assertEqual(doc.duree_preparation, 40)
+		self.assertFalse(doc.duree_production)
+		self.assertEqual(doc.duree_totale, 60)
+
+	def test_step_stamps_cancel_sets_total(self):
+		doc = frappe._dict(date_heure_planification="2026-08-13 08:00:00")
+		apply_step_stamps(doc, "Brouillon", "Annulé", "2026-08-13 08:15:00")
+		self.assertEqual(str(doc.date_heure_annulation), "2026-08-13 08:15:00")
+		self.assertEqual(doc.duree_totale, 15)
 
 
 class TestPurchaseReceiptBatches(FrappeTestCase):

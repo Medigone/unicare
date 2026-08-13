@@ -433,17 +433,32 @@ function render_wizard_shell(frm, $host) {
 				${recap_html(frm)}
 				<div class="ow-fields ow-main"></div>
 				<div class="ow-html-tables">
-					<div class="ow-table-host" data-table="matieres"></div>
-					<div class="ow-table-host" data-table="checklist"></div>
-					<div class="ow-table-host" data-table="rebuts"></div>
-				</div>
-				<div class="ow-section">
-					<h5>${__("Entrepôts")}</h5>
-					<div class="ow-fields ow-warehouses"></div>
-				</div>
-				<div class="ow-section ow-section-transferts">
-					<h5>${__("Transferts")}</h5>
-					<div class="ow-stock-links"></div>
+					<div class="ow-tabs">
+						<button type="button" class="ow-tab is-active" data-tab="production">${__("Matières")}</button>
+						<button type="button" class="ow-tab" data-tab="checklist">${__("Checklist")}</button>
+						<button type="button" class="ow-tab" data-tab="rebuts">${__("Rebuts")}</button>
+						<button type="button" class="ow-tab" data-tab="warehouses">${__("Entrepôts")}</button>
+						<button type="button" class="ow-tab" data-tab="transfers">${__("Transferts")}</button>
+						<button type="button" class="ow-tab" data-tab="suivi">${__("Suivi")}</button>
+					</div>
+					<div class="ow-tab-panel" data-tab="production">
+						<div class="ow-table-host" data-table="matieres"></div>
+					</div>
+					<div class="ow-tab-panel" data-tab="checklist" hidden>
+						<div class="ow-table-host" data-table="checklist"></div>
+					</div>
+					<div class="ow-tab-panel" data-tab="rebuts" hidden>
+						<div class="ow-table-host" data-table="rebuts"></div>
+					</div>
+					<div class="ow-tab-panel" data-tab="warehouses" hidden>
+						<div class="ow-fields ow-warehouses"></div>
+					</div>
+					<div class="ow-tab-panel" data-tab="transfers" hidden>
+						<div class="ow-stock-links"></div>
+					</div>
+					<div class="ow-tab-panel" data-tab="suivi" hidden>
+						<div class="ow-table-host" data-table="suivi"></div>
+					</div>
 				</div>
 				<div class="ordre-wizard-actions"></div>
 			</div>
@@ -455,6 +470,7 @@ function render_wizard_shell(frm, $host) {
 		frm._ordre_tech_mode = true;
 		setup_wizard(frm);
 	});
+	bind_table_tabs(frm, $host);
 }
 
 function render_tech_toggle(frm, $host) {
@@ -558,27 +574,21 @@ function recap_html(frm) {
 }
 
 function fields_for_state(state) {
-	const plan = ["recette", "produit_fini", "nom_produit", "date_prevue", "qty_prevue", "uom", "modele_checklist"];
+	const always = ["produit_fini", "nom_produit", "date_prevue", "modele_checklist"];
 	if (state === "Brouillon") {
-		return plan;
+		return [...always, "recette", "qty_prevue", "uom"];
 	}
 	if (state === "Préparé") {
-		return ["lot_pf", "generer_lot_pf"];
+		return [...always, "lot_pf", "generer_lot_pf"];
 	}
 	if (state === "En production") {
-		return ["qty_reelle_pf", "qty_rebut", "rendement_reel", "lot_pf", "generer_lot_pf"];
+		return [...always, "qty_reelle_pf", "qty_rebut", "rendement_reel", "lot_pf", "generer_lot_pf"];
 	}
-	return ["lot_pf"];
+	return [...always, "lot_pf"];
 }
 
-function tables_for_state(state) {
-	if (state === "Brouillon") {
-		return ["matieres", "checklist"];
-	}
-	if (state === "Préparé") {
-		return ["matieres"];
-	}
-	return ["matieres", "rebuts"];
+function tables_for_state(_state) {
+	return ["matieres", "checklist", "rebuts"];
 }
 
 function place_fields(frm) {
@@ -598,6 +608,7 @@ function place_fields(frm) {
 	);
 	render_stock_links(frm);
 	render_html_tables(frm);
+	render_suivi_html(frm);
 }
 
 function move_field(frm, fieldname, $target) {
@@ -633,7 +644,6 @@ function restore_fields(frm) {
 
 function render_stock_links(frm) {
 	const $slot = frm.fields_dict.interface_wizard.$wrapper.find(".ow-stock-links");
-	const $section = frm.fields_dict.interface_wizard.$wrapper.find(".ow-section-transferts");
 	if (!$slot.length) {
 		return;
 	}
@@ -654,11 +664,6 @@ function render_stock_links(frm) {
 			name: frm.doc.stock_entry_rebuts,
 		},
 	];
-	if (!items.some((item) => item.name)) {
-		$section.hide();
-		return;
-	}
-	$section.show();
 	$slot.empty();
 	items.forEach((item) => {
 		if (!item.name) {
@@ -678,6 +683,76 @@ function render_stock_links(frm) {
 		});
 		$slot.append($card);
 	});
+}
+
+function render_suivi_html(frm) {
+	const $slot = frm.fields_dict.interface_wizard.$wrapper.find('.ow-table-host[data-table="suivi"]');
+	if (!$slot.length) {
+		return;
+	}
+	const fmt_dt = (value) => (value ? frappe.datetime.str_to_user(value) : "—");
+	const fmt_min = (value) => (value == null || value === "" ? "—" : value);
+	const rows = [
+		{
+			label: __("Planifier"),
+			dt: frm.doc.date_heure_planification,
+			duree: frm.doc.duree_planification,
+		},
+		{
+			label: __("Préparer"),
+			dt: frm.doc.date_heure_preparation,
+			duree: frm.doc.duree_preparation,
+		},
+		{
+			label: __("Produire"),
+			dt: frm.doc.date_heure_production,
+			duree: frm.doc.duree_production,
+		},
+		{
+			label: __("Clôturer"),
+			dt: frm.doc.date_heure_cloture,
+			duree: "",
+		},
+	];
+	if (frm.doc.workflow_state === "Annulé" || frm.doc.date_heure_annulation) {
+		rows.push({
+			label: __("Annulation"),
+			dt: frm.doc.date_heure_annulation,
+			duree: "",
+		});
+	}
+	const body = rows
+		.map(
+			(row) => `<tr>
+			<td>${frappe.utils.escape_html(row.label)}</td>
+			<td>${frappe.utils.escape_html(fmt_dt(row.dt))}</td>
+			<td>${fmt_min(row.duree)}</td>
+		</tr>`
+		)
+		.join("");
+	$slot.html(`
+		<div class="ow-table-block">
+			<div class="ow-table-scroll">
+				<table class="ow-table">
+					<thead>
+						<tr>
+							<th>${__("Étape")}</th>
+							<th>${__("Date / heure")}</th>
+							<th>${__("Durée (min)")}</th>
+						</tr>
+					</thead>
+					<tbody>
+						${body}
+						<tr>
+							<td><b>${__("Total")}</b></td>
+							<td>—</td>
+							<td><b>${fmt_min(frm.doc.duree_totale)}</b></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	`);
 }
 
 function should_show_save(frm) {
@@ -735,7 +810,7 @@ function render_actions(frm) {
 	bind_save_visibility(frm);
 
 	if (frm.is_new() && state === "Brouillon") {
-		add_btn(__("Préparer"), "btn-primary", () => run_workflow(frm, "Préparer"));
+		add_btn(__("Préparer"), "btn-primary", () => handle_workflow_action(frm, "Préparer"));
 	}
 
 	const paint_transitions = (transitions) => {
@@ -756,11 +831,11 @@ function render_actions(frm) {
 		frappe.workflow.get_transitions(frm.doc).then(paint_transitions);
 	} else if (!frm.is_new()) {
 		if (state === "Brouillon") {
-			add_btn(__("Préparer"), "btn-primary", () => run_workflow(frm, "Préparer"));
+			add_btn(__("Préparer"), "btn-primary", () => handle_workflow_action(frm, "Préparer"));
 		}
 		if (state === "Préparé") {
 			add_btn(__("Démarrer la production"), "btn-primary", () =>
-				run_workflow(frm, "Démarrer la production")
+				handle_workflow_action(frm, "Démarrer la production")
 			);
 		}
 		if (state === "En production") {
@@ -775,18 +850,28 @@ function render_actions(frm) {
 	}
 }
 
-function handle_workflow_action(frm, action) {
-	if (action === "Annuler") {
-		frappe.confirm(__("Annuler cet ordre et les écritures de stock liées ?"), () =>
-			run_workflow(frm, action)
-		);
-		return;
+function workflow_confirm_message(action) {
+	if (action === "Préparer") {
+		return __("Passer l'ordre en Préparé ? Les matières seront transférées vers l'atelier.");
 	}
+	if (action === "Démarrer la production") {
+		return __("Démarrer la production ?");
+	}
+	if (action === "Clôturer") {
+		return __("Clôturer cet ordre et générer les écritures de stock ?");
+	}
+	if (action === "Annuler") {
+		return __("Annuler cet ordre et les écritures de stock liées ?");
+	}
+	return __("Confirmer le passage à l'étape « {0} » ?", [action]);
+}
+
+function handle_workflow_action(frm, action) {
 	if (action === "Clôturer") {
 		prompt_cloture(frm);
 		return;
 	}
-	run_workflow(frm, action);
+	frappe.confirm(workflow_confirm_message(action), () => run_workflow(frm, action));
 }
 
 function prompt_cloture(frm) {
@@ -855,10 +940,7 @@ function apply_cloture_quantities(frm, values) {
 
 function confirm_empty_rebuts(frm, qty_rebut) {
 	const has_rebuts = (frm.doc.rebuts || []).some((row) => flt(row.qty) > 0);
-	if (has_rebuts) {
-		return run_workflow(frm, "Clôturer");
-	}
-	if (flt(qty_rebut) > 0) {
+	if (flt(qty_rebut) > 0 && !has_rebuts) {
 		frappe.msgprint({
 			title: __("Rebuts manquants"),
 			indicator: "orange",
@@ -869,9 +951,11 @@ function confirm_empty_rebuts(frm, qty_rebut) {
 		});
 		return;
 	}
-	frappe.confirm(__("La table des rebuts est vide. Confirmez-vous qu'il n'y a aucun rebut ?"), () =>
-		run_workflow(frm, "Clôturer")
-	);
+	let message = workflow_confirm_message("Clôturer");
+	if (!has_rebuts) {
+		message += "<br><br>" + __("La table des rebuts est vide. Confirmez-vous qu'il n'y a aucun rebut ?");
+	}
+	frappe.confirm(message, () => run_workflow(frm, "Clôturer"));
 }
 
 function run_workflow(frm, action) {
@@ -952,6 +1036,21 @@ function render_html_tables(frm) {
 			render_rebuts_html(frm, $slot);
 		}
 	});
+}
+
+function bind_table_tabs(frm, $host) {
+	const activate = (name) => {
+		frm._ow_table_tab = name;
+		$host.find(".ow-tab").removeClass("is-active");
+		$host.find(`.ow-tab[data-tab="${name}"]`).addClass("is-active");
+		$host.find(".ow-tab-panel").each(function () {
+			this.hidden = this.dataset.tab !== name;
+		});
+	};
+	$host.find(".ow-tab").on("click", function () {
+		activate(this.dataset.tab);
+	});
+	activate(frm._ow_table_tab || "production");
 }
 
 function wizard_readonly(frm) {
@@ -1235,19 +1334,24 @@ function render_checklist_html(frm, $slot) {
 				: cint(row.conforme)
 				? __("Oui")
 				: __("Non");
+			const observation = can_edit
+				? `<input type="text" class="form-control input-xs ow-obs" data-name="${row.name}" value="${frappe.utils.escape_html(
+						row.observation || ""
+				  )}">`
+				: frappe.utils.escape_html(row.observation || "—");
 			return `<tr class="ow-row" data-name="${row.name}">
 				<td>${frappe.utils.escape_html(row.controle || "")}</td>
 				<td>${cint(row.obligatoire) ? __("Oui") : __("Non")}</td>
 				<td>${check}</td>
 				<td>${frappe.utils.escape_html(row.controle_par || "")}</td>
 				<td>${row.date_heure || ""}</td>
+				<td>${observation}</td>
 			</tr>`;
 		})
 		.join("");
 
 	$slot.html(`
 		<div class="ow-table-block">
-			<h5>${__("Checklist")}</h5>
 			<div class="ow-table-scroll">
 				<table class="ow-table">
 					<thead>
@@ -1257,9 +1361,10 @@ function render_checklist_html(frm, $slot) {
 							<th>${__("Conforme")}</th>
 							<th>${__("Contrôlé par")}</th>
 							<th>${__("Date / heure")}</th>
+							<th>${__("Observation")}</th>
 						</tr>
 					</thead>
-					<tbody>${body || `<tr><td colspan="5">${__("Aucune ligne")}</td></tr>`}</tbody>
+					<tbody>${body || `<tr><td colspan="6">${__("Aucune ligne")}</td></tr>`}</tbody>
 				</table>
 			</div>
 		</div>
@@ -1275,6 +1380,10 @@ function render_checklist_html(frm, $slot) {
 			frappe.model.set_value("Checklist Preparation", name, "date_heure", frappe.datetime.now_datetime());
 		}
 		render_html_tables(frm);
+	});
+	$slot.find(".ow-obs").on("change", function () {
+		frm._ow_expect_clean = false;
+		frappe.model.set_value("Checklist Preparation", this.dataset.name, "observation", this.value);
 	});
 }
 
@@ -1304,7 +1413,6 @@ function render_rebuts_html(frm, $slot) {
 
 	$slot.html(`
 		<div class="ow-table-block">
-			<h5>${__("Rebuts")}</h5>
 			<div class="ow-table-scroll">
 				<table class="ow-table">
 					<thead>
