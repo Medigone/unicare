@@ -1,22 +1,19 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-08-12 18:00:00.000000",
+ "creation": "2026-08-14 17:20:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "item_code",
   "item_name",
-  "type_ingredient",
   "has_batch_no",
-  "qty_theorique",
-  "qty_reelle",
-  "qty_complement",
+  "qty",
   "uom",
-  "batch_no",
   "warehouse",
-  "stock_disponible"
+  "batch_no",
+  "stock_entry"
  ],
  "fields": [
   {
@@ -31,15 +28,8 @@
    "fetch_from": "item_code.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
-   "label": "Nom",
-   "read_only": 1
-  },
-  {
-   "fieldname": "type_ingredient",
-   "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Type",
-   "options": "Fût\nConditionnement",
+   "label": "Nom",
    "read_only": 1
   },
   {
@@ -52,34 +42,28 @@
    "read_only": 1
   },
   {
-   "fieldname": "qty_theorique",
+   "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Qté théorique",
-   "non_negative": 1
-  },
-  {
-   "fieldname": "qty_reelle",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Qté réelle",
-   "non_negative": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "qty_complement",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Qté complément",
+   "label": "Quantité",
    "non_negative": 1,
-   "read_only": 1
+   "reqd": 1
   },
   {
+   "fetch_from": "item_code.stock_uom",
    "fieldname": "uom",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Unité",
    "options": "UOM"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Magasin source",
+   "options": "Warehouse",
+   "reqd": 1
   },
   {
    "depends_on": "eval:doc.has_batch_no",
@@ -90,18 +74,11 @@
    "options": "Batch"
   },
   {
-   "fieldname": "warehouse",
+   "fieldname": "stock_entry",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Magasin source",
-   "options": "Warehouse"
-  },
-  {
-   "columns": 1,
-   "fieldname": "stock_disponible",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Stock dispo",
+   "label": "Transfert",
+   "no_copy": 1,
+   "options": "Stock Entry",
    "read_only": 1
   }
  ],
@@ -110,7 +87,7 @@
  "modified": "2026-08-14 17:20:00.000000",
  "modified_by": "Administrator",
  "module": "Conditionnement",
- "name": "Matiere Ordre Conditionnement",
+ "name": "Complement Ordre Conditionnement",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

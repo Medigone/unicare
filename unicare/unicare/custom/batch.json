@@ -54,6 +54,17 @@
    "module": "Conditionnement",
    "name": "Batch-custom_ordre_conditionnement",
    "options": "Ordre de Conditionnement"
+  },
+  {
+   "dt": "Batch",
+   "fieldname": "custom_qty_produite",
+   "fieldtype": "Float",
+   "insert_after": "custom_ordre_conditionnement",
+   "is_system_generated": 0,
+   "label": "Quantité produite",
+   "module": "Conditionnement",
+   "name": "Batch-custom_qty_produite",
+   "read_only": 1
   }
  ],
  "custom_perms": [

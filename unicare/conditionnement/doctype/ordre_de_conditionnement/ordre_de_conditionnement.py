@@ -21,6 +21,7 @@ from unicare.conditionnement.stock import (
 	ensure_batch,
 	get_batch_available_qty,
 	get_company,
+	get_lots_fournisseur_from_matieres,
 	get_parametres,
 	item_has_batch,
 	make_fg_batch_name,
@@ -37,6 +38,7 @@ class OrdredeConditionnement(Document):
 		self.set_defaults()
 		self.apply_checklist()
 		self.calculate_qty_rebut()
+		self.calculate_qty_complement()
 		self.calculate_rendement()
 		self.stamp_step_times()
 		self.validate_quantities()
@@ -113,6 +115,13 @@ class OrdredeConditionnement(Document):
 
 	def calculate_qty_rebut(self):
 		self.qty_rebut = sum(flt(row.qty) for row in self.rebuts)
+
+	def calculate_qty_complement(self):
+		totals = defaultdict(float)
+		for row in self.complements:
+			totals[_item_lot_key(row.item_code, row.batch_no)] += flt(row.qty)
+		for row in self.matieres:
+			row.qty_complement = totals.get(_item_lot_key(row.item_code, row.batch_no), 0)
 
 	def calculate_rendement(self):
 		if flt(self.qty_prevue) > 0 and flt(self.qty_reelle_pf) > 0:
@@ -269,6 +278,10 @@ class OrdredeConditionnement(Document):
 			prepared[key] += flt(row.qty_theorique)
 			consumed[key] += flt(row.qty_reelle)
 
+		for row in self.complements:
+			key = _item_lot_key(row.item_code, row.batch_no)
+			prepared[key] += flt(row.qty)
+
 		scrap = defaultdict(float)
 		for row in self.rebuts:
 			key = _item_lot_key(row.item_code, row.batch_no)
@@ -279,11 +292,12 @@ class OrdredeConditionnement(Document):
 			item_code, batch_no = key
 			used = consumed.get(key, 0) + scrap.get(key, 0)
 			label = f"{item_code} / {batch_no}" if batch_no else item_code
-			if used > prepared.get(key, 0) + 0.0001:
+			available_prepared = prepared.get(key, 0)
+			if used > available_prepared + 0.0001:
 				frappe.throw(
 					_(
-						"Quantité consommée + rebut ({0}) supérieure à la quantité préparée ({1}) pour {2}."
-					).format(used, prepared.get(key, 0), label)
+						"Quantité consommée + rebut ({0}) supérieure à la quantité préparée + compléments ({1}) pour {2}. Utilisez « Complément de matières » pour transférer le manque depuis le magasin."
+					).format(used, available_prepared, label)
 				)
 
 			if not self.warehouse_atelier or used <= 0:
@@ -358,12 +372,16 @@ class OrdredeConditionnement(Document):
 		if self.stock_entry_production:
 			return
 
+		lot_fournisseur = get_lots_fournisseur_from_matieres(self.matieres)
+		qty_produite = flt(self.qty_reelle_pf)
 		if not self.lot_pf:
 			lot_pf = ensure_batch(
 				item_code=self.produit_fini,
 				batch_no=make_fg_batch_name(self.produit_fini),
+				lot_fournisseur=lot_fournisseur,
 				origine="Production",
 				ordre=self.name,
+				qty_produite=qty_produite,
 			)
 			self.db_set("lot_pf", lot_pf)
 			self.lot_pf = lot_pf
@@ -371,8 +389,10 @@ class OrdredeConditionnement(Document):
 			ensure_batch(
 				item_code=self.produit_fini,
 				batch_no=self.lot_pf,
+				lot_fournisseur=lot_fournisseur,
 				origine="Production",
 				ordre=self.name,
+				qty_produite=qty_produite,
 			)
 
 		items = []
@@ -435,11 +455,130 @@ class OrdredeConditionnement(Document):
 		self.db_set("stock_entry_rebuts", se.name)
 
 	def cancel_linked_stock_entries(self):
-		for field in ("stock_entry_rebuts", "stock_entry_production", "stock_entry_preparation"):
+		for field in ("stock_entry_rebuts", "stock_entry_production"):
 			se_name = self.get(field)
 			if se_name:
 				cancel_stock_entry(se_name)
 				self.db_set(field, None)
+
+		for row in self.complements:
+			if row.stock_entry:
+				cancel_stock_entry(row.stock_entry)
+				row.db_set("stock_entry", None)
+
+		if self.stock_entry_preparation:
+			cancel_stock_entry(self.stock_entry_preparation)
+			self.db_set("stock_entry_preparation", None)
+
+	def add_complement(self, item_code, qty, warehouse=None, batch_no=None):
+		state = self.workflow_state or STATUT_BROUILLON
+		if state not in (STATUT_PREPARE, STATUT_EN_PRODUCTION):
+			frappe.throw(
+				_("Un complément n'est possible qu'en Préparé ou En production (état actuel : {0}).").format(
+					state
+				)
+			)
+		if not self.stock_entry_preparation:
+			frappe.throw(_("La préparation doit être validée avant d'ajouter un complément."))
+		if not self.warehouse_atelier:
+			frappe.throw(_("Renseignez l'entrepôt atelier."))
+
+		qty = flt(qty)
+		if qty <= 0:
+			frappe.throw(_("La quantité du complément doit être supérieure à 0."))
+		if not item_code:
+			frappe.throw(_("Sélectionnez un article."))
+
+		matiere_rows = [row for row in self.matieres if row.item_code == item_code]
+		if not matiere_rows:
+			frappe.throw(
+				_("Le complément {0} doit correspondre à une matière de l'ordre.").format(item_code)
+			)
+
+		template = matiere_rows[0]
+		fallback_warehouse = (
+			self.warehouse_mp if template.type_ingredient == "Fût" else self.warehouse_conditionnement
+		)
+		warehouse = warehouse or template.warehouse or fallback_warehouse
+		if not warehouse:
+			frappe.throw(_("Indiquez le magasin source pour {0}.").format(item_code))
+
+		if item_has_batch(item_code) and not batch_no:
+			frappe.throw(_("Indiquez le lot pour {0}.").format(item_code))
+
+		available = get_stock_disponible(item_code, warehouse, batch_no if item_has_batch(item_code) else None)
+		if available + 0.0001 < qty:
+			label = f"{item_code} / {batch_no}" if batch_no else item_code
+			frappe.throw(
+				_("Stock insuffisant pour {0} : {1} disponible, {2} requis.").format(label, available, qty)
+			)
+
+		se = create_stock_entry(
+			purpose="Material Transfer",
+			items=[
+				{
+					"item_code": item_code,
+					"qty": qty,
+					"uom": template.uom,
+					"s_warehouse": warehouse,
+					"t_warehouse": self.warehouse_atelier,
+					"batch_no": batch_no if item_has_batch(item_code) else None,
+				}
+			],
+			company=get_company(),
+			remarks=_("Complément {0}").format(self.name),
+			ordre=self.name,
+		)
+
+		matched = _find_matiere_row(self, item_code, batch_no)
+		if not matched:
+			self.append(
+				"matieres",
+				{
+					"item_code": item_code,
+					"item_name": template.item_name,
+					"type_ingredient": template.type_ingredient,
+					"has_batch_no": template.has_batch_no,
+					"qty_theorique": 0,
+					"qty_reelle": qty,
+					"uom": template.uom,
+					"warehouse": warehouse,
+					"batch_no": batch_no if item_has_batch(item_code) else None,
+				},
+			)
+
+		self.append(
+			"complements",
+			{
+				"item_code": item_code,
+				"item_name": template.item_name,
+				"has_batch_no": template.has_batch_no,
+				"qty": qty,
+				"uom": template.uom,
+				"warehouse": warehouse,
+				"batch_no": batch_no if item_has_batch(item_code) else None,
+				"stock_entry": se.name,
+			},
+		)
+		self.calculate_qty_complement()
+		self.flags.ignore_stock_events = True
+		try:
+			self.save()
+		except Exception:
+			cancel_stock_entry(se.name)
+			raise
+		return se
+
+
+@frappe.whitelist()
+def ajouter_complement(ordre, item_code, qty, warehouse=None, batch_no=None):
+	if not ordre:
+		frappe.throw(_("Ordre manquant."))
+
+	doc = frappe.get_doc("Ordre de Conditionnement", ordre)
+	doc.check_permission("write")
+	se = doc.add_complement(item_code, qty, warehouse=warehouse, batch_no=batch_no)
+	return se.name
 
 
 @frappe.whitelist()
@@ -508,10 +647,16 @@ def generer_lot_pf(produit_fini, ordre=None):
 	if not item_has_batch(produit_fini):
 		frappe.throw(_("L'article {0} n'est pas suivi par lot.").format(produit_fini))
 
+	lot_fournisseur = None
+	if ordre and frappe.db.exists("Ordre de Conditionnement", ordre):
+		oc = frappe.get_doc("Ordre de Conditionnement", ordre)
+		lot_fournisseur = get_lots_fournisseur_from_matieres(oc.matieres)
+
 	batch_no = make_fg_batch_name(produit_fini)
 	return ensure_batch(
 		item_code=produit_fini,
 		batch_no=batch_no,
+		lot_fournisseur=lot_fournisseur,
 		origine="Production",
 		ordre=ordre,
 	)
@@ -530,6 +675,17 @@ def _item_lot_key(item_code, batch_no):
 	if item_has_batch(item_code):
 		return (item_code, batch_no or "")
 	return (item_code, "")
+
+
+def _find_matiere_row(doc, item_code, batch_no=None):
+	has_batch = item_has_batch(item_code)
+	for row in doc.matieres:
+		if row.item_code != item_code:
+			continue
+		if has_batch and (row.batch_no or "") != (batch_no or ""):
+			continue
+		return row
+	return None
 
 
 def _minutes_between(start, end):

@@ -40,11 +40,25 @@ def ensure_batch(
 	lot_fournisseur=None,
 	origine=None,
 	ordre=None,
+	qty_produite=None,
 ):
 	if not batch_no:
 		batch_no = make_autoname("LOT-.YYYY.-.#####")
 
+	values = {
+		"expiry_date": expiry_date,
+		"manufacturing_date": manufacturing_date or nowdate(),
+		"supplier": supplier,
+		"lot_fournisseur": lot_fournisseur,
+		"origine": origine,
+		"ordre": ordre,
+		"qty_produite": qty_produite,
+	}
+
 	if frappe.db.exists("Batch", batch_no):
+		if not manufacturing_date:
+			values["manufacturing_date"] = None
+		_fill_batch_metadata(batch_no, **values)
 		return batch_no
 
 	doc = frappe.get_doc(
@@ -53,20 +67,69 @@ def ensure_batch(
 			"batch_id": batch_no,
 			"item": item_code,
 			"expiry_date": expiry_date,
-			"manufacturing_date": manufacturing_date or nowdate(),
+			"manufacturing_date": values["manufacturing_date"],
 			"supplier": supplier,
 		}
 	)
-	if doc.meta.has_field("custom_date_fabrication"):
-		doc.custom_date_fabrication = manufacturing_date or nowdate()
-	if doc.meta.has_field("custom_lot_fournisseur"):
-		doc.custom_lot_fournisseur = lot_fournisseur
-	if doc.meta.has_field("custom_origine"):
-		doc.custom_origine = origine
-	if doc.meta.has_field("custom_ordre_conditionnement"):
-		doc.custom_ordre_conditionnement = ordre
+	_set_batch_metadata(doc, **values)
 	doc.insert(ignore_permissions=True)
 	return doc.name
+
+
+def _fill_batch_metadata(batch_no, **values):
+	doc = frappe.get_doc("Batch", batch_no)
+	if _set_batch_metadata(doc, **values):
+		doc.db_update()
+
+
+def _set_batch_metadata(
+	doc,
+	expiry_date=None,
+	manufacturing_date=None,
+	supplier=None,
+	lot_fournisseur=None,
+	origine=None,
+	ordre=None,
+	qty_produite=None,
+):
+	changed = False
+
+	def set_if_empty(fieldname, value, custom=False):
+		nonlocal changed
+		if not value:
+			return
+		if custom and not doc.meta.has_field(fieldname):
+			return
+		if doc.get(fieldname):
+			return
+		doc.set(fieldname, value)
+		changed = True
+
+	set_if_empty("expiry_date", expiry_date)
+	set_if_empty("manufacturing_date", manufacturing_date)
+	set_if_empty("supplier", supplier)
+	set_if_empty("custom_date_fabrication", manufacturing_date, custom=True)
+	set_if_empty("custom_lot_fournisseur", lot_fournisseur, custom=True)
+	set_if_empty("custom_origine", origine, custom=True)
+	set_if_empty("custom_ordre_conditionnement", ordre, custom=True)
+	set_if_empty("custom_qty_produite", qty_produite, custom=True)
+	return changed
+
+
+def get_lots_fournisseur_from_matieres(matieres):
+	lots = []
+	seen = set()
+	for row in matieres or []:
+		if getattr(row, "type_ingredient", None) != "Fût":
+			continue
+		batch_no = getattr(row, "batch_no", None)
+		if not batch_no:
+			continue
+		lot = frappe.db.get_value("Batch", batch_no, "custom_lot_fournisseur") or batch_no
+		if lot not in seen:
+			seen.add(lot)
+			lots.append(lot)
+	return ", ".join(lots) or None
 
 
 def make_fg_batch_name(item_code):

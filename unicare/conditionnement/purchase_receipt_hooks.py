@@ -47,14 +47,12 @@ def _default_warehouse(item_type, parametres):
 
 def _ensure_native_batch(row, supplier):
 	existing_item = frappe.db.get_value("Batch", row.batch_no, "item")
-	if existing_item:
-		if existing_item != row.item_code:
-			frappe.throw(
-				_("Le lot {0} appartient à l'article {1}, pas à {2}.").format(
-					row.batch_no, existing_item, row.item_code
-				)
+	if existing_item and existing_item != row.item_code:
+		frappe.throw(
+			_("Le lot {0} appartient à l'article {1}, pas à {2}.").format(
+				row.batch_no, existing_item, row.item_code
 			)
-		return
+		)
 
 	ensure_batch(
 		item_code=row.item_code,

@@ -3,7 +3,7 @@
  "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format:REC-{produit_fini}-{#####}",
- "creation": "2026-08-12 18:00:00.000000",
+ "creation": "2026-08-12 18:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -17,7 +17,8 @@
   "column_break_qty",
   "rendement_theorique",
   "section_ingredients",
-  "ingredients"
+  "ingredients",
+  "connections_tab"
  ],
  "fields": [
   {
@@ -52,15 +53,15 @@
   {
    "fieldname": "section_quantites",
    "fieldtype": "Section Break",
-   "label": "Quantités"
+   "label": "Quantit\u00e9s"
   },
   {
    "default": "1",
-   "description": "Quantité de produit fini à laquelle les ingrédients sont exprimés (ex. 1000 bouteilles).",
+   "description": "Quantit\u00e9 de produit fini \u00e0 laquelle les ingr\u00e9dients sont exprim\u00e9s (ex. 1000 bouteilles).",
    "fieldname": "quantite_base",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Quantité de base",
+   "label": "Quantit\u00e9 de base",
    "non_negative": 1,
    "reqd": 1
   },
@@ -68,7 +69,7 @@
    "fetch_from": "produit_fini.stock_uom",
    "fieldname": "uom",
    "fieldtype": "Link",
-   "label": "Unité",
+   "label": "Unit\u00e9",
    "options": "UOM",
    "reqd": 1
   },
@@ -80,19 +81,25 @@
    "default": "100",
    "fieldname": "rendement_theorique",
    "fieldtype": "Percent",
-   "label": "Rendement théorique (%)"
+   "label": "Rendement th\u00e9orique (%)"
   },
   {
    "fieldname": "section_ingredients",
    "fieldtype": "Section Break",
-   "label": "Ingrédients"
+   "label": "Ingr\u00e9dients"
   },
   {
    "fieldname": "ingredients",
    "fieldtype": "Table",
-   "label": "Ingrédients",
+   "label": "Ingr\u00e9dients",
    "options": "Ingredient Recette",
    "reqd": 1
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections",
+   "show_dashboard": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -102,7 +109,7 @@
    "link_fieldname": "recette"
   }
  ],
- "modified": "2026-08-12 18:00:00.000000",
+ "modified": "2026-08-14 23:26:21.455047",
  "modified_by": "Administrator",
  "module": "Conditionnement",
  "name": "Recette de Conditionnement",
@@ -127,7 +134,7 @@
   },
   {
    "read": 1,
-   "role": "Opérateur Conditionnement"
+   "role": "Op\u00e9rateur Conditionnement"
   },
   {
    "create": 1,
@@ -137,6 +144,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "search_fields": "produit_fini,nom_produit",
  "sort_field": "modified",
  "sort_order": "DESC",

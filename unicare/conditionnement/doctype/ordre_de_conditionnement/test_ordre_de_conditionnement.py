@@ -11,7 +11,7 @@ from unicare.conditionnement.doctype.ordre_de_conditionnement.ordre_de_condition
 	apply_step_stamps,
 )
 from unicare.conditionnement.purchase_receipt_hooks import _ensure_native_batch
-from unicare.conditionnement.stock import item_has_batch
+from unicare.conditionnement.stock import ensure_batch, get_lots_fournisseur_from_matieres, item_has_batch
 
 
 def _first_value(doctype, field="name"):
@@ -46,6 +46,59 @@ class TestOrdreDeConditionnement(FrappeTestCase):
 		doc.calculate_qty_rebut()
 		self.assertEqual(doc.qty_rebut, 4)
 
+	def test_lots_fournisseur_from_fut_matieres(self):
+		doc = frappe.new_doc("Ordre de Conditionnement")
+		doc.append(
+			"matieres",
+			{"item_code": "FU-1", "type_ingredient": "Fût", "batch_no": "FS-AAA"},
+		)
+		doc.append(
+			"matieres",
+			{"item_code": "CO-1", "type_ingredient": "Conditionnement", "batch_no": None},
+		)
+		self.assertEqual(get_lots_fournisseur_from_matieres(doc.matieres), "FS-AAA")
+
+	def test_lots_fournisseur_joins_distinct_fut_lots(self):
+		doc = frappe.new_doc("Ordre de Conditionnement")
+		doc.append("matieres", {"item_code": "FU-1", "type_ingredient": "Fût", "batch_no": "FS-A"})
+		doc.append("matieres", {"item_code": "FU-1", "type_ingredient": "Fût", "batch_no": "FS-B"})
+		doc.append("matieres", {"item_code": "FU-1", "type_ingredient": "Fût", "batch_no": "FS-A"})
+		self.assertEqual(get_lots_fournisseur_from_matieres(doc.matieres), "FS-A, FS-B")
+
+	def test_ensure_batch_fills_missing_lot_fournisseur(self):
+		item = _make_item("Produit fini", "Test PF lot fournisseur")
+		if not item:
+			self.skipTest("Item Group ou UOM manquant")
+
+		batch_id = f"PF-TEST-{item.name}"
+		ensure_batch(item_code=item.name, batch_no=batch_id, origine="Production")
+		self.assertFalse(frappe.db.get_value("Batch", batch_id, "custom_lot_fournisseur"))
+
+		ensure_batch(
+			item_code=item.name,
+			batch_no=batch_id,
+			lot_fournisseur="FS-0001",
+			origine="Production",
+		)
+		self.assertEqual(frappe.db.get_value("Batch", batch_id, "custom_lot_fournisseur"), "FS-0001")
+
+	def test_ensure_batch_fills_missing_qty_produite(self):
+		item = _make_item("Produit fini", "Test PF qty produite")
+		if not item:
+			self.skipTest("Item Group ou UOM manquant")
+
+		batch_id = f"PF-QTY-{item.name}"
+		ensure_batch(item_code=item.name, batch_no=batch_id, origine="Production")
+		self.assertFalse(frappe.db.get_value("Batch", batch_id, "custom_qty_produite"))
+
+		ensure_batch(
+			item_code=item.name,
+			batch_no=batch_id,
+			origine="Production",
+			qty_produite=100,
+		)
+		self.assertEqual(frappe.db.get_value("Batch", batch_id, "custom_qty_produite"), 100)
+
 	def test_rebut_must_match_a_matiere(self):
 		doc = frappe.new_doc("Ordre de Conditionnement")
 		doc.warehouse_rebuts = "WH-REBUT"
@@ -61,6 +114,59 @@ class TestOrdreDeConditionnement(FrappeTestCase):
 		doc.append("matieres", {"item_code": "ITEM-NO-BATCH", "qty_theorique": 5, "qty_reelle": 4})
 		doc.append("rebuts", {"item_code": "ITEM-NO-BATCH", "qty": 2})
 		self.assertRaises(frappe.ValidationError, doc.validate_cloture_quantities)
+
+	def test_cloture_allows_consumption_with_complement(self):
+		doc = frappe.new_doc("Ordre de Conditionnement")
+		doc.append("matieres", {"item_code": "ITEM-NO-BATCH", "qty_theorique": 5, "qty_reelle": 4})
+		doc.append("rebuts", {"item_code": "ITEM-NO-BATCH", "qty": 2})
+		doc.append("complements", {"item_code": "ITEM-NO-BATCH", "qty": 1, "warehouse": "WH-COND"})
+		doc.validate_cloture_quantities()
+
+	def test_qty_complement_is_sum_of_child_table(self):
+		doc = frappe.new_doc("Ordre de Conditionnement")
+		doc.append("matieres", {"item_code": "ITEM-NO-BATCH", "qty_theorique": 10})
+		doc.append("complements", {"item_code": "ITEM-NO-BATCH", "qty": 2, "warehouse": "WH-COND"})
+		doc.append("complements", {"item_code": "ITEM-NO-BATCH", "qty": 3, "warehouse": "WH-COND"})
+		doc.calculate_qty_complement()
+		self.assertEqual(doc.matieres[0].qty_complement, 5)
+
+	def test_complement_rejected_wrong_state(self):
+		doc = frappe.new_doc("Ordre de Conditionnement")
+		doc.workflow_state = "Brouillon"
+		doc.append(
+			"matieres",
+			{"item_code": "BOTTLE", "type_ingredient": "Conditionnement", "qty_theorique": 10},
+		)
+		self.assertRaises(frappe.ValidationError, doc.add_complement, "BOTTLE", 1)
+
+	def test_complement_allows_fut(self):
+		doc = frappe.new_doc("Ordre de Conditionnement")
+		doc.workflow_state = "En production"
+		doc.stock_entry_preparation = "SE-FAKE"
+		doc.warehouse_atelier = "WH-ATELIER"
+		doc.append(
+			"matieres",
+			{
+				"item_code": "FUT-1",
+				"type_ingredient": "Fût",
+				"qty_theorique": 10,
+				"warehouse": "WH-MP",
+			},
+		)
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			doc.add_complement("FUT-1", 1)
+		self.assertIn("Stock insuffisant", str(ctx.exception))
+
+	def test_complement_must_match_a_matiere(self):
+		doc = frappe.new_doc("Ordre de Conditionnement")
+		doc.workflow_state = "En production"
+		doc.stock_entry_preparation = "SE-FAKE"
+		doc.warehouse_atelier = "WH-ATELIER"
+		doc.append(
+			"matieres",
+			{"item_code": "BOTTLE", "type_ingredient": "Conditionnement", "qty_theorique": 10},
+		)
+		self.assertRaises(frappe.ValidationError, doc.add_complement, "OTHER", 1)
 
 	def test_apply_checklist_copies_modele_lignes(self):
 		if not frappe.db.exists("DocType", "Checklist Ordre Conditionnement"):
@@ -152,6 +258,20 @@ class TestPurchaseReceiptBatches(FrappeTestCase):
 		_ensure_native_batch(row, None)
 		self.assertTrue(frappe.db.exists("Batch", batch_id))
 		self.assertEqual(frappe.db.get_value("Batch", batch_id, "item"), item.name)
+		self.assertEqual(frappe.db.get_value("Batch", batch_id, "custom_lot_fournisseur"), batch_id)
+
+	def test_existing_batch_gets_lot_fournisseur(self):
+		item = _make_item("Fût", "Test fût lot existant")
+		if not item:
+			self.skipTest("Item Group ou UOM manquant")
+
+		batch_id = f"FOUR-EXIST-{item.name}"
+		ensure_batch(item_code=item.name, batch_no=batch_id)
+		self.assertFalse(frappe.db.get_value("Batch", batch_id, "custom_lot_fournisseur"))
+
+		_ensure_native_batch(frappe._dict(item_code=item.name, batch_no=batch_id), None)
+		self.assertEqual(frappe.db.get_value("Batch", batch_id, "custom_lot_fournisseur"), batch_id)
+		self.assertEqual(frappe.db.get_value("Batch", batch_id, "custom_origine"), "Réception")
 
 	def test_existing_batch_for_other_item_is_rejected(self):
 		item_a = _make_item("Fût", "Test fût A")

@@ -8,6 +8,17 @@ const WIZARD_STEPS = [
 	{ key: "cloturer", label: __("Clôturer") },
 ];
 
+const WIZARD_TABS = [
+	{ key: "production", label: __("Matières") },
+	{ key: "checklist", label: __("Checklist") },
+	{ key: "rebuts", label: __("Rebuts") },
+	{ key: "warehouses", label: __("Entrepôts") },
+	{ key: "transfers", label: __("Transferts") },
+	{ key: "suivi", label: __("Suivi") },
+];
+
+const WIZARD_MOBILE_MQ = "(max-width: 767px)";
+
 frappe.ui.form.on("Ordre de Conditionnement", {
 	onload(frm) {
 		hide_native_workflow_buttons(frm);
@@ -329,7 +340,7 @@ function restore_clean_state(frm) {
 }
 
 function relax_lot_mandatory() {
-	["Matiere Ordre Conditionnement", "Rebut Ordre Conditionnement"].forEach((dt) => {
+	["Matiere Ordre Conditionnement", "Rebut Ordre Conditionnement", "Complement Ordre Conditionnement"].forEach((dt) => {
 		(frappe.meta.docfield_list[dt] || []).forEach((df) => {
 			if (df.fieldname === "batch_no") {
 				df.mandatory_depends_on = "";
@@ -365,6 +376,34 @@ function activate_wizard_tab(frm) {
 	}
 }
 
+function is_wizard_mobile() {
+	return window.matchMedia(WIZARD_MOBILE_MQ).matches;
+}
+
+function bind_mobile_layout(frm) {
+	const apply = () => {
+		$(frm.wrapper).toggleClass("ow-mobile", is_wizard_mobile());
+	};
+	apply();
+	if (frm._ow_mobile_bound) {
+		return;
+	}
+	frm._ow_mobile_bound = true;
+	const mq = window.matchMedia(WIZARD_MOBILE_MQ);
+	const on_change = () => apply();
+	if (mq.addEventListener) {
+		mq.addEventListener("change", on_change);
+	} else {
+		mq.addListener(on_change);
+	}
+}
+
+function td_html(label, content, extra = "") {
+	const label_attr = label ? ` data-label="${frappe.utils.escape_html(label)}"` : "";
+	const extra_attr = extra ? ` ${extra}` : "";
+	return `<td${label_attr}${extra_attr}>${content}</td>`;
+}
+
 function setup_wizard(frm) {
 	const host = frm.fields_dict.interface_wizard;
 	if (!host) {
@@ -372,6 +411,7 @@ function setup_wizard(frm) {
 	}
 
 	$(frm.wrapper).addClass("ordre-wizard-form");
+	bind_mobile_layout(frm);
 	frappe.require("/assets/unicare/css/ordre_conditionnement.css");
 	restore_fields(frm);
 	activate_wizard_tab(frm);
@@ -380,7 +420,7 @@ function setup_wizard(frm) {
 		$(frm.wrapper).addClass("tech-mode");
 		render_tech_toggle(frm, wizard_host(frm));
 		hide_native_workflow_buttons(frm);
-		["matieres", "checklist", "rebuts"].forEach((fieldname) => frm.refresh_field(fieldname));
+		["matieres", "checklist", "rebuts", "complements"].forEach((fieldname) => frm.refresh_field(fieldname));
 		return;
 	}
 
@@ -425,14 +465,25 @@ function render_wizard_shell(frm, $host) {
 		return `<li class="${cls}">${mark}${frappe.utils.escape_html(step.label)}</li>`;
 	}).join("");
 
+	const tab_buttons = WIZARD_TABS.map(
+		(tab, idx) =>
+			`<button type="button" class="ow-tab${idx === 0 ? " is-active" : ""}" data-tab="${
+				tab.key
+			}">${frappe.utils.escape_html(tab.label)}</button>`
+	).join("");
+	const tab_options = WIZARD_TABS.map(
+		(tab) =>
+			`<option value="${tab.key}">${frappe.utils.escape_html(tab.label)}</option>`
+	).join("");
+
 	$host.html(`
 		<div class="ordre-wizard">
 			<div class="ordre-wizard-header">
 				<h3 class="ordre-wizard-title">${frappe.utils.escape_html(product)}</h3>
-				<div class="ordre-wizard-header-right">
-					<div class="ordre-wizard-actions"></div>
-					${tech_link}
-				</div>
+			</div>
+			<div class="ordre-wizard-toolbar">
+				<div class="ordre-wizard-actions"></div>
+				${tech_link}
 			</div>
 			<div class="ordre-wizard-stepper">
 				<ol class="ordre-wizard-steps">${steps}</ol>
@@ -443,14 +494,11 @@ function render_wizard_shell(frm, $host) {
 				${recap_html(frm)}
 				<div class="ow-fields ow-main"></div>
 				<div class="ow-html-tables">
-					<div class="ow-tabs">
-						<button type="button" class="ow-tab is-active" data-tab="production">${__("Matières")}</button>
-						<button type="button" class="ow-tab" data-tab="checklist">${__("Checklist")}</button>
-						<button type="button" class="ow-tab" data-tab="rebuts">${__("Rebuts")}</button>
-						<button type="button" class="ow-tab" data-tab="warehouses">${__("Entrepôts")}</button>
-						<button type="button" class="ow-tab" data-tab="transfers">${__("Transferts")}</button>
-						<button type="button" class="ow-tab" data-tab="suivi">${__("Suivi")}</button>
-					</div>
+					<div class="ow-tabs" role="tablist">${tab_buttons}</div>
+					<label class="ow-tab-select-wrap">
+						<span class="ow-tab-select-label">${__("Onglet")}</span>
+						<select class="ow-tab-select" aria-label="${__("Onglet")}">${tab_options}</select>
+					</label>
 					<div class="ow-tab-panel" data-tab="production">
 						<div class="ow-table-host" data-table="matieres"></div>
 					</div>
@@ -672,6 +720,16 @@ function render_stock_links(frm) {
 			name: frm.doc.stock_entry_rebuts,
 		},
 	];
+	(frm.doc.complements || []).forEach((row) => {
+		if (!row.stock_entry) {
+			return;
+		}
+		items.push({
+			label: __("Complément {0}", [row.item_code || row.stock_entry]),
+			doctype: "Stock Entry",
+			name: row.stock_entry,
+		});
+	});
 	$slot.empty();
 	items.forEach((item) => {
 		if (!item.name) {
@@ -731,10 +789,10 @@ function render_suivi_html(frm) {
 	}
 	const body = rows
 		.map(
-			(row) => `<tr>
-			<td>${frappe.utils.escape_html(row.label)}</td>
-			<td>${frappe.utils.escape_html(fmt_dt(row.dt))}</td>
-			<td>${fmt_min(row.duree)}</td>
+			(row) => `<tr class="ow-row">
+			${td_html(__("Étape"), frappe.utils.escape_html(row.label))}
+			${td_html(__("Date / heure"), frappe.utils.escape_html(fmt_dt(row.dt)))}
+			${td_html(__("Durée (min)"), fmt_min(row.duree))}
 		</tr>`
 		)
 		.join("");
@@ -751,10 +809,10 @@ function render_suivi_html(frm) {
 					</thead>
 					<tbody>
 						${body}
-						<tr>
-							<td><b>${__("Total")}</b></td>
-							<td>—</td>
-							<td><b>${fmt_min(frm.doc.duree_totale)}</b></td>
+						<tr class="ow-row ow-total-row">
+							${td_html(__("Étape"), `<b>${__("Total")}</b>`)}
+							${td_html(__("Date / heure"), "—")}
+							${td_html(__("Durée (min)"), `<b>${fmt_min(frm.doc.duree_totale)}</b>`)}
 						</tr>
 					</tbody>
 				</table>
@@ -780,6 +838,22 @@ function toggle_save_button(frm) {
 		return;
 	}
 	host.$wrapper.find(".ordre-wizard-actions .ow-btn-save").toggle(should_show_save(frm));
+	sync_toolbar_visibility(frm);
+}
+
+function sync_toolbar_visibility(frm) {
+	const host = frm.fields_dict.interface_wizard;
+	if (!host) {
+		return;
+	}
+	const $toolbar = host.$wrapper.find(".ordre-wizard-toolbar");
+	if (!$toolbar.length) {
+		return;
+	}
+	const visible = $toolbar.find("button").filter(function () {
+		return $(this).css("display") !== "none";
+	}).length;
+	$toolbar.toggleClass("is-empty", visible === 0);
 }
 
 function bind_save_visibility(frm) {
@@ -817,6 +891,10 @@ function render_actions(frm) {
 	}
 	bind_save_visibility(frm);
 
+	if (["Préparé", "En production"].includes(state) && !frm.is_new()) {
+		add_btn(__("Complément de matières"), "btn-default", () => prompt_complement(frm));
+	}
+
 	if (frm.is_new() && state === "Brouillon") {
 		add_btn(__("Préparer"), "btn-primary", () => handle_workflow_action(frm, "Préparer"));
 	}
@@ -833,6 +911,7 @@ function render_actions(frm) {
 				handle_workflow_action(frm, transition.action);
 			});
 		});
+		sync_toolbar_visibility(frm);
 	};
 
 	if (!frm.is_new() && frappe.workflow && frappe.workflow.get_transitions) {
@@ -856,6 +935,188 @@ function render_actions(frm) {
 			add_btn(__("Annuler"), "btn-danger", () => handle_workflow_action(frm, "Annuler"));
 		}
 	}
+	sync_toolbar_visibility(frm);
+}
+
+function prompt_complement(frm) {
+	const items = (frm.doc.matieres || []).filter((row) => row.item_code);
+	if (!items.length) {
+		frappe.msgprint(__("Aucune matière sur cet ordre."));
+		return;
+	}
+
+	const unique = [];
+	const seen = new Set();
+	items.forEach((row) => {
+		if (seen.has(row.item_code)) {
+			return;
+		}
+		seen.add(row.item_code);
+		unique.push(row);
+	});
+	const item_names = unique.map((row) => row.item_code);
+	const first = unique[0];
+
+	const source_warehouse = (row) =>
+		(row && row.warehouse) ||
+		(row && row.type_ingredient === "Fût" ? frm.doc.warehouse_mp : frm.doc.warehouse_conditionnement);
+
+	const dialog = new frappe.ui.Dialog({
+		title: __("Complément de matières"),
+		fields: [
+			{
+				fieldname: "item_code",
+				label: __("Article"),
+				fieldtype: "Link",
+				options: "Item",
+				reqd: 1,
+				default: unique.length === 1 ? first.item_code : "",
+				get_query: () => ({ filters: { name: ["in", item_names] } }),
+			},
+			{
+				fieldname: "item_name",
+				label: __("Nom"),
+				fieldtype: "Data",
+				read_only: 1,
+				default: unique.length === 1 ? first.item_name : "",
+			},
+			{
+				fieldname: "qty",
+				label: __("Quantité"),
+				fieldtype: "Float",
+				reqd: 1,
+			},
+			{
+				fieldname: "uom",
+				label: __("Unité"),
+				fieldtype: "Link",
+				options: "UOM",
+				read_only: 1,
+				default: unique.length === 1 ? first.uom : "",
+			},
+			{
+				fieldname: "warehouse",
+				label: __("Magasin source"),
+				fieldtype: "Link",
+				options: "Warehouse",
+				reqd: 1,
+				default: source_warehouse(first),
+			},
+			{
+				fieldname: "has_batch_no",
+				fieldtype: "Check",
+				hidden: 1,
+				default: unique.length === 1 ? cint(first.has_batch_no) : 0,
+			},
+			{
+				fieldname: "batch_no",
+				label: __("Lot"),
+				fieldtype: "Link",
+				options: "Batch",
+				depends_on: "eval:doc.has_batch_no",
+				mandatory_depends_on: "eval:doc.has_batch_no",
+			},
+			{
+				fieldname: "stock_disponible",
+				label: __("Stock disponible"),
+				fieldtype: "Float",
+				read_only: 1,
+			},
+		],
+		primary_action_label: __("Transférer"),
+		primary_action(values) {
+			if (flt(values.qty) <= 0) {
+				frappe.msgprint(__("La quantité du complément doit être supérieure à 0."));
+				return;
+			}
+			const apply = () => {
+				frappe.call({
+					method:
+						"unicare.conditionnement.doctype.ordre_de_conditionnement.ordre_de_conditionnement.ajouter_complement",
+					args: {
+						ordre: frm.doc.name,
+						item_code: values.item_code,
+						qty: values.qty,
+						warehouse: values.warehouse,
+						batch_no: values.batch_no,
+					},
+					freeze: true,
+					freeze_message: __("Transfert en cours…"),
+					callback(r) {
+						dialog.hide();
+						frm.reload_doc();
+						if (r.message) {
+							frappe.show_alert({
+								message: __("Transfert {0} créé", [r.message]),
+								indicator: "green",
+							});
+						}
+					},
+				});
+			};
+			if (frm.is_dirty()) {
+				frm.save().then(apply);
+			} else {
+				apply();
+			}
+		},
+	});
+
+	dialog.fields_dict.batch_no.get_query = () => ({
+		query: "erpnext.controllers.queries.get_batch_no",
+		filters: {
+			item_code: dialog.get_value("item_code") || "",
+			warehouse: dialog.get_value("warehouse") || "",
+		},
+	});
+
+	const fill_from_item = () => {
+		const item_code = dialog.get_value("item_code");
+		const row = (frm.doc.matieres || []).find((r) => r.item_code === item_code);
+		if (!row) {
+			return;
+		}
+		dialog.set_value("item_name", row.item_name || "");
+		dialog.set_value("uom", row.uom || "");
+		dialog.set_value("has_batch_no", cint(row.has_batch_no));
+		dialog.set_value("warehouse", source_warehouse(row));
+		if (!cint(row.has_batch_no)) {
+			dialog.set_value("batch_no", "");
+		}
+		refresh_complement_stock(dialog);
+	};
+
+	dialog.fields_dict.item_code.df.onchange = fill_from_item;
+	dialog.fields_dict.warehouse.df.onchange = () => refresh_complement_stock(dialog);
+	dialog.fields_dict.batch_no.df.onchange = () => refresh_complement_stock(dialog);
+
+	dialog.show();
+	if (unique.length === 1) {
+		refresh_complement_stock(dialog);
+	}
+}
+
+function refresh_complement_stock(dialog) {
+	const item_code = dialog.get_value("item_code");
+	const warehouse = dialog.get_value("warehouse");
+	const has_batch = cint(dialog.get_value("has_batch_no"));
+	const batch_no = has_batch ? dialog.get_value("batch_no") : null;
+	if (!item_code || !warehouse) {
+		dialog.set_value("stock_disponible", 0);
+		return;
+	}
+	frappe.call({
+		method:
+			"unicare.conditionnement.doctype.ordre_de_conditionnement.ordre_de_conditionnement.get_stock_disponible",
+		args: {
+			item_code,
+			warehouse,
+			batch_no,
+		},
+		callback(r) {
+			dialog.set_value("stock_disponible", r.message || 0);
+		},
+	});
 }
 
 function workflow_confirm_message(action) {
@@ -1055,12 +1316,16 @@ function bind_table_tabs(frm, $host) {
 		frm._ow_table_tab = name;
 		$host.find(".ow-tab").removeClass("is-active");
 		$host.find(`.ow-tab[data-tab="${name}"]`).addClass("is-active");
+		$host.find(".ow-tab-select").val(name);
 		$host.find(".ow-tab-panel").each(function () {
 			this.hidden = this.dataset.tab !== name;
 		});
 	};
 	$host.find(".ow-tab").on("click", function () {
 		activate(this.dataset.tab);
+	});
+	$host.find(".ow-tab-select").on("change", function () {
+		activate(this.value);
 	});
 	activate(frm._ow_table_tab || "production");
 }
@@ -1074,6 +1339,7 @@ function render_matieres_html(frm, $slot) {
 	const can_edit = state === "Brouillon" && !wizard_readonly(frm);
 	const can_edit_reelle = state === "En production" && !wizard_readonly(frm);
 	const show_reelle = ["En production", "Terminé", "Annulé"].includes(state);
+	const show_complement = state !== "Brouillon";
 	const rows = frm.doc.matieres || [];
 
 	const head = `
@@ -1083,26 +1349,31 @@ function render_matieres_html(frm, $slot) {
 			<th>${__("Type")}</th>
 			<th>${__("Lot")}</th>
 			<th>${__("Qté théorique")}</th>
+			${show_complement ? `<th>${__("Qté complément")}</th>` : ""}
 			${show_reelle ? `<th>${__("Qté réelle")}</th>` : ""}
 			<th>${__("Unité")}</th>
 			<th>${__("Stock")}</th>
 			${can_edit ? `<th></th>` : ""}
 		</tr>`;
 
+	const qty_input = (field, value, name) =>
+		`<input type="number" min="0" step="0.001" inputmode="decimal" class="form-control input-xs ow-qty" data-field="${field}" data-name="${name}" value="${
+			value || 0
+		}">`;
+
 	const body = rows
 		.map((row) => {
-			const lot_cell = `<td class="ow-lot" data-name="${row.name}"></td>`;
+			const lot_cell = td_html(__("Lot"), "", `class="ow-lot" data-name="${row.name}"`);
 			const qty_th = can_edit
-				? `<td><input type="number" min="0" step="0.001" class="form-control input-xs ow-qty" data-field="qty_theorique" data-name="${row.name}" value="${
-						row.qty_theorique || 0
-				  }"></td>`
-				: `<td>${row.qty_theorique || 0}</td>`;
+				? td_html(__("Qté théorique"), qty_input("qty_theorique", row.qty_theorique, row.name))
+				: td_html(__("Qté théorique"), row.qty_theorique || 0);
+			const qty_comp = show_complement
+				? td_html(__("Qté complément"), row.qty_complement || 0)
+				: "";
 			const qty_re = show_reelle
 				? can_edit_reelle
-					? `<td><input type="number" min="0" step="0.001" class="form-control input-xs ow-qty" data-field="qty_reelle" data-name="${row.name}" value="${
-							row.qty_reelle || 0
-					  }"></td>`
-					: `<td>${row.qty_reelle || 0}</td>`
+					? td_html(__("Qté réelle"), qty_input("qty_reelle", row.qty_reelle, row.name))
+					: td_html(__("Qté réelle"), row.qty_reelle || 0)
 				: "";
 			const dup_btn = cint(row.has_batch_no)
 				? `<button type="button" class="btn btn-xs btn-default ow-dup" data-name="${row.name}" title="${__(
@@ -1110,20 +1381,22 @@ function render_matieres_html(frm, $slot) {
 				  )}">+ ${__("Lot")}</button>`
 				: "";
 			const actions = can_edit
-				? `<td class="ow-row-actions">
-					${dup_btn}
-					<button type="button" class="btn btn-xs btn-default ow-del" data-name="${row.name}">×</button>
-				</td>`
+				? td_html(
+						"",
+						`${dup_btn}<button type="button" class="btn btn-xs btn-default ow-del" data-name="${row.name}">×</button>`,
+						`class="ow-row-actions"`
+				  )
 				: "";
 			return `<tr class="ow-row" data-name="${row.name}">
-				<td>${frappe.utils.escape_html(row.item_code || "")}</td>
-				<td>${frappe.utils.escape_html(row.item_name || "")}</td>
-				<td>${frappe.utils.escape_html(row.type_ingredient || "")}</td>
+				${td_html(__("Article"), frappe.utils.escape_html(row.item_code || ""), `class="ow-card-title"`)}
+				${td_html(__("Nom"), frappe.utils.escape_html(row.item_name || ""))}
+				${td_html(__("Type"), frappe.utils.escape_html(row.type_ingredient || ""))}
 				${lot_cell}
 				${qty_th}
+				${qty_comp}
 				${qty_re}
-				<td>${frappe.utils.escape_html(row.uom || "")}</td>
-				<td class="ow-stock">${row.stock_disponible || 0}</td>
+				${td_html(__("Unité"), frappe.utils.escape_html(row.uom || ""))}
+				${td_html(__("Stock"), row.stock_disponible || 0, `class="ow-stock"`)}
 				${actions}
 			</tr>`;
 		})
@@ -1135,7 +1408,7 @@ function render_matieres_html(frm, $slot) {
 			<div class="ow-table-scroll">
 				<table class="ow-table">
 					<thead>${head}</thead>
-					<tbody>${body || `<tr><td colspan="9">${__("Aucune matière")}</td></tr>`}</tbody>
+					<tbody>${body || `<tr class="ow-empty-row"><td colspan="9">${__("Aucune matière")}</td></tr>`}</tbody>
 				</table>
 			</div>
 			${
@@ -1352,12 +1625,12 @@ function render_checklist_html(frm, $slot) {
 				  )}">`
 				: frappe.utils.escape_html(row.observation || "—");
 			return `<tr class="ow-row" data-name="${row.name}">
-				<td>${frappe.utils.escape_html(row.controle || "")}</td>
-				<td>${cint(row.obligatoire) ? __("Oui") : __("Non")}</td>
-				<td>${check}</td>
-				<td>${frappe.utils.escape_html(row.controle_par || "")}</td>
-				<td>${row.date_heure || ""}</td>
-				<td>${observation}</td>
+				${td_html(__("Contrôle"), frappe.utils.escape_html(row.controle || ""), `class="ow-card-title"`)}
+				${td_html(__("Obligatoire"), cint(row.obligatoire) ? __("Oui") : __("Non"))}
+				${td_html(__("Conforme"), check)}
+				${td_html(__("Contrôlé par"), frappe.utils.escape_html(row.controle_par || ""))}
+				${td_html(__("Date / heure"), row.date_heure || "")}
+				${td_html(__("Observation"), observation)}
 			</tr>`;
 		})
 		.join("");
@@ -1376,7 +1649,7 @@ function render_checklist_html(frm, $slot) {
 							<th>${__("Observation")}</th>
 						</tr>
 					</thead>
-					<tbody>${body || `<tr><td colspan="6">${__("Aucune ligne")}</td></tr>`}</tbody>
+					<tbody>${body || `<tr class="ow-empty-row"><td colspan="6">${__("Aucune ligne")}</td></tr>`}</tbody>
 				</table>
 			</div>
 		</div>
@@ -1405,20 +1678,24 @@ function render_rebuts_html(frm, $slot) {
 	const body = rows
 		.map((row) => {
 			const qty = can_edit
-				? `<input type="number" min="0" step="0.001" class="form-control input-xs ow-rebut-qty" data-name="${row.name}" value="${
+				? `<input type="number" min="0" step="0.001" inputmode="decimal" class="form-control input-xs ow-rebut-qty" data-name="${row.name}" value="${
 						row.qty || 0
 				  }">`
 				: row.qty || 0;
 			const del = can_edit
-				? `<button type="button" class="btn btn-xs btn-default ow-del-rebut" data-name="${row.name}">×</button>`
-				: "";
+				? td_html(
+						"",
+						`<button type="button" class="btn btn-xs btn-default ow-del-rebut" data-name="${row.name}">×</button>`,
+						`class="ow-row-actions"`
+				  )
+				: td_html("", "", `class="ow-row-actions"`);
 			return `<tr class="ow-row" data-name="${row.name}">
-				<td>${frappe.utils.escape_html(row.item_code || "")}</td>
-				<td>${frappe.utils.escape_html(row.item_name || "")}</td>
-				<td class="ow-lot" data-name="${row.name}"></td>
-				<td>${qty}</td>
-				<td>${frappe.utils.escape_html(row.uom || "")}</td>
-				<td>${del}</td>
+				${td_html(__("Article"), frappe.utils.escape_html(row.item_code || ""), `class="ow-card-title"`)}
+				${td_html(__("Nom"), frappe.utils.escape_html(row.item_name || ""))}
+				${td_html(__("Lot"), "", `class="ow-lot" data-name="${row.name}"`)}
+				${td_html(__("Quantité"), qty)}
+				${td_html(__("Unité"), frappe.utils.escape_html(row.uom || ""))}
+				${del}
 			</tr>`;
 		})
 		.join("");
@@ -1437,7 +1714,7 @@ function render_rebuts_html(frm, $slot) {
 							<th></th>
 						</tr>
 					</thead>
-					<tbody>${body || `<tr><td colspan="6">${__("Aucun rebut")}</td></tr>`}</tbody>
+					<tbody>${body || `<tr class="ow-empty-row"><td colspan="6">${__("Aucun rebut")}</td></tr>`}</tbody>
 				</table>
 			</div>
 			${can_edit ? `<button type="button" class="btn btn-sm btn-default ow-add-rebut">${__("Ajouter un rebut")}</button>` : ""}
