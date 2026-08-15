@@ -24,7 +24,6 @@ def get_context(context):
 	}
 	context.links = {
 		"products": "#produits",
-		"stores": "#points-de-vente",
 		"formulas": "#ingredients",
 		"instagram": "#",
 		"facebook": "#",

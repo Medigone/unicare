@@ -779,8 +779,7 @@ h3 {
 	color: var(--color-white);
 }
 
-.ingredients-section .kicker,
-.final-cta .kicker {
+.ingredients-section .kicker {
 	color: #b7c9ce;
 }
 
@@ -1169,56 +1168,6 @@ h3 {
 	color: var(--color-muted);
 	font-size: 0.86rem;
 	margin: -0.4rem 3rem 1.5rem 0;
-}
-
-.final-cta {
-	background: var(--color-primary-dark);
-	color: var(--color-white);
-	overflow: hidden;
-	padding-block: clamp(5rem, 9vw, 8rem);
-	position: relative;
-	text-align: center;
-}
-
-.final-cta::before,
-.final-cta::after {
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	border-radius: 50%;
-	content: "";
-	height: 420px;
-	position: absolute;
-	width: 420px;
-}
-
-.final-cta::before {
-	left: -230px;
-	top: -220px;
-}
-
-.final-cta::after {
-	bottom: -280px;
-	right: -190px;
-}
-
-.final-cta-inner {
-	position: relative;
-	z-index: 1;
-}
-
-.final-cta h2 {
-	color: var(--color-white);
-	margin-inline: auto;
-	max-width: 760px;
-}
-
-.final-cta p:not(.kicker) {
-	color: rgba(255, 255, 255, 0.72);
-	margin: 0 auto 2rem;
-	max-width: 580px;
-}
-
-.final-cta .button-row {
-	justify-content: center;
 }
 
 .site-footer {
