@@ -1,13 +1,25 @@
 {
- "charts": [],
- "content": "[{\"id\":\"cb-actions-cond\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Actions Rapides - Conditionnement\",\"col\":12}}]",
- "creation": "2026-08-12 18:00:00",
- "custom_blocks": [
+ "charts": [
   {
-   "custom_block_name": "Actions Rapides - Conditionnement",
-   "label": "Actions Rapides - Conditionnement"
+   "chart_name": "Ordres par statut",
+   "label": "Ordres par statut"
+  },
+  {
+   "chart_name": "Lots par origine",
+   "label": "Lots par origine"
+  },
+  {
+   "chart_name": "Production mensuelle",
+   "label": "Production mensuelle"
+  },
+  {
+   "chart_name": "Réceptions mensuelles",
+   "label": "Réceptions mensuelles"
   }
  ],
+ "content": "[{\"id\":\"hdr-indicateurs\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Indicateurs</b></span>\",\"col\":12}},{\"id\":\"nc-en-prod\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"En production\",\"col\":4}},{\"id\":\"nc-prepares\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Préparés\",\"col\":4}},{\"id\":\"nc-qty-pf\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Qté PF produite\",\"col\":4}},{\"id\":\"nc-rendement\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Rendement moyen\",\"col\":4}},{\"id\":\"nc-lots-pf\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Lots PF\",\"col\":4}},{\"id\":\"nc-controles\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Contrôles non conformes\",\"col\":4}},{\"id\":\"hdr-tendances\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Tendances</b></span>\",\"col\":12}},{\"id\":\"ch-ordres-statut\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Ordres par statut\",\"col\":6}},{\"id\":\"ch-lots-origine\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Lots par origine\",\"col\":6}},{\"id\":\"ch-prod-mensuelle\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Production mensuelle\",\"col\":6}},{\"id\":\"ch-receptions\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Réceptions mensuelles\",\"col\":6}}]",
+ "creation": "2026-08-12 18:00:00",
+ "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -48,7 +60,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Bon de r\u00e9ception",
+   "label": "Bon de réception",
    "link_count": 0,
    "link_to": "Purchase Receipt",
    "link_type": "DocType",
@@ -124,7 +136,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Entrep\u00f4t",
+   "label": "Entrepôt",
    "link_count": 0,
    "link_to": "Warehouse",
    "link_type": "DocType",
@@ -132,11 +144,36 @@
    "type": "Link"
   }
  ],
- "modified": "2026-08-13 15:45:00.000000",
+ "modified": "2026-08-15 13:38:00.000000",
  "modified_by": "Administrator",
  "module": "Conditionnement",
  "name": "Conditionnement",
- "number_cards": [],
+ "number_cards": [
+  {
+   "number_card_name": "En production",
+   "label": "En production"
+  },
+  {
+   "number_card_name": "Préparés",
+   "label": "Préparés"
+  },
+  {
+   "number_card_name": "Qté PF produite",
+   "label": "Qté PF produite"
+  },
+  {
+   "number_card_name": "Rendement moyen",
+   "label": "Rendement moyen"
+  },
+  {
+   "number_card_name": "Lots PF",
+   "label": "Lots PF"
+  },
+  {
+   "number_card_name": "Contrôles non conformes",
+   "label": "Contrôles non conformes"
+  }
+ ],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,

@@ -1,7 +1,7 @@
 [
  {
   "charts": [],
-  "content": "[{\"id\":\"AA5J4UV1ZG\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Accueil\",\"col\":12}},{\"id\":\"FZTrN324xC\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Actions Rapides - Commercial accueil\",\"col\":12}}]",
+  "content": "[{\"id\":\"AA5J4UV1ZG\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Accueil\",\"col\":12}},{\"id\":\"FZTrN324xC\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Actions Rapides - Commercial accueil\",\"col\":12}},{\"id\":\"CONDHOME01\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Actions Rapides - Conditionnement\",\"col\":12}},{\"id\":\"ACHATHOME1\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Actions Rapides - Achats accueil\",\"col\":12}}]",
   "custom_blocks": [
    {
     "custom_block_name": "Actions Rapides - Commercial accueil",
@@ -13,6 +13,20 @@
    {
     "custom_block_name": "Accueil",
     "label": "Accueil",
+    "parent": "Home",
+    "parentfield": "custom_blocks",
+    "parenttype": "Workspace"
+   },
+   {
+    "custom_block_name": "Actions Rapides - Conditionnement",
+    "label": "Actions Rapides - Conditionnement",
+    "parent": "Home",
+    "parentfield": "custom_blocks",
+    "parenttype": "Workspace"
+   },
+   {
+    "custom_block_name": "Actions Rapides - Achats accueil",
+    "label": "Actions Rapides - Achats accueil",
     "parent": "Home",
     "parentfield": "custom_blocks",
     "parenttype": "Workspace"

@@ -1,0 +1,18 @@
+{
+ "creation": "2026-08-15 13:31:00",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "[]",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Contr\u00f4les non conformes",
+ "method": "unicare.conditionnement.dashboard.get_controles_non_conformes",
+ "modified": "2026-08-15 13:31:00",
+ "modified_by": "Administrator",
+ "module": "Conditionnement",
+ "name": "Contr\u00f4les non conformes",
+ "owner": "Administrator",
+ "show_percentage_stats": 0,
+ "type": "Custom"
+}

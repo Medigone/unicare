@@ -314,6 +314,7 @@ fixtures = [
 					"Accueil",
 					"Actions Rapides - Commercial accueil",
 					"Actions Rapides - Conditionnement",
+					"Actions Rapides - Achats accueil",
 				],
 			]
 		],

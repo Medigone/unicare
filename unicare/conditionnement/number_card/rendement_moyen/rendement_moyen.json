@@ -1,0 +1,21 @@
+{
+ "aggregate_function_based_on": "rendement_reel",
+ "creation": "2026-08-15 13:31:00",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Ordre de Conditionnement",
+ "filters_json": "[[\"Ordre de Conditionnement\",\"workflow_state\",\"=\",\"Termin\u00e9\",false]]",
+ "function": "Average",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Rendement moyen",
+ "modified": "2026-08-15 13:31:00",
+ "modified_by": "Administrator",
+ "module": "Conditionnement",
+ "name": "Rendement moyen",
+ "owner": "Administrator",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Monthly",
+ "type": "Document Type"
+}

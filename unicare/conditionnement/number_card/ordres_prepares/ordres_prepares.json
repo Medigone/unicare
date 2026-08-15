@@ -1,0 +1,20 @@
+{
+ "creation": "2026-08-15 13:31:00",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Ordre de Conditionnement",
+ "filters_json": "[[\"Ordre de Conditionnement\",\"workflow_state\",\"=\",\"Pr\u00e9par\u00e9\",false]]",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Pr\u00e9par\u00e9s",
+ "modified": "2026-08-15 13:31:00",
+ "modified_by": "Administrator",
+ "module": "Conditionnement",
+ "name": "Pr\u00e9par\u00e9s",
+ "owner": "Administrator",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Monthly",
+ "type": "Document Type"
+}
