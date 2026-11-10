@@ -1,0 +1,19 @@
+{
+	"_note": "Droit de timbre sur les factures payées en espèces : taux appliqué au montant TTC selon sa tranche, au centime (sans arrondi au dinar), minimum en DA. Barème à confirmer par le comptable pour la loi de finances en vigueur.",
+	"compte": "44575",
+	"minimum": 5,
+	"tranches": [
+		{
+			"jusqu_a": 30000,
+			"taux": 1
+		},
+		{
+			"jusqu_a": 100000,
+			"taux": 1.5
+		},
+		{
+			"jusqu_a": null,
+			"taux": 2
+		}
+	]
+}

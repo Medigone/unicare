@@ -1,0 +1,30 @@
+{
+ "custom_fields": [
+  {
+   "doctype": "Custom Field",
+   "dt": "Sales Invoice",
+   "fieldname": "unicare_paiement_especes",
+   "fieldtype": "Check",
+   "label": "Paiement en espèces",
+   "insert_after": "is_pos",
+   "default": "0",
+   "module": "Unicare",
+   "description": "Ajoute le droit de timbre sur le TTC (factures réglées en espèces).",
+   "name": "Sales Invoice-unicare_paiement_especes",
+   "print_hide": 1,
+   "allow_on_submit": 0,
+   "no_copy": 0,
+   "modified": "2026-11-10 10:00:00.000000",
+   "creation": "2026-11-10 10:00:00.000000",
+   "owner": "Administrator",
+   "modified_by": "Administrator",
+   "docstatus": 0,
+   "idx": 0
+  }
+ ],
+ "custom_perms": [],
+ "doctype": "Sales Invoice",
+ "links": [],
+ "property_setters": [],
+ "sync_on_migrate": 1
+}

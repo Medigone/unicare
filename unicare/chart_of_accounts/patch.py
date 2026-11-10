@@ -1,81 +1,81 @@
-import json
-from pathlib import Path
+"""Branche les plans et les taxes Unicare dans ERPNext.
+
+ERPNext ne lit les plans comptables que dans son propre dossier : on remplace ses fonctions dans les modules qui
+les appellent. Les appels du navigateur passent par override_whitelisted_methods (hooks.py) ; les appels Python
+(création de la société, y compris dans l'assistant exécuté en tâche de fond) passent par apply_patches(), appelé
+au before_validate de Company (unicare.chart_of_accounts.company_hooks).
+"""
 
 import frappe
-from frappe import _
 
-from unicare.chart_of_accounts.chart_of_accounts import (
-	get_unicare_chart_names,
-	get_unicare_chart_tree,
-)
+from unicare.chart_of_accounts.chart_of_accounts import get_unicare_chart_names, get_unicare_chart_tree
 
-import erpnext.accounts.doctype.account.chart_of_accounts.chart_of_accounts as coa_module
-import erpnext.setup.setup_wizard.operations.taxes_setup as taxes_setup_module
+STANDARD_CHARTS = ("Standard", "Standard with Numbers")
 
-_original_get_charts_for_country = coa_module.get_charts_for_country
-_original_get_chart = coa_module.get_chart
-_original_setup_taxes_and_charges = taxes_setup_module.setup_taxes_and_charges
 
-_patches_applied = False
+def _coa_module():
+	import erpnext.accounts.doctype.account.chart_of_accounts.chart_of_accounts as coa_module
+
+	return coa_module
+
+
+def _taxes_module():
+	import erpnext.setup.setup_wizard.operations.taxes_setup as taxes_module
+
+	return taxes_module
+
+
+def _original(module, name):
+	"""La fonction ERPNext d'origine, même après le remplacement."""
+	fn = getattr(module, name)
+	return getattr(fn, "_unicare_original", fn)
 
 
 @frappe.whitelist()
 def get_charts_for_country(country, with_standard=False):
-	charts = list(_original_get_charts_for_country(country, with_standard=False))
+	"""Plans Unicare en premier : l'assistant présélectionne la première option."""
+	charts = get_unicare_chart_names(country)
+	for chart in _original(_coa_module(), "get_charts_for_country")(country, with_standard=False):
+		if chart not in charts and chart not in STANDARD_CHARTS:
+			charts.append(chart)
 
-	for chart_name in get_unicare_chart_names(country, with_standard=False):
-		if chart_name not in charts:
-			charts.append(chart_name)
-
-	if len(charts) != 1 or with_standard:
-		for standard_chart in ("Standard", "Standard with Numbers"):
-			if standard_chart not in charts:
-				charts.append(standard_chart)
+	if len(charts) != 1 or frappe.utils.cint(with_standard):
+		charts += [chart for chart in STANDARD_CHARTS if chart not in charts]
 
 	return charts
 
 
 @frappe.whitelist()
 def get_chart(chart_template, existing_company=None):
-	chart = _original_get_chart(chart_template, existing_company)
-	if chart:
-		return chart
-
-	return get_unicare_chart_tree(chart_template)
+	return _original(_coa_module(), "get_chart")(chart_template, existing_company) or get_unicare_chart_tree(
+		chart_template
+	)
 
 
-def setup_taxes_and_charges(company_name, country):
+def setup_taxes_and_charges(company_name: str, country: str):
 	if country == "Algeria":
-		return _setup_algeria_taxes_and_charges(company_name, country)
+		from unicare.setup.algeria import creer_taxes
 
-	return _original_setup_taxes_and_charges(company_name, country)
+		return creer_taxes(company_name)
+
+	return _original(_taxes_module(), "setup_taxes_and_charges")(company_name, country)
+
+
+def _replace(module, name, fn):
+	current = getattr(module, name)
+	if getattr(current, "_unicare_original", None):
+		return
+	fn._unicare_original = current
+	setattr(module, name, fn)
 
 
 def apply_patches():
-	global _patches_applied
-	if _patches_applied:
-		return
+	"""Idempotent : remplace les fonctions ERPNext là où elles sont appelées."""
+	import erpnext.setup.doctype.company.company as company_module
 
-	coa_module.get_charts_for_country = get_charts_for_country
-	coa_module.get_chart = get_chart
-	taxes_setup_module.setup_taxes_and_charges = setup_taxes_and_charges
-
-	_patches_applied = True
-
-
-def _setup_algeria_taxes_and_charges(company_name, country):
-	from erpnext.setup.setup_wizard.operations.taxes_setup import (
-		from_detailed_data,
-		simple_to_detailed,
-		update_regional_tax_settings,
-	)
-
-	if not frappe.db.exists("Company", company_name):
-		frappe.throw(_("Company {} does not exist yet. Taxes setup aborted.").format(company_name))
-
-	tax_file = Path(__file__).resolve().parent.parent / "setup" / "data" / "algeria_tax.json"
-	with open(tax_file) as json_file:
-		country_wise_tax = json.load(json_file)
-
-	from_detailed_data(company_name, simple_to_detailed(country_wise_tax))
-	update_regional_tax_settings(country, company_name)
+	coa_module = _coa_module()
+	_replace(coa_module, "get_charts_for_country", get_charts_for_country)
+	_replace(coa_module, "get_chart", get_chart)
+	_replace(_taxes_module(), "setup_taxes_and_charges", setup_taxes_and_charges)
+	# company.py importe la fonction par son nom : il faut aussi la remplacer dans ce module.
+	_replace(company_module, "setup_taxes_and_charges", setup_taxes_and_charges)

@@ -48,6 +48,7 @@ doctype_js = {
 	"Supplier": "public/js/supplier_contacts.js",
 	"Item": "public/js/item.js",
 	"Purchase Receipt": "conditionnement/purchase_receipt.js",
+	"Sales Invoice": "public/js/sales_invoice.js",
 }
 doctype_list_js = {
 	"Supplier": "public/js/supplier_list.js",
@@ -262,6 +263,11 @@ override_whitelisted_methods = {
 # }
 
 doc_events = {
+	# Comptabilité algérienne : plan SCF, TVA et comptes par défaut (unicare/setup/algeria.py).
+	"Company": {
+		"before_validate": "unicare.chart_of_accounts.company_hooks.ensure_patches",
+		"on_update": "unicare.chart_of_accounts.company_hooks.apply_unicare_defaults",
+	},
 	"Item": {
 		"validate": "unicare.conditionnement.item_hooks.validate_item",
 		"on_change": "unicare.bureau_events.on_change",
@@ -288,6 +294,7 @@ doc_events = {
 		"on_trash": "unicare.bureau_events.on_trash",
 	},
 	"Sales Invoice": {
+		"validate": "unicare.accounts.droit_timbre.appliquer_droit_timbre",
 		"on_change": "unicare.bureau_events.on_change",
 		"on_trash": "unicare.bureau_events.on_trash",
 	},

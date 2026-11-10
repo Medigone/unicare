@@ -1,11 +1,237 @@
 {
-	"Algeria TVA 19%": {
-		"account_name": "TVA 19%",
-		"tax_rate": 19.0,
-		"default": 1
-	},
-	"Algeria TVA 9%": {
-		"account_name": "TVA 9%",
-		"tax_rate": 9.0
+	"chart_of_accounts": {
+		"Algérie - SCF (Unicare)": {
+			"sales_tax_templates": [
+				{
+					"title": "TVA 19%",
+					"is_default": 1,
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA collectée sur ventes",
+								"account_number": "44571",
+								"tax_rate": 19,
+								"root_type": "Liability"
+							},
+							"description": "TVA 19%"
+						}
+					]
+				},
+				{
+					"title": "TVA 9%",
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA collectée sur ventes",
+								"account_number": "44571",
+								"tax_rate": 9,
+								"root_type": "Liability"
+							},
+							"description": "TVA 9%"
+						}
+					]
+				},
+				{
+					"title": "Exonéré de TVA",
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA collectée sur ventes",
+								"account_number": "44571",
+								"tax_rate": 0,
+								"root_type": "Liability"
+							},
+							"description": "Exonéré de TVA"
+						}
+					]
+				}
+			],
+			"purchase_tax_templates": [
+				{
+					"title": "TVA déductible 19%",
+					"is_default": 1,
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA déductible sur achats de biens et services",
+								"account_number": "44566",
+								"tax_rate": 19,
+								"root_type": "Asset"
+							},
+							"description": "TVA déductible 19%"
+						}
+					]
+				},
+				{
+					"title": "TVA déductible 9%",
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA déductible sur achats de biens et services",
+								"account_number": "44566",
+								"tax_rate": 9,
+								"root_type": "Asset"
+							},
+							"description": "TVA déductible 9%"
+						}
+					]
+				},
+				{
+					"title": "Achat exonéré de TVA",
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA déductible sur achats de biens et services",
+								"account_number": "44566",
+								"tax_rate": 0,
+								"root_type": "Asset"
+							},
+							"description": "Achat exonéré de TVA"
+						}
+					]
+				}
+			],
+			"item_tax_templates": [
+				{
+					"title": "TVA 19%",
+					"taxes": [
+						{
+							"tax_type": {
+								"account_name": "TVA collectée sur ventes",
+								"account_number": "44571",
+								"tax_rate": 19,
+								"root_type": "Liability"
+							}
+						},
+						{
+							"tax_type": {
+								"account_name": "TVA déductible sur achats de biens et services",
+								"account_number": "44566",
+								"tax_rate": 19,
+								"root_type": "Asset"
+							}
+						}
+					]
+				},
+				{
+					"title": "TVA 9%",
+					"taxes": [
+						{
+							"tax_type": {
+								"account_name": "TVA collectée sur ventes",
+								"account_number": "44571",
+								"tax_rate": 9,
+								"root_type": "Liability"
+							}
+						},
+						{
+							"tax_type": {
+								"account_name": "TVA déductible sur achats de biens et services",
+								"account_number": "44566",
+								"tax_rate": 9,
+								"root_type": "Asset"
+							}
+						}
+					]
+				},
+				{
+					"title": "Exonéré de TVA",
+					"taxes": [
+						{
+							"tax_type": {
+								"account_name": "TVA collectée sur ventes",
+								"account_number": "44571",
+								"tax_rate": 0,
+								"root_type": "Liability"
+							}
+						},
+						{
+							"tax_type": {
+								"account_name": "TVA déductible sur achats de biens et services",
+								"account_number": "44566",
+								"tax_rate": 0,
+								"root_type": "Asset"
+							}
+						}
+					]
+				}
+			]
+		},
+		"*": {
+			"sales_tax_templates": [
+				{
+					"title": "TVA 19%",
+					"is_default": 1,
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA 19%",
+								"tax_rate": 19
+							}
+						}
+					]
+				},
+				{
+					"title": "TVA 9%",
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA 9%",
+								"tax_rate": 9
+							}
+						}
+					]
+				}
+			],
+			"purchase_tax_templates": [
+				{
+					"title": "TVA 19%",
+					"is_default": 1,
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA 19%",
+								"tax_rate": 19
+							}
+						}
+					]
+				},
+				{
+					"title": "TVA 9%",
+					"taxes": [
+						{
+							"account_head": {
+								"account_name": "TVA 9%",
+								"tax_rate": 9
+							}
+						}
+					]
+				}
+			],
+			"item_tax_templates": [
+				{
+					"title": "TVA 19%",
+					"taxes": [
+						{
+							"tax_type": {
+								"account_name": "TVA 19%",
+								"tax_rate": 19
+							}
+						}
+					]
+				},
+				{
+					"title": "TVA 9%",
+					"taxes": [
+						{
+							"tax_type": {
+								"account_name": "TVA 9%",
+								"tax_rate": 9
+							}
+						}
+					]
+				}
+			]
+		}
 	}
 }
