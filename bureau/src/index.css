@@ -1,0 +1,1309 @@
+@import 'frappe-ui/style.css';
+@import '../../shared/styles.css';
+
+@layer base {
+	body {
+		@apply text-base;
+	}
+	/* Liste déroulante : garder la place de sa flèche malgré le padding resserré. */
+	select.field-input {
+		padding-right: 1.75rem;
+	}
+}
+
+
+/* Disposition : la page ne défile plus, la liste et le détail ont chacun leur défilement. */
+@layer components {
+	.bureau-work {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		gap: 0.625rem;
+		width: 100%;
+		max-width: 1680px;
+		min-height: 0;
+		margin-inline: auto;
+		padding: 0.625rem 1rem;
+	}
+	.bureau-list {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		gap: 0.625rem;
+		min-height: 0;
+	}
+	/* Barre d'outils : recherche à gauche, actions à droite. */
+	.bureau-toolbar {
+		position: relative;
+		display: flex;
+		flex: none;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem;
+		border: 1px solid var(--line-soft);
+		border-radius: 14px;
+		background-color: var(--surface-cards);
+	}
+	.bureau-search {
+		position: relative;
+		flex: 0 1 240px;
+		min-width: 150px;
+	}
+	.bureau-search svg {
+		position: absolute;
+		top: 50%;
+		left: 0.6875rem;
+		transform: translateY(-50%);
+		pointer-events: none;
+		@apply text-ink-gray-6;
+	}
+	.bureau-search input {
+		padding-left: 1.9375rem;
+		border-color: var(--btn-line);
+		border-radius: var(--radius-action);
+		background-color: var(--btn-bg);
+	}
+	.bureau-popover {
+		position: absolute;
+		top: 100%;
+		right: 0;
+		z-index: 15;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		width: 360px;
+		max-width: 100%;
+		margin-top: 0.375rem;
+		padding: 0.5rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-card);
+		background-color: var(--surface-modal);
+		box-shadow: var(--shadow-overlay);
+	}
+	.bureau-list-area {
+		position: relative;
+		display: flex;
+		flex: 1 1 auto;
+		min-height: 0;
+	}
+	.bureau-list-card {
+		display: flex;
+		flex: 1 1 0;
+		flex-direction: column;
+		min-width: 0;
+		overflow: hidden;
+		padding-inline: 0.5rem;
+		border: 1px solid var(--line-soft);
+		border-radius: 14px;
+		background-color: var(--surface-cards);
+	}
+	.bureau-list-card .pager {
+		min-height: 2.625rem;
+		padding-inline: 0.375rem;
+		border-top: 0;
+	}
+	.bureau-list-scroll {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow: auto;
+		scrollbar-width: thin;
+	}
+
+	/* Barre d'actions groupées : elle flotte pour que les lignes ne bougent pas pendant qu'on coche. */
+	.bureau-bulk {
+		position: absolute;
+		bottom: 3.25rem;
+		left: 1rem;
+		z-index: 4;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		max-width: calc(100% - 2rem);
+		padding: 0.4375rem 0.5rem 0.4375rem 0.875rem;
+		border-radius: 22px;
+		background-color: var(--surface-modal);
+		box-shadow: var(--shadow-overlay);
+		@apply border border-outline-gray-2;
+	}
+	.bureau-bulk-sep {
+		width: 1px;
+		height: 1.25rem;
+		@apply bg-surface-gray-4;
+	}
+}
+
+@layer components {
+	/* Menu d'en-tête (choix du poste) : bouton avec sa valeur, liste déroulante. */
+	.header-menu-btn {
+		max-width: 20rem;
+	}
+	.header-menu-value {
+		max-width: 10rem;
+		overflow: hidden;
+		font-weight: 400;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		@apply text-ink-gray-6;
+	}
+	.header-menu {
+		min-width: 13rem;
+	}
+
+	/* État du temps réel. */
+	.live-status {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		gap: 0.3125rem;
+		white-space: nowrap;
+		@apply text-xs text-ink-gray-6;
+	}
+	.live-status i {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background-color: var(--tone-amber-ink);
+	}
+	.live-status[data-live='true'] i {
+		background-color: var(--tone-green-ink);
+	}
+	@media (max-width: 720px) {
+		.live-status span {
+			display: none;
+		}
+	}
+
+	/* Message passager : en bas à droite, au-dessus du fil. */
+	.app-toast {
+		position: fixed;
+		right: 1rem;
+		bottom: 1rem;
+		z-index: 60;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		width: fit-content;
+		max-width: min(26rem, calc(100vw - 2rem));
+		padding: 0.625rem 0.5rem 0.625rem 0.75rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-control);
+		background-color: var(--surface-modal);
+		box-shadow: var(--shadow-overlay);
+		font-weight: 500;
+		@apply text-ink-gray-9;
+	}
+	.app-toast-icon {
+		flex: none;
+		width: 1.125rem;
+		height: 1.125rem;
+		color: var(--tone-blue-ink);
+	}
+	.app-toast[data-tone='success'] .app-toast-icon {
+		color: var(--tone-green-ink);
+	}
+	.app-toast[data-tone='warning'] .app-toast-icon {
+		color: var(--tone-amber-ink);
+	}
+	.app-toast-action {
+		flex: none;
+		font-weight: 600;
+		white-space: nowrap;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	/* Sur téléphone, il reste au-dessus de la barre de navigation. */
+	@media (max-width: 900px) {
+		.app-toast {
+			right: 1rem;
+			bottom: calc(var(--bottom-nav, 0px) + 0.75rem);
+			left: 1rem;
+			width: auto;
+			max-width: none;
+		}
+	}
+}
+
+
+/* Listes : aperçu en tiroir, filtres, tags, vues enregistrées, export et lignes (repris du bureau d'aurescrm). */
+@layer components {
+	/* Aperçu en tiroir : il passe par-dessus la liste, qui reste cliquable pour changer de ligne. */
+	@keyframes bureau-drawer-in {
+		from {
+			transform: translateX(24px);
+		}
+		to {
+			transform: none;
+		}
+	}
+	.bureau-drawer {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 5;
+		display: flex;
+		flex-direction: column;
+		width: 430px;
+		max-width: 100%;
+		overflow: hidden;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-card);
+		background-color: var(--surface-cards);
+		box-shadow: var(--shadow-drawer);
+		animation: bureau-drawer-in 0.16s ease-out;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.bureau-drawer {
+			animation: none;
+		}
+	}
+	.bureau-drawer-head {
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.5rem 0.625rem;
+		@apply border-b border-outline-gray-1;
+	}
+	.bureau-drawer-body {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		gap: 0.875rem;
+		min-height: 0;
+		overflow-y: auto;
+		padding: 0.875rem;
+		scrollbar-width: thin;
+	}
+	.bureau-drawer-facts {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.625rem 0.875rem;
+		margin: 0;
+	}
+	.bureau-drawer-facts dt {
+		@apply text-xs text-ink-gray-6;
+	}
+	.bureau-drawer-facts dd {
+		margin: 0;
+		@apply font-medium;
+	}
+	.bureau-drawer-facts-3 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+	.bureau-drawer-facts-3 dd {
+		overflow-wrap: anywhere;
+	}
+	.bureau-drawer-colors {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		margin: 0;
+	}
+	.bureau-drawer-colors dt {
+		@apply text-xs text-ink-gray-6;
+	}
+	.bureau-drawer-colors dd {
+		margin: 0;
+	}
+	/* Dans le tiroir, les cartes de la fiche deviennent de simples sections. */
+	.bureau-drawer .card {
+		border-width: 1px 0 0;
+		border-color: var(--outline-gray-1);
+		border-radius: 0;
+		padding: 0.75rem 0 0;
+		background: transparent;
+	}
+
+	/* Écran étroit : la page reprend le défilement ; la liste garde une hauteur limitée et l'aperçu prend tout l'écran. */
+	@media (max-width: 900px) {
+		.bureau-list,
+		.bureau-list-area,
+		.bureau-main {
+			flex: none;
+			width: 100%;
+		}
+		.bureau-list-scroll {
+			max-height: 70vh;
+		}
+		.bureau-popover {
+			left: 0;
+			width: auto;
+		}
+		.bureau-drawer {
+			position: fixed;
+			inset: 0;
+			z-index: 18;
+			width: auto;
+			border-radius: 0;
+			box-shadow: none;
+		}
+		.bureau-detail {
+			flex: none;
+			overflow: visible;
+		}
+		.record-page {
+			flex: none;
+		}
+		.record-rail {
+			flex: 1 1 100%;
+		}
+		.record-facts {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+		}
+	}
+
+	.filter-chip {
+		@apply inline-flex h-[26px] items-center gap-1.5 rounded-full px-2.5 text-sm font-medium;
+		border: 1px solid var(--selection-border);
+		background-color: var(--filter-chip-bg);
+		color: var(--accent-fonce);
+	}
+	.filter-chip:hover {
+		background-color: var(--filter-chip-hover);
+	}
+
+	/* Un tag n'est ni une action ni un état : gris, sans contour, et de petits coins pour ne pas ressembler à une pilule. */
+	.tag-pill {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		gap: 0.1875rem;
+		height: 1.25rem;
+		max-width: 10rem;
+		padding-inline: 0.375rem;
+		border-radius: 4px;
+		background-color: var(--surface-gray-3);
+		color: var(--ink-gray-7);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		white-space: nowrap;
+	}
+	.tag-pill > span {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.tag-x {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 0.875rem;
+		height: 0.875rem;
+		margin-right: -2px;
+		border-radius: 3px;
+		color: var(--ink-gray-6);
+	}
+	.tag-x:hover {
+		background-color: var(--surface-gray-4);
+		color: var(--ink-gray-9);
+	}
+	.tag-more {
+		flex: none;
+		color: var(--ink-gray-6);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+	}
+	.tag-add {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.1875rem;
+		height: 1.25rem;
+		padding-inline: 0.3125rem;
+		border-radius: 4px;
+		color: var(--ink-gray-6);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		white-space: nowrap;
+	}
+	.tag-add:hover {
+		background-color: var(--surface-gray-2);
+		color: var(--ink-gray-9);
+	}
+	.tag-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.25rem;
+		min-height: 1.25rem;
+	}
+	.tag-cell {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		min-width: 0;
+		overflow: hidden;
+	}
+	.tag-cell .tag-pill {
+		flex: 0 1 auto;
+		min-width: 0;
+	}
+	.tag-edit {
+		position: relative;
+		width: 11rem;
+	}
+	.tag-edit input {
+		display: block;
+		width: 100%;
+		height: 1.5rem;
+		padding-inline: 0.4375rem;
+		border: 1px solid var(--accent);
+		border-radius: 4px;
+		background-color: var(--surface-cards);
+		font-size: var(--text-sm);
+		outline: 0;
+	}
+
+	.filter-field-box {
+		position: relative;
+	}
+	.filter-field-box .field-input {
+		padding-right: 1.75rem;
+		text-overflow: ellipsis;
+	}
+	.filter-field-chevron {
+		position: absolute;
+		top: 50%;
+		right: 0.625rem;
+		transform: translateY(-50%);
+		pointer-events: none;
+	}
+	/* Dix lignes visibles ; la suite défile. */
+	.filter-field-list {
+		max-height: calc(10 * 1.625rem + 0.5rem + 2px);
+		margin-top: 0.25rem;
+		overflow-y: auto;
+		scrollbar-width: thin;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-field);
+		padding: 0.25rem;
+	}
+	.filter-field-empty {
+		padding: 0.5rem;
+		color: var(--ink-gray-6);
+	}
+	.filter-field-hint {
+		flex: 0 1 auto;
+		max-width: 40%;
+		color: var(--ink-gray-6);
+		font-size: var(--text-xs);
+	}
+	.filter-field-option {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		width: 100%;
+		height: 1.625rem;
+		padding-inline: 0.5rem;
+		border-radius: 6px;
+		white-space: nowrap;
+		color: var(--ink-gray-9);
+		text-align: left;
+	}
+	.filter-field-option:hover,
+	.filter-field-option[aria-selected='true'] {
+		background-color: var(--surface-gray-2);
+	}
+	/* Sélecteur de vue, à côté du titre. */
+	.view-selector-label {
+		max-width: 16rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.view-modified {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		height: 1.375rem;
+		padding-inline: 0.5rem;
+		border: 1px solid var(--tone-amber-line);
+		border-radius: var(--radius-pill);
+		background-color: var(--tone-amber-soft);
+		color: var(--tone-amber-ink);
+		font-size: var(--text-sm);
+		font-weight: 500;
+	}
+	.view-menu {
+		width: 22rem;
+	}
+	.view-row {
+		display: flex;
+		align-items: center;
+		gap: 0.125rem;
+		min-height: var(--ctl);
+		padding-right: 0.25rem;
+		border-radius: 6px;
+	}
+	.view-row:hover {
+		background-color: var(--surface-gray-2);
+	}
+	.view-row[aria-current='true'] {
+		background-color: var(--selection);
+	}
+	.view-row-apply {
+		flex: 1 1 0;
+		min-width: 0;
+		min-height: var(--ctl);
+		overflow: hidden;
+		padding-inline: 0.5rem;
+		text-align: left;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.view-row-icon {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 1.5rem;
+		height: 1.5rem;
+		border-radius: 6px;
+		color: var(--ink-gray-6);
+	}
+	.view-row-icon:hover {
+		background-color: var(--surface-gray-4);
+		color: var(--ink-gray-9);
+	}
+	.view-row-star {
+		color: var(--bell-line);
+	}
+	.view-row-star svg {
+		fill: var(--bell-fill);
+	}
+	.view-save-dialog .dialog {
+		max-width: 30rem;
+	}
+	.export-file-column-drag {
+		cursor: grab;
+	}
+	.export-file-column-drop {
+		box-shadow: inset 0 2px 0 var(--accent);
+	}
+	.saved-filter {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		min-width: 0;
+		min-height: 1.75rem;
+		padding: 0.125rem 0.125rem 0.125rem 0.5rem;
+		border-radius: 6px;
+	}
+	.saved-filter:hover {
+		background-color: var(--surface-gray-2);
+	}
+	.saved-filter[aria-current='true'] {
+		background-color: var(--selection);
+		color: var(--accent-fonce);
+	}
+	.saved-filter-apply {
+		flex: 1 1 0;
+		min-width: 0;
+		overflow: hidden;
+		font-weight: 500;
+		text-align: left;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.saved-filter-scope {
+		flex: none;
+		padding: 0.0625rem 0.375rem;
+		border-radius: var(--radius-pill);
+		background-color: var(--surface-gray-3);
+		color: var(--ink-gray-7);
+		font-size: var(--text-xs);
+	}
+	.saved-filter-remove {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 1.5rem;
+		height: 1.5rem;
+		border-radius: var(--radius-pill);
+		color: var(--ink-gray-6);
+	}
+	.saved-filter-remove:hover {
+		background-color: var(--surface-gray-4);
+	}
+
+	.export-dialog {
+		--dialog-width: 1040px;
+	}
+	.export-filters {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		max-width: 28rem;
+	}
+	/* Rubriques, champs sur trois colonnes, colonnes du fichier. */
+	.export-panes {
+		display: grid;
+		grid-template-columns: 200px minmax(0, 1fr) 248px;
+		gap: 0.75rem;
+		height: 27.5rem;
+	}
+	.export-pane {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		min-height: 0;
+		overflow: hidden;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-field);
+	}
+	.export-pane-head {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		min-height: 1.875rem;
+		padding: 0.25rem 0.625rem;
+		border-bottom: 1px solid var(--outline-gray-1);
+		color: var(--ink-gray-7);
+		font-size: var(--text-xs);
+		font-weight: 500;
+	}
+	.export-pane-head button {
+		flex: none;
+		font-size: var(--text-xs);
+	}
+	.export-pane-body {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		padding: 0.25rem;
+		scrollbar-width: thin;
+	}
+	.export-rubric {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		width: 100%;
+		min-height: 1.625rem;
+		padding: 0.125rem 0.5rem;
+		border-radius: 6px;
+		text-align: left;
+	}
+	.export-rubric:hover {
+		background-color: var(--surface-gray-2);
+	}
+	.export-rubric[aria-current='true'] {
+		background-color: var(--selection);
+		color: var(--accent-fonce);
+		font-weight: 500;
+	}
+	.export-rubric small {
+		flex: none;
+		color: var(--ink-gray-6);
+		font-size: var(--text-xs);
+		font-variant-numeric: tabular-nums;
+	}
+	.export-rubric[aria-current='true'] small,
+	.export-rubric[aria-current='true'] b {
+		color: inherit;
+	}
+	.export-rubric b {
+		color: var(--ink-gray-9);
+		font-weight: 600;
+	}
+	.export-rubric-sep {
+		margin: 0.25rem 0.5rem;
+		padding-top: 0.375rem;
+		border-top: 1px solid var(--outline-gray-1);
+		color: var(--ink-gray-6);
+		font-size: var(--text-xs);
+	}
+	.export-fields {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		gap: 0 0.5rem;
+		align-content: start;
+		padding: 0.25rem;
+	}
+	.export-field {
+		display: flex;
+		align-items: center;
+		gap: 0.4375rem;
+		min-width: 0;
+		min-height: 1.625rem;
+		padding: 0.125rem 0.375rem;
+		border-radius: 6px;
+		line-height: 1.25;
+		overflow-wrap: anywhere;
+		cursor: pointer;
+	}
+	.export-field:hover {
+		background-color: var(--surface-gray-2);
+	}
+	.export-field input {
+		flex: none;
+	}
+	.export-field-on {
+		font-weight: 500;
+	}
+	.export-field small {
+		display: block;
+		color: var(--ink-gray-6);
+		font-size: var(--text-xs);
+		font-weight: 400;
+	}
+	.export-file-column {
+		display: flex;
+		align-items: center;
+		gap: 0.125rem;
+		min-height: 1.625rem;
+		padding-left: 0.5rem;
+		border-radius: 6px;
+	}
+	.export-file-column:hover {
+		background-color: var(--surface-gray-2);
+	}
+	.export-file-column > span {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	.export-mini {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 1.375rem;
+		height: 1.375rem;
+		border-radius: var(--radius-pill);
+		color: var(--ink-gray-6);
+	}
+	.export-mini:hover:not(:disabled) {
+		background-color: var(--surface-gray-4);
+		color: var(--ink-gray-9);
+	}
+	.export-mini:disabled {
+		opacity: 0.3;
+	}
+	@media (max-width: 820px) {
+		.export-panes {
+			grid-template-columns: minmax(0, 1fr);
+			height: auto;
+		}
+		.export-pane {
+			max-height: 16rem;
+		}
+	}
+	.export-choice {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		cursor: pointer;
+	}
+
+	/* Lignes de la liste : la case à cocher est à part, le reste de la ligne ouvre l'aperçu. */
+	.list-head,
+	.list-row {
+		display: flex;
+		align-items: center;
+	}
+	.list-row + .list-row::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		right: 8px;
+		left: 8px;
+		height: 1px;
+		background-color: var(--line-soft);
+	}
+	/* En-têtes sur le blanc, lignes dans un plateau gris. */
+	.list-head {
+		position: sticky;
+		top: 0;
+		z-index: 2;
+		height: 40px;
+		/* L'épaisseur du contour du plateau : en-têtes et cellules restent alignés. */
+		padding-inline: 1px;
+		background-color: var(--surface-cards);
+	}
+	.list-tray {
+		border: 1px solid var(--line-soft);
+		border-radius: 12px;
+		background-color: var(--tray);
+	}
+	.list-head button {
+		@apply inline-flex h-10 min-w-0 items-center gap-1 whitespace-nowrap text-left text-sm font-medium text-ink-gray-8 hover:text-ink-gray-9;
+	}
+	.list-cols {
+		display: grid;
+		flex: 1 1 0;
+		column-gap: 0.5rem;
+		align-items: center;
+		min-width: 0;
+	}
+	/* Liste sans case à cocher : pas d'action groupée à proposer. */
+	.list-no-check > .list-cols {
+		padding-left: 0.875rem;
+	}
+	.list-col-end {
+		justify-self: end;
+		text-align: right;
+	}
+	.list-check {
+		display: flex;
+		flex: none;
+		align-self: stretch;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		cursor: pointer;
+	}
+	.list-more {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 30px;
+	}
+	.list-more-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border-radius: var(--radius-pill);
+		@apply text-ink-gray-8 hover:bg-surface-gray-4;
+	}
+	.list-more-btn[aria-expanded='true'] {
+		@apply bg-surface-gray-4;
+	}
+	/* Cloche de la ligne : discrète tant qu'elle est éteinte, jaune et pleine une fois posée. */
+	.list-bell {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 30px;
+	}
+	.list-bell .list-bell-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border-radius: var(--radius-pill);
+		@apply text-ink-gray-5 hover:bg-surface-gray-4 hover:text-ink-gray-8;
+	}
+	.list-bell .list-bell-btn[aria-pressed='true'] {
+		color: var(--bell-line);
+	}
+	.list-bell .list-bell-btn[aria-pressed='true'] svg {
+		fill: var(--bell-fill);
+	}
+	.list-head .list-bell .list-bell-btn[aria-pressed='true'] {
+		background-color: var(--bell-soft);
+	}
+	.list-head button > span:empty {
+		display: none;
+	}
+	/* En-tête de colonne : on le glisse pour le déplacer, son bord droit change la largeur. */
+	.list-th {
+		position: relative;
+		display: flex;
+		align-items: center;
+		min-width: 0;
+		height: 2.5rem;
+	}
+	.list-th-end {
+		justify-content: flex-end;
+	}
+	.list-th-move {
+		cursor: grab;
+	}
+	.list-th-dragging {
+		opacity: 0.4;
+	}
+	.list-th-drop::before {
+		content: '';
+		position: absolute;
+		top: 0.5rem;
+		bottom: 0.5rem;
+		left: -5px;
+		width: 2px;
+		border-radius: 2px;
+		background-color: var(--accent);
+	}
+	.list-th-grip {
+		position: absolute;
+		top: 0.5rem;
+		right: -6px;
+		bottom: 0.5rem;
+		z-index: 1;
+		width: 5px;
+		border-radius: 3px;
+		cursor: col-resize;
+		touch-action: none;
+	}
+	.list-th:hover .list-th-grip {
+		background-color: var(--control-border);
+	}
+	.list-th .list-th-grip-on {
+		background-color: var(--accent);
+	}
+	.list-head-plain {
+		@apply inline-flex h-10 min-w-0 items-center whitespace-nowrap text-sm font-medium text-ink-gray-8;
+	}
+	.list-comments {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-variant-numeric: tabular-nums;
+		@apply text-xs text-ink-gray-6;
+	}
+	.list-check input {
+		margin: 0;
+	}
+	.list-row {
+		position: relative;
+		height: 44px;
+		border-radius: 9px;
+		@apply hover:bg-surface-gray-2;
+	}
+	.list-row-checked {
+		background-color: var(--selection-checked);
+	}
+	.list-row-on,
+	.list-row-on:hover {
+		background-color: var(--selection);
+	}
+	.list-row-on::before,
+	.list-row-on + .list-row::before {
+		display: none;
+	}
+	.list-row-main {
+		height: 100%;
+		@apply text-left text-sm text-ink-gray-7;
+	}
+	/* La ligne ouverte a déjà son surlignage : le focus, qui la suit au clavier, n'ajoute pas de cadre. */
+	.list-row-main[aria-current='true']:focus-visible {
+		outline: none;
+	}
+	.list-row-main > span {
+		min-width: 0;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.list-client {
+		@apply text-base font-semibold text-ink-gray-9;
+	}
+}
+
+/* Fiche client : repris du poste d'aurescrm. L'identité à gauche reste en place sur tous les onglets ; le fil suit le contenu. */
+@layer components {
+	.bureau-main {
+		display: flex;
+		flex: 1 1 0;
+		flex-direction: column;
+		gap: 0.625rem;
+		min-width: 0;
+		min-height: 0;
+	}
+	.bureau-detail {
+		display: flex;
+		flex: 1 1 auto;
+		flex-wrap: wrap;
+		align-content: flex-start;
+		align-items: flex-start;
+		gap: 0.625rem;
+		min-height: 0;
+		overflow-y: auto;
+		padding-bottom: 0.625rem;
+		scrollbar-width: thin;
+	}
+	.bureau-center {
+		display: flex;
+		flex: 999 1 320px;
+		flex-direction: column;
+		gap: 0.625rem;
+		min-width: 0;
+	}
+	/* En-tête des fiches : titre sur toute la largeur. Le sous-titre se sépare tout seul par des points. */
+	.record-head {
+		display: flex;
+		flex: none;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem 0.75rem;
+		padding: 0.875rem;
+	}
+	.record-head-title {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.375rem;
+	}
+	.record-head-sub {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0 0.375rem;
+		margin-top: 0.125rem;
+		@apply text-sm text-ink-gray-7;
+	}
+	.record-head-sub > * + *::before {
+		content: '·';
+		margin-right: 0.375rem;
+	}
+	.record-head-sub > div {
+		display: inline-flex;
+		align-items: center;
+	}
+	.record-actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.375rem;
+		min-width: 0;
+	}
+	/* Colonne gauche : chaque information, son icône et son libellé au-dessus de la valeur. */
+	.record-facts {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+		margin: 0;
+	}
+	.record-facts dt {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		@apply text-xs text-ink-gray-6;
+	}
+	.record-facts dt svg {
+		flex: none;
+		width: 0.75rem;
+		height: 0.75rem;
+	}
+	.record-facts dd {
+		margin: 0.0625rem 0 0;
+		overflow-wrap: anywhere;
+		@apply font-medium text-ink-gray-9;
+	}
+	.record-facts dd.record-fact-none {
+		font-weight: 400;
+		@apply text-ink-gray-6;
+	}
+	.client-dossier {
+		position: relative;
+		display: grid;
+		flex: 1 1 auto;
+		grid-template-columns: 13.75rem minmax(0, 1fr);
+		grid-template-rows: minmax(0, 1fr);
+		gap: 0.75rem;
+		min-height: 0;
+	}
+	.client-side {
+		display: flex;
+		flex-direction: column;
+		align-self: start;
+		max-height: 100%;
+		overflow-y: auto;
+		scrollbar-width: thin;
+	}
+	.client-main {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+		min-width: 0;
+		min-height: 0;
+	}
+	.side-block {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		padding: 0.875rem;
+		border-top: 1px solid var(--outline-gray-1);
+	}
+	.side-block:first-child {
+		border-top: 0;
+	}
+	.client-cards {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+		align-items: start;
+		gap: 0.625rem;
+	}
+	/* Le fil vient après le contenu et défile avec lui, sans carte, comme la timeline du Desk. */
+	.record-activity {
+		flex: 1 1 100%;
+		min-width: 0;
+	}
+	.record-activity .activity {
+		padding: 0.375rem 0 0;
+		border: 0;
+		background: none;
+		box-shadow: none;
+	}
+	.record-activity .act-mark {
+		border-color: var(--page);
+	}
+	@media (max-width: 900px) {
+		.bureau-main {
+			flex: none;
+			width: 100%;
+		}
+		.bureau-detail {
+			flex: none;
+			overflow: visible;
+		}
+		.client-dossier {
+			flex: none;
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: none;
+		}
+		.client-side {
+			max-height: none;
+			overflow: visible;
+		}
+		.client-main {
+			flex: none;
+		}
+		.record-facts {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+		}
+	}
+}
+
+/* Fenêtre du devis : les lignes en grille, article large, montants alignés à droite. */
+@layer components {
+	.devis-dialog {
+		--dialog-width: 880px;
+	}
+	.devis-lines {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+	.devis-line {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 9rem 8rem 7rem 2rem;
+		align-items: start;
+		gap: 0.5rem;
+	}
+	.devis-line > .end,
+	.devis-line .field-input.end {
+		text-align: right;
+	}
+	.devis-line > span.end {
+		padding-top: 0.375rem;
+	}
+	.devis-line-head {
+		@apply text-xs text-ink-gray-6;
+	}
+	@media (max-width: 720px) {
+		.devis-line {
+			grid-template-columns: minmax(0, 1fr) 1fr 2rem;
+		}
+		.devis-line-head {
+			display: none;
+		}
+		.devis-line > :first-child {
+			grid-column: 1 / -1;
+		}
+	}
+}
+
+/* Totaux du devis : alignés à droite sous les lignes, le TTC en évidence. */
+@layer components {
+	.devis-totaux {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.25rem;
+		margin: 0.25rem 0 0;
+	}
+	.devis-totaux > div {
+		display: flex;
+		justify-content: space-between;
+		gap: 1.5rem;
+		min-width: min(100%, 18rem);
+	}
+	.devis-totaux dt {
+		@apply text-ink-gray-6;
+	}
+	.devis-totaux dd {
+		margin: 0;
+	}
+	.devis-totaux .devis-total-ttc {
+		padding-top: 0.25rem;
+		border-top: 1px solid var(--outline-gray-1);
+		@apply text-lg font-semibold text-ink-gray-9;
+	}
+	.devis-totaux .devis-total-ttc dt {
+		@apply text-ink-gray-9;
+	}
+}
+
+/* Fiche commande : part livrée et facturée, en barres fines dans la colonne de gauche. */
+@layer components {
+	.commande-progress {
+		display: flex;
+		justify-content: space-between;
+		@apply text-sm text-ink-gray-7;
+	}
+	.commande-bar {
+		height: 0.375rem;
+		overflow: hidden;
+		border-radius: 999px;
+		background-color: var(--surface-gray-3);
+	}
+	.commande-bar > span {
+		display: block;
+		height: 100%;
+		border-radius: inherit;
+		background-color: var(--tone-green-ink);
+	}
+}
+
+/* Préparation d'un bon de livraison : dépôt et lot assez larges pour lire stock et péremption. */
+@layer components {
+	.livraison-prep select.field-input {
+		min-width: 12rem;
+	}
+	.livraison-prep td {
+		vertical-align: middle;
+	}
+}
+
+/* Assistant de paiement : les types en cartes, le rapprochement assez large pour les montants. */
+@layer components {
+	.paiement-dialog {
+		--dialog-width: 820px;
+	}
+	.paiement-types {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+		gap: 0.5rem;
+	}
+	.paiement-type {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.625rem;
+		padding: 0.75rem 0.875rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-control, 0.5rem);
+		background-color: var(--surface-cards);
+		text-align: left;
+		@apply transition hover:bg-surface-gray-2;
+	}
+	.paiement-type[aria-checked='true'] {
+		border-color: var(--accent);
+		box-shadow: 0 0 0 1px var(--accent);
+	}
+}

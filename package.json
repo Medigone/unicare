@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "unicare",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "postinstall": "cd bureau && yarn install --check-files --ignore-engines",
+    "dev:bureau": "cd bureau && yarn dev",
+    "build:bureau": "cd bureau && yarn build",
+    "build": "yarn build:bureau"
+  }
+}

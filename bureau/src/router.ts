@@ -1,0 +1,40 @@
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import ArticlesPage from './pages/ArticlesPage.vue'
+import ClientsPage from './pages/ClientsPage.vue'
+import CommandesPage from './pages/CommandesPage.vue'
+import DevisPage from './pages/DevisPage.vue'
+import FacturesPage from './pages/FacturesPage.vue'
+import LivraisonsPage from './pages/LivraisonsPage.vue'
+import PaiementsPage from './pages/PaiementsPage.vue'
+import HomePage from './pages/HomePage.vue'
+import LoginPage from './pages/LoginPage.vue'
+
+// Chaque page reprise ajoute sa route avec `meta.doctype` : App.vue affiche un refus si le rôle ne lit pas ce document.
+export const routes: RouteRecordRaw[] = [
+	// Seule page servie sans session : hors de la coquille.
+	{ path: '/connexion', name: 'Login', component: LoginPage },
+	{ path: '/', name: 'Home', component: HomePage },
+	{ path: '/clients', name: 'Clients', component: ClientsPage, meta: { doctype: 'Customer' } },
+	{ path: '/clients/:id', name: 'Client', component: ClientsPage, props: true, meta: { doctype: 'Customer' } },
+	{ path: '/articles', name: 'Articles', component: ArticlesPage, meta: { doctype: 'Item' } },
+	{ path: '/articles/:id', name: 'Article', component: ArticlesPage, props: true, meta: { doctype: 'Item' } },
+	{ path: '/devis', name: 'DevisListe', component: DevisPage, meta: { doctype: 'Quotation' } },
+	{ path: '/devis/:id', name: 'DevisFiche', component: DevisPage, props: true, meta: { doctype: 'Quotation' } },
+	{ path: '/commandes', name: 'Commandes', component: CommandesPage, meta: { doctype: 'Sales Order' } },
+	{ path: '/commandes/:id', name: 'CommandeFiche', component: CommandesPage, props: true, meta: { doctype: 'Sales Order' } },
+	{ path: '/livraisons', name: 'Livraisons', component: LivraisonsPage, meta: { doctype: 'Delivery Note' } },
+	{ path: '/livraisons/:id', name: 'LivraisonFiche', component: LivraisonsPage, props: true, meta: { doctype: 'Delivery Note' } },
+	{ path: '/factures', name: 'Factures', component: FacturesPage, meta: { doctype: 'Sales Invoice' } },
+	{ path: '/factures/:id', name: 'FactureFiche', component: FacturesPage, props: true, meta: { doctype: 'Sales Invoice' } },
+	{ path: '/paiements', name: 'Paiements', component: PaiementsPage, meta: { doctype: 'Payment Entry' } },
+	{ path: '/paiements/:id', name: 'PaiementFiche', component: PaiementsPage, props: true, meta: { doctype: 'Payment Entry' } },
+	{ path: '/:pathMatch(.*)*', redirect: '/' },
+]
+
+const router = createRouter({ history: createWebHistory('/bureau'), routes })
+
+router.beforeEach((to) => {
+	if (to.name === 'Login' && window.user) return { name: 'Home' }
+})
+
+export default router

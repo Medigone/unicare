@@ -66,6 +66,11 @@ doctype_list_js = {
 # application home page (will override Website Settings)
 home_page = "unicare"
 
+# Poste de bureau (/bureau) : SPA Vue construite dans public/bureau (voir bureau/ à la racine de l'app).
+website_route_rules = [
+	{"from_route": "/bureau/<path:app_path>", "to_route": "bureau"},
+]
+
 # website user home page (by Role)
 # role_home_page = {
 # 	"Role": "home_page"
@@ -259,9 +264,36 @@ override_whitelisted_methods = {
 doc_events = {
 	"Item": {
 		"validate": "unicare.conditionnement.item_hooks.validate_item",
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
 	},
 	"Purchase Receipt": {
 		"before_submit": "unicare.conditionnement.purchase_receipt_hooks.before_submit",
+	},
+	# Poste de bureau : temps réel des listes (filtré par unicare.bureau_events.WATCHED), aussi sur Item.
+	"Customer": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Quotation": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Sales Order": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Delivery Note": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Sales Invoice": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Payment Entry": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
 	},
 }
 
@@ -286,9 +318,7 @@ fixtures = [
 	},
 	{
 		"dt": "Workflow State",
-		"filters": [
-			["name", "in", ["Brouillon", "Préparé", "En production", "Terminé", "Annulé"]]
-		],
+		"filters": [["name", "in", ["Brouillon", "Préparé", "En production", "Terminé", "Annulé"]]],
 	},
 	{
 		"dt": "Workflow Action Master",
@@ -324,4 +354,3 @@ fixtures = [
 		"filters": [["name", "=", "Home"]],
 	},
 ]
-

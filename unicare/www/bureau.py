@@ -1,0 +1,74 @@
+# Copyright (c) 2026, Intrapro and contributors
+# For license information, please see license.txt
+"""Page du poste de bureau Unicare, servie sous /bureau.
+
+Un visiteur sans session passe par la page de connexion du poste, /bureau/connexion. Un utilisateur
+connecté sans le bon rôle reçoit la page : l'application affiche alors un refus, et l'API refuse de
+toute façon ses appels.
+"""
+
+import re
+from urllib.parse import quote
+
+import frappe
+from frappe import _
+
+from unicare.api.bureau_postes import can_access_bureau, get_droits, get_postes
+
+no_cache = 1
+
+HOME_PATH = "/bureau"
+LOGIN_PATH = "/bureau/connexion"
+
+
+def safe_redirect(target):
+	"""Retour après connexion : une page du poste de bureau seulement (même règle que `safeRedirect` côté client)."""
+	value = (target or "").strip()
+	if not re.match(r"^/bureau(?:[/?#]|$)", value) or value.startswith(LOGIN_PATH):
+		return HOME_PATH
+	return value
+
+
+def get_context(context=None):
+	request = frappe.local.request
+	on_login = "/" + (request.path or "").strip("/") == LOGIN_PATH
+	if frappe.session.user == "Guest" and not on_login:
+		# Page de connexion du poste, avec la page demandée pour y revenir ensuite.
+		target = safe_redirect(request.full_path.rstrip("?"))
+		frappe.local.flags.redirect_location = (
+			LOGIN_PATH if target == HOME_PATH else f"{LOGIN_PATH}?redirect-to={quote(target, safe='/')}"
+		)
+		raise frappe.Redirect
+	if frappe.session.user != "Guest" and on_login:
+		frappe.local.flags.redirect_location = safe_redirect(frappe.form_dict.get("redirect-to"))
+		raise frappe.Redirect
+	frappe.db.commit()
+	context = frappe._dict()
+	context.boot = get_boot()
+	return context
+
+
+@frappe.whitelist(methods=["GET"], allow_guest=True)
+def get_context_for_dev():
+	"""Boot de `yarn dev` (bureau/src/main.ts), en GET : la page de dev n'a pas encore de jeton CSRF."""
+	if not frappe.conf.developer_mode:
+		frappe.throw(_("Cette méthode est réservée au mode développeur."))
+	return get_boot()
+
+
+def get_boot():
+	user = frappe.session.user
+	return frappe._dict(
+		{
+			"frappe_version": frappe.__version__,
+			"default_route": HOME_PATH,
+			"site_name": frappe.local.site,
+			"socketio_port": frappe.conf.get("socketio_port") or 9000,
+			"csrf_token": frappe.sessions.get_csrf_token(),
+			"user": user if user != "Guest" else None,
+			"user_fullname": frappe.utils.get_fullname(user) if user != "Guest" else None,
+			"can_access": can_access_bureau(user),
+			"postes": get_postes(user),
+			"droits": get_droits(user),
+		}
+	)

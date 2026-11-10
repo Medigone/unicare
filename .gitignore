@@ -5,3 +5,8 @@
 tags
 node_modules
 __pycache__
+# Poste de bureau : build généré par `yarn build` (bench build), jamais commité
+unicare/public/bureau/
+unicare/www/bureau.html
+bureau/components.d.ts
+bureau/auto-imports.d.ts
