@@ -24,7 +24,7 @@ from unicare.api.bureau_achats import (
 	set_purchase_taxes,
 	taxes_options,
 )
-from unicare.api.bureau_devis import _company, _day, _status
+from unicare.api.bureau_devis import _company, _day, _status, line_description, tax_lines
 from unicare.api.bureau_list import (
 	BELL_FIELD,
 	_parse,
@@ -274,7 +274,7 @@ def _line(item):
 		"name": item.name,
 		"article": item.item_code,
 		"designation": item.item_name or item.item_code,
-		"description": None if cstr(item.description).strip() in ("", item.item_name) else item.description,
+		"description": line_description(item),
 		"quantite": flt(item.qty),
 		"recu": flt(item.received_qty),
 		"unite": item.uom,
@@ -310,10 +310,7 @@ def _commande_payload(doc):
 		"devise": doc.currency,
 		"taxes_modele": doc.taxes_and_charges,
 		"lignes": [_line(item) for item in doc.items],
-		"taxes": [
-			{"description": row.description, "taux": flt(row.rate), "montant": flt(row.tax_amount)}
-			for row in doc.taxes
-		],
+		"taxes": tax_lines(doc),
 		"total": flt(doc.net_total),
 		"total_taxes": flt(doc.total_taxes_and_charges),
 		"total_ttc": flt(doc.grand_total),

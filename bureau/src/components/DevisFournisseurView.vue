@@ -196,7 +196,7 @@ async function createCommande() {
 								</table></div>
 								<dl class="devis-totaux">
 									<div><dt>Total HT</dt><dd class="tabular-nums">{{ formatAmount(devis.total) }} DA</dd></div>
-									<div v-for="tax in devis.taxes" :key="tax.description"><dt>{{ tax.description }}<template v-if="tax.taux"> ({{ formatQty(tax.taux) }} %)</template></dt><dd class="tabular-nums">{{ formatAmount(tax.montant) }} DA</dd></div>
+									<div v-for="tax in devis.taxes" :key="tax.description"><dt>{{ tax.description }}</dt><dd class="tabular-nums">{{ formatAmount(tax.montant) }} DA</dd></div>
 									<div class="devis-total-ttc"><dt>Total TTC</dt><dd class="tabular-nums">{{ formatAmount(devis.arrondi ?? devis.total_ttc) }} DA</dd></div>
 								</dl>
 								<p v-if="devis.en_lettres" class="text-sm text-ink-gray-6">{{ devis.en_lettres }}</p>

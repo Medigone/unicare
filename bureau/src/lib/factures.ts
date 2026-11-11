@@ -110,7 +110,8 @@ export interface FactureDetail {
 	cree_par: string
 	taxes_modele: string | null
 	lignes: FactureLine[]
-	taxes: { description: string; taux: number; montant: number }[]
+	/** Une ligne « TVA », et le droit de timbre à part s'il y en a un. */
+	taxes: { description: string; montant: number }[]
 	total: number
 	total_taxes: number
 	total_ttc: number

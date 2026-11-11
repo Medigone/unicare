@@ -6,7 +6,8 @@ import frappe
 from frappe.tests.utils import FrappeTestCase
 from frappe.utils import add_days, today
 
-from unicare.api import bureau_achats, bureau_bulk, bureau_devis_fournisseur, bureau_fournisseurs
+from unicare.api import bureau_achats, bureau_bulk, bureau_devis, bureau_devis_fournisseur, bureau_fournisseurs
+from unicare.setup.algeria import bareme_timbre, get_account
 from unicare.tests.achats_outils import article, fournisseur
 
 DF = bureau_devis_fournisseur
@@ -106,3 +107,26 @@ class TestDevisFournisseur(FrappeTestCase):
 		result = bureau_bulk.bulk_delete("Supplier Quotation", json.dumps([{"name": name, "modified": fiche["modified"]}]))
 		self.assertEqual(result["done"], [])
 		self.assertEqual(len(result["skipped"]), 1)
+
+
+class TestAffichageLignesEtTva(FrappeTestCase):
+	def test_description_html_masquee_si_egale_a_la_designation(self):
+		ligne = frappe._dict(item_name="Shampoing Vrac", description="<div><p>Shampoing Vrac</p></div>")
+		self.assertIsNone(bureau_devis.line_description(ligne))
+		ligne.description = "<div><p>Parfum <b>lavande</b></p></div>"
+		self.assertEqual(bureau_devis.line_description(ligne), "Parfum lavande")
+
+	def test_une_seule_ligne_tva_et_le_timbre_a_part(self):
+		company = DF._company()
+		timbre = get_account(company, bareme_timbre()["compte"])
+		taxes = [
+			frappe._dict(account_head="44566 - TVA", description="TVA déductible 19%", tax_amount=1900),
+			frappe._dict(account_head="44566 - TVA", description="TVA 9%", tax_amount=90),
+		]
+		if timbre:
+			taxes.append(frappe._dict(account_head=timbre, description="Droit de timbre", tax_amount=10))
+		lines = bureau_devis.tax_lines(frappe._dict(company=company, taxes=taxes))
+		self.assertEqual(lines[0], {"description": "TVA", "montant": 1990})
+		if timbre:
+			self.assertEqual(lines[1], {"description": "Droit de timbre", "montant": 10})
+		self.assertEqual(bureau_devis.tax_lines(frappe._dict(company=company, taxes=[])), [])

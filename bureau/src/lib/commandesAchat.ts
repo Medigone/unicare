@@ -87,7 +87,8 @@ export interface CommandeAchatDetail {
 	devise: string
 	taxes_modele: string | null
 	lignes: CommandeAchatLine[]
-	taxes: { description: string; taux: number; montant: number }[]
+	/** Une ligne « TVA », et le droit de timbre à part s'il y en a un. */
+	taxes: { description: string; montant: number }[]
 	total: number
 	total_taxes: number
 	total_ttc: number

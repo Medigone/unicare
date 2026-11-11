@@ -219,7 +219,7 @@ async function confirm() {
 								</table></div>
 								<dl class="devis-totaux">
 									<div><dt>Total HT</dt><dd class="tabular-nums">{{ formatAmount(commande.total) }} DA</dd></div>
-									<div v-for="tax in commande.taxes" :key="tax.description"><dt>{{ tax.description }}<template v-if="tax.taux"> ({{ formatQty(tax.taux) }} %)</template></dt><dd class="tabular-nums">{{ formatAmount(tax.montant) }} DA</dd></div>
+									<div v-for="tax in commande.taxes" :key="tax.description"><dt>{{ tax.description }}</dt><dd class="tabular-nums">{{ formatAmount(tax.montant) }} DA</dd></div>
 									<div class="devis-total-ttc"><dt>Total TTC</dt><dd class="tabular-nums">{{ formatAmount(commande.arrondi ?? commande.total_ttc) }} DA</dd></div>
 								</dl>
 								<p v-if="commande.en_lettres" class="text-sm text-ink-gray-6">{{ commande.en_lettres }}</p>

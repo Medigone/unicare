@@ -13,7 +13,7 @@ from frappe import _
 from frappe.utils import cint, cstr, flt, get_fullname, getdate, today
 
 from unicare.api import activity
-from unicare.api.bureau_devis import TAXES, _day, _status, _taxes_templates
+from unicare.api.bureau_devis import TAXES, _day, _status, _taxes_templates, tax_lines
 from unicare.api.bureau_list import (
 	BELL_FIELD,
 	_parse,
@@ -327,10 +327,7 @@ def _facture_payload(doc):
 		"cree_par": get_fullname(doc.owner),
 		"taxes_modele": doc.taxes_and_charges,
 		"lignes": [_line(item) for item in doc.items],
-		"taxes": [
-			{"description": row.description, "taux": flt(row.rate), "montant": flt(row.tax_amount)}
-			for row in doc.taxes
-		],
+		"taxes": tax_lines(doc),
 		"total": flt(doc.net_total),
 		"total_taxes": flt(doc.total_taxes_and_charges),
 		"total_ttc": _total(doc),

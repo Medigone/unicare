@@ -80,6 +80,34 @@ def _status(row):
 	return "Draft" if cint(row.get("docstatus")) == 0 else row.get("status")
 
 
+def line_description(item):
+	"""La description d'une ligne, en texte, quand elle dit autre chose que la désignation. ERPNext la stocke en HTML."""
+	from frappe.utils import strip_html
+
+	text = strip_html(cstr(item.description)).strip()
+	return None if text in ("", cstr(item.item_name).strip()) else text
+
+
+def tax_lines(doc):
+	"""Les taxes d'une pièce telles qu'affichées : une seule ligne « TVA », quel que soit le modèle ou le taux.
+
+	Le droit de timbre (compte du barème algérien) reste à part, sous son propre libellé.
+	"""
+	from unicare.setup.algeria import bareme_timbre, get_account
+
+	timbre = get_account(doc.company, bareme_timbre()["compte"]) if doc.get("company") else None
+	tva = 0
+	lines = []
+	for row in doc.get("taxes") or []:
+		if timbre and row.account_head == timbre:
+			lines.append({"description": row.description or _("Droit de timbre"), "montant": flt(row.tax_amount)})
+		else:
+			tva += flt(row.tax_amount)
+	if doc.get("taxes") and (tva or not lines):
+		lines.insert(0, {"description": _("TVA"), "montant": flt(tva, 2)})
+	return lines
+
+
 def in_view(view, row, current_day=None):
 	if view == "all":
 		return True
@@ -330,7 +358,7 @@ def _line(item):
 		"name": item.name,
 		"article": item.item_code,
 		"designation": item.item_name or item.item_code,
-		"description": None if cstr(item.description).strip() in ("", item.item_name) else item.description,
+		"description": line_description(item),
 		"quantite": flt(item.qty),
 		"unite": item.uom,
 		"prix": flt(item.rate),
@@ -366,10 +394,7 @@ def _devis_payload(doc):
 		"devise": doc.currency,
 		"taxes_modele": doc.taxes_and_charges,
 		"lignes": [_line(item) for item in doc.items],
-		"taxes": [
-			{"description": row.description, "taux": flt(row.rate), "montant": flt(row.tax_amount)}
-			for row in doc.taxes
-		],
+		"taxes": tax_lines(doc),
 		"total": flt(doc.net_total),
 		"total_taxes": flt(doc.total_taxes_and_charges),
 		"total_ttc": flt(doc.grand_total),

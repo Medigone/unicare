@@ -20,7 +20,7 @@ from unicare.api.bureau_achats import (
 	replace_disabled_taxes,
 	set_purchase_taxes,
 )
-from unicare.api.bureau_devis import _company, _day, _status
+from unicare.api.bureau_devis import _company, _day, _status, tax_lines
 from unicare.api.bureau_factures import MODE, PAIEMENT, _modes, _payment_account
 from unicare.api.bureau_list import (
 	BELL_FIELD,
@@ -333,10 +333,7 @@ def _facture_payload(doc):
 		"cree_par": get_fullname(doc.owner),
 		"taxes_modele": doc.taxes_and_charges,
 		"lignes": [_line(item) for item in doc.items],
-		"taxes": [
-			{"description": row.description, "taux": flt(row.rate), "montant": flt(row.tax_amount)}
-			for row in doc.taxes
-		],
+		"taxes": tax_lines(doc),
 		"total": flt(doc.net_total),
 		"total_taxes": flt(doc.total_taxes_and_charges),
 		"total_ttc": _total(doc),
