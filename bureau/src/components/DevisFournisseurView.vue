@@ -13,6 +13,7 @@ import FormDialog from '@shared/components/FormDialog.vue'
 import MoreMenu from '@shared/components/MoreMenu.vue'
 import StatusPill from '@shared/components/StatusPill.vue'
 import AppToast from './AppToast.vue'
+import VersionsCard from './VersionsCard.vue'
 import AchatDialog from './AchatDialog.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
@@ -22,6 +23,8 @@ import { formatAmount } from '@/lib/clients'
 import { dayFromToday } from '@/lib/devis'
 import type { DevisFournisseurDetail } from '@/lib/devisFournisseur'
 import { confirmAction } from '@/lib/confirm'
+import { createPieceVersion } from '@/lib/api'
+import { canCreate } from '@/lib/droits'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useDevisFournisseur } from '@/lib/useDevisFournisseur'
 
@@ -72,14 +75,16 @@ async function valider() {
 }
 
 // Confirmations : annuler un devis validé, supprimer un brouillon.
-const confirming = ref<'annuler' | 'supprimer' | null>(null)
+const confirming = ref<'annuler' | 'annuler_version' | 'supprimer' | null>(null)
 async function confirm() {
 	const current = devis.value
 	const action = confirming.value
 	if (!current || !action) return
-	if (action === 'annuler') {
-		if (await perform(() => runDevisFournisseurAction(current, 'annuler'))) notice.value = 'Devis annulé.'
+	if (action === 'annuler' || action === 'annuler_version') {
+		const cancelled = await perform(() => runDevisFournisseurAction(current, 'annuler'))
+		if (cancelled) notice.value = 'Devis annulé.'
 		confirming.value = null
+		if (cancelled && action === 'annuler_version') await nouvelleVersion(true)
 		return
 	}
 	busy.value = true
@@ -114,6 +119,25 @@ async function createCommande() {
 		createdCommande.value = name
 	}
 }
+// Versions : une pièce annulée se refait en nouvelle version (brouillon NOM-1), comme « Modifier » sur le Desk.
+const versionRouter = useRouter()
+async function nouvelleVersion(confirmed = false) {
+	const current = devis.value
+	if (!current) return
+	if (!confirmed && !(await confirmAction({ title: 'Nouvelle version', message: `Une nouvelle version de ${current.name} sera créée en brouillon, avec le même contenu : vous la corrigerez puis la validerez.`, confirmLabel: 'Créer la nouvelle version' }))) return
+	busy.value = true
+	actionError.value = ''
+	try {
+		const result = await createPieceVersion('devis_fournisseur', current)
+		emit('changed')
+		await versionRouter.push({ name: 'DevisFournisseurFiche', params: { id: result.name } })
+		notice.value = result.note || `Nouvelle version ${result.name} créée en brouillon.`
+	} catch (e) {
+		actionError.value = (e as Error).message
+	} finally {
+		busy.value = false
+	}
+}
 </script>
 
 <template>
@@ -135,6 +159,7 @@ async function createCommande() {
 					<div><TagEditor doctype="Supplier Quotation" :name="devis.name" :modified="devis.modified" :tags="devis.tags" :can-edit="true" @changed="(tags) => (devis!.tags = tags)" /></div>
 				</template>
 				<template #actions>
+					<button v-if="can('nouvelle_version')" type="button" class="btn-primary" :disabled="busy" @click="nouvelleVersion()">Nouvelle version</button>
 					<button v-if="can('valider')" type="button" class="btn-primary" :disabled="busy || devis.blocked.length > 0" :title="devis.blocked.join(' ') || undefined" @click="valider">Valider</button>
 					<button v-if="can('commande')" type="button" class="btn-primary" :disabled="busy" @click="ordering = true">Créer la commande</button>
 					<button v-if="can('modifier')" type="button" class="btn-secondary" :disabled="busy" @click="editing = true">Modifier</button>
@@ -148,7 +173,7 @@ async function createCommande() {
 						<template v-if="can('annuler') || can('supprimer')">
 							<div class="app-menu-sep"></div>
 							<button v-if="can('annuler')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'annuler'">Annuler le devis</button>
-							<button v-if="can('supprimer')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'supprimer'">Supprimer le brouillon</button>
+							<button v-if="can('supprimer')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'supprimer'">{{ devis.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon' }}</button>
 						</template>
 					</MoreMenu>
 				</template>
@@ -171,6 +196,7 @@ async function createCommande() {
 					<p v-if="actionError" role="alert" class="flex-none rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
 					<div class="bureau-detail">
 						<div class="bureau-center">
+							<VersionsCard :versions="devis.versions" :docstatus="devis.docstatus" fiche="DevisFournisseurFiche" :can-amend="can('nouvelle_version')" :busy="busy" @amend="nouvelleVersion()" />
 							<div v-if="devis.blocked.length" role="status" class="rounded-control tone-amber px-3.5 py-2.5">
 								<strong class="font-semibold">Pas encore validable :</strong> {{ devis.blocked.join(' ') }}
 								<button v-if="can('modifier')" type="button" class="font-medium underline" @click="editing = true">Modifier le devis</button>
@@ -235,10 +261,11 @@ async function createCommande() {
 			</template>
 		</FormDialog>
 
-		<FormDialog v-if="confirming && devis" :title="confirming === 'annuler' ? 'Annuler le devis' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming === 'annuler' ? `Le devis fournisseur ${devis.name} sera annulé : il reste lisible mais ne peut plus être commandé.` : `Le brouillon ${devis.name} sera supprimé définitivement.` }}</p>
+		<FormDialog v-if="confirming && devis" :title="confirming !== 'supprimer' ? 'Annuler le devis' : devis.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
+			<p>{{ confirming !== 'supprimer' ? `Le devis fournisseur ${devis.name} sera annulé : il reste lisible mais ne peut plus être commandé.` : devis.docstatus === 2 ? `La pièce annulée ${devis.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${devis.name} sera supprimé définitivement.` }}</p>
 			<template #actions>
-				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming === 'annuler' ? 'Annuler le devis' : 'Supprimer' }}</button>
+				<button v-if="confirming === 'annuler' && canCreate('Supplier Quotation')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
+				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler le devis' : 'Supprimer' }}</button>
 			</template>
 		</FormDialog>
 

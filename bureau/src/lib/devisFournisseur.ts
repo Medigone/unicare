@@ -7,6 +7,7 @@ import { formatDay } from './display'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export type DevisFournisseurView = 'all' | 'brouillons' | 'ouverts' | 'expirent' | 'commandes' | 'clos'
 
@@ -47,7 +48,7 @@ export interface DevisFournisseurResponse extends ListResponse {
 	page_length: number
 }
 
-export type DevisFournisseurAction = 'modifier' | 'valider' | 'supprimer' | 'commande' | 'annuler'
+export type DevisFournisseurAction = 'modifier' | 'valider' | 'supprimer' | 'commande' | 'annuler' | 'nouvelle_version'
 
 export interface DevisFournisseurDetail {
 	name: string
@@ -74,6 +75,9 @@ export interface DevisFournisseurDetail {
 	en_lettres: string | null
 	/** null : la personne ne lit pas les commandes d'achat. */
 	commandes: { name: string; status: string; date: string | null; reception: string | null; total: number }[] | null
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: DevisFournisseurAction[]
 	blocked: string[]
 	can_print: boolean

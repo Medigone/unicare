@@ -7,6 +7,7 @@ import { formatDay } from './display'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export { formatPercent } from './commandes'
 export type { StatusAction, Suivante } from './commandes'
@@ -69,7 +70,7 @@ export interface CommandeAchatLine {
 	devis: string | null
 }
 
-export type CommandeAchatAction = 'modifier' | 'valider' | 'supprimer' | 'reception' | 'facture' | StatusAction | 'annuler'
+export type CommandeAchatAction = 'modifier' | 'valider' | 'supprimer' | 'reception' | 'facture' | StatusAction | 'annuler' | 'nouvelle_version'
 
 export interface CommandeAchatDetail {
 	name: string
@@ -100,6 +101,9 @@ export interface CommandeAchatDetail {
 	/** null : la personne ne lit pas ces pièces. */
 	receptions: Suivante[] | null
 	factures: Suivante[] | null
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: CommandeAchatAction[]
 	blocked: string[]
 	can_print: boolean

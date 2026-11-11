@@ -46,6 +46,11 @@ function showPreview(name?: string) {
 function openFiche(name: string, tab?: string) {
 	router.push({ name: 'Client', params: { id: name }, query: tab ? { onglet: tab } : {} })
 }
+// Fiche supprimée : retour à la liste, sans elle.
+function onDeleted() {
+	router.push({ name: 'Clients', query: listQuery() })
+	state.load()
+}
 function backToList() {
 	if (props.id) state.reveal(props.id)
 	router.push({ name: 'Clients', query: listQuery(props.id ? { apercu: props.id } : {}) })
@@ -128,7 +133,7 @@ onBeforeUnmount(closeRealtime)
 						<button type="button" class="icon-btn" aria-label="Client suivant" :disabled="noNext" @click="go(1)"><LucideChevronRight class="h-4 w-4" aria-hidden="true" /></button>
 					</div>
 				</div>
-				<ClientView :id="id" ref="fiche" :tab="tabFromRoute" @tab="setTab" @changed="state.load()" />
+				<ClientView :id="id" ref="fiche" :tab="tabFromRoute" @tab="setTab" @changed="state.load()" @deleted="onDeleted" />
 			</template>
 		</div>
 	</BureauShell>

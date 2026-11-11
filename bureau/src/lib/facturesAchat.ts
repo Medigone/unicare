@@ -5,6 +5,7 @@ import { factureStatus, factureTone, type Paiement } from './factures'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export { validateEncaissement as validatePaiementFournisseur, type EncaissementValues as PaiementFournisseurValues } from './factures'
 
@@ -67,7 +68,7 @@ export interface FactureAchatLine {
 	reception: string | null
 }
 
-export type FactureAchatAction = 'modifier' | 'valider' | 'supprimer' | 'payer' | 'avoir' | 'annuler'
+export type FactureAchatAction = 'modifier' | 'valider' | 'supprimer' | 'payer' | 'avoir' | 'annuler' | 'nouvelle_version'
 
 export interface FactureAchatDetail {
 	name: string
@@ -101,6 +102,9 @@ export interface FactureAchatDetail {
 	/** null : la personne ne lit pas les paiements. */
 	paiements: Paiement[] | null
 	avoirs: { name: string; status: string; date: string | null; total: number }[]
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: FactureAchatAction[]
 	blocked: string[]
 	modes: { value: string; type: string }[]

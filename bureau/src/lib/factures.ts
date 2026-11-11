@@ -5,6 +5,7 @@ import { formatDay } from './display'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export type FactureView = 'all' | 'brouillons' | 'impayees' | 'en_retard' | 'payees' | 'avoirs' | 'clos'
 
@@ -82,7 +83,7 @@ export interface FactureLine {
 	livraison: string | null
 }
 
-export type FactureAction = 'modifier' | 'valider' | 'supprimer' | 'encaisser' | 'avoir' | 'annuler'
+export type FactureAction = 'modifier' | 'valider' | 'supprimer' | 'encaisser' | 'avoir' | 'annuler' | 'nouvelle_version'
 
 export interface Paiement {
 	name: string
@@ -123,6 +124,9 @@ export interface FactureDetail {
 	/** null : la personne ne lit pas les paiements. */
 	paiements: Paiement[] | null
 	avoirs: { name: string; status: string; date: string | null; total: number }[]
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: FactureAction[]
 	blocked: string[]
 	modes: { value: string; type: string }[]

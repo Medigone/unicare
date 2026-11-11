@@ -28,6 +28,7 @@ from unicare.api.bureau_list import (
 	row_tags,
 )
 from unicare.api.bureau_postes import require_bureau
+from unicare.api.bureau_versions import amend, cancelled_actions, versions
 from unicare.conditionnement.purchase_receipt_hooks import CONDITIONNEMENT_RECEIPT_TYPES
 
 RECEPTION = "Purchase Receipt"
@@ -248,6 +249,8 @@ def blocked(doc):
 
 
 def actions(doc):
+	if doc.docstatus == 2:
+		return cancelled_actions(doc)
 	found = []
 	if doc.docstatus == 0:
 		if doc.has_permission("write"):
@@ -339,6 +342,8 @@ def _reception_payload(doc):
 		"commandes": commandes,
 		"factures": factures,
 		"retours": retours,
+		"version_de": doc.get("amended_from") or None,
+		"versions": versions(doc),
 		"actions": allowed,
 		"blocked": blocked(doc) if "valider" in allowed else [],
 		"can_print": bool(doc.has_permission("print")),
@@ -480,6 +485,13 @@ def delete_reception(name, modified):
 
 
 @frappe.whitelist(methods=["POST"])
+def create_version(name, modified):
+	"""Nouvelle version (brouillon `NOM-1`) d'une pièce annulée, comme « Modifier » sur le Desk."""
+	doc = _for_work(name, modified, "nouvelle_version")
+	return amend(doc)
+
+
+@frappe.whitelist(methods=["POST"])
 def create_suivante(name, modified, kind):
 	"""Facture d'achat ou retour fournisseur en brouillon, par les outils standard d'ERPNext."""
 	from erpnext.stock.doctype.purchase_receipt.purchase_receipt import (
@@ -511,7 +523,8 @@ def reception_for_bulk(name, modified):
 
 
 def bulk_guard(doc, operation):
-	if doc.docstatus != 0:
+	# Une pièce annulée peut se supprimer en groupe ; seuls les brouillons se modifient.
+	if doc.docstatus != 0 and not (operation == "delete" and doc.docstatus == 2):
 		return _("Réception validée ou annulée : elle ne change plus.")
 	return None
 

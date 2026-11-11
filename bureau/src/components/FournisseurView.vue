@@ -18,13 +18,14 @@ import AppToast from './AppToast.vue'
 import FournisseurDialog from './FournisseurDialog.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
-import { fournisseurActivity, setFournisseurPiece } from '@/lib/api'
+import { deleteFournisseur, fournisseurActivity, setFournisseurPiece } from '@/lib/api'
 import { formatAmount, type AchatKey, type FournisseurAchat, type FournisseurDetail } from '@/lib/fournisseurs'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useFournisseur } from '@/lib/useFournisseur'
 
 const props = defineProps<{ id: string; tab?: string }>()
-const emit = defineEmits<{ tab: [tab: string]; changed: [] }>()
+const emit = defineEmits<{ tab: [tab: string]; changed: []; deleted: [] }>()
 
 const { fournisseur, error, notFound, actionError, notice, noticeTone, busy, load, perform, refresh } = useFournisseur(
 	() => props.id,
@@ -109,6 +110,22 @@ function onPieceUploaded(file: UploadedFile) {
 	const current = fournisseur.value
 	if (current && pendingPiece) perform(() => setFournisseurPiece(current, pendingPiece, file.file_url))
 }
+// Suppression de la fiche : Frappe refuse tant qu'une pièce ou un autre document y est lié, et le message le dit.
+async function supprimer() {
+	const current = fournisseur.value
+	if (!current) return
+	if (!(await confirmAction({ title: 'Supprimer le fournisseur', message: `${current.name} sera supprimé définitivement. Si une pièce ou un autre document y est lié, la suppression est refusée et rien ne change.`, confirmLabel: 'Supprimer', danger: true }))) return
+	busy.value = true
+	actionError.value = ''
+	try {
+		await deleteFournisseur(current)
+		emit('deleted')
+	} catch (e) {
+		actionError.value = (e as Error).message
+	} finally {
+		busy.value = false
+	}
+}
 </script>
 
 <template>
@@ -134,6 +151,10 @@ function onPieceUploaded(file: UploadedFile) {
 					<MoreMenu>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>
 						<a class="app-menu-item" role="menuitem" :href="deskUrl('Supplier', fournisseur.name)" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Ouvrir sur le Desk</a>
+						<template v-if="fournisseur.can_delete">
+							<div class="app-menu-sep"></div>
+							<button type="button" class="app-menu-item text-tone-red" role="menuitem" :disabled="busy" @click="supprimer">Supprimer le fournisseur</button>
+						</template>
 					</MoreMenu>
 				</template>
 			</RecordHeader>

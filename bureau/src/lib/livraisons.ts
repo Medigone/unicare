@@ -5,6 +5,7 @@ import { formatDay } from './display'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export type LivraisonView = 'all' | 'brouillons' | 'a_facturer' | 'facturees' | 'retours' | 'clos'
 
@@ -67,7 +68,7 @@ export interface LivraisonLine {
 	lots?: Record<string, LotChoice[]>
 }
 
-export type LivraisonAction = 'preparer' | 'valider' | 'supprimer' | 'facture' | 'retour' | 'annuler'
+export type LivraisonAction = 'preparer' | 'valider' | 'supprimer' | 'facture' | 'retour' | 'annuler' | 'nouvelle_version'
 
 export interface LivraisonSuivante {
 	name: string
@@ -100,6 +101,9 @@ export interface LivraisonDetail {
 	commandes: string[]
 	factures: LivraisonSuivante[] | null
 	retours: LivraisonSuivante[]
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: LivraisonAction[]
 	blocked: string[]
 	can_print: boolean

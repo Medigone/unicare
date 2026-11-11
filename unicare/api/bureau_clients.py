@@ -436,6 +436,7 @@ def _client_payload(doc, full=False):
 		],
 		"contacts": _contacts(doc),
 		"can_edit": bool(doc.has_permission("write")),
+		"can_delete": bool(doc.has_permission("delete")),
 	}
 	if full:
 		payload.update(
@@ -648,3 +649,12 @@ def delete_client_comment(name, comment):
 def get_mention_candidates():
 	require_bureau()
 	return activity.mention_candidates()
+
+
+@frappe.whitelist(methods=["POST"])
+def delete_client(name, modified):
+	"""Supprime la fiche, comme sur le Desk : Frappe refuse tant qu'une pièce ou un autre document y est lié."""
+	doc = _client_for_write(name, modified)
+	doc.check_permission("delete")
+	frappe.delete_doc(CUSTOMER, doc.name)
+	return {"deleted": doc.name}

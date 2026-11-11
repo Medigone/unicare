@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { computed, ref } from 'vue'
 import LucideArrowDownLeft from '~icons/lucide/arrow-down-left'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
@@ -14,12 +15,15 @@ import FormDialog from '@shared/components/FormDialog.vue'
 import MoreMenu from '@shared/components/MoreMenu.vue'
 import StatusPill from '@shared/components/StatusPill.vue'
 import AppToast from './AppToast.vue'
+import VersionsCard from './VersionsCard.vue'
 import PaiementAssistant from './PaiementAssistant.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
 import { deletePaiement, paiementActivity, paiementPdfUrl, paiementPrintUrl, runPaiementAction } from '@/lib/api'
 import { formatAmount } from '@/lib/clients'
 import { confirmAction } from '@/lib/confirm'
+import { createPieceVersion } from '@/lib/api'
+import { canCreate } from '@/lib/droits'
 import { deskUrl, formatDay } from '@/lib/display'
 import { PAIEMENT_STATUS, type PaiementDetail } from '@/lib/paiements'
 import { usePaiement } from '@/lib/usePaiement'
@@ -73,14 +77,16 @@ async function copyLink() {
 	}
 }
 
-const confirming = ref<'annuler' | 'supprimer' | null>(null)
+const confirming = ref<'annuler' | 'annuler_version' | 'supprimer' | null>(null)
 async function confirm() {
 	const current = paiement.value
 	const action = confirming.value
 	if (!current || !action) return
-	if (action === 'annuler') {
-		if (await perform(() => runPaiementAction(current, 'annuler'))) notice.value = 'Paiement annulé : les pièces retrouvent leur reste dû.'
+	if (action === 'annuler' || action === 'annuler_version') {
+		const cancelled = await perform(() => runPaiementAction(current, 'annuler'))
+		if (cancelled) notice.value = 'Paiement annulé : les pièces retrouvent leur reste dû.'
 		confirming.value = null
+		if (cancelled && action === 'annuler_version') await nouvelleVersion(true)
 		return
 	}
 	busy.value = true
@@ -91,6 +97,25 @@ async function confirm() {
 	} catch (e) {
 		actionError.value = (e as Error).message
 		confirming.value = null
+	} finally {
+		busy.value = false
+	}
+}
+// Versions : une pièce annulée se refait en nouvelle version (brouillon NOM-1), comme « Modifier » sur le Desk.
+const versionRouter = useRouter()
+async function nouvelleVersion(confirmed = false) {
+	const current = paiement.value
+	if (!current) return
+	if (!confirmed && !(await confirmAction({ title: 'Nouvelle version', message: `Une nouvelle version de ${current.name} sera créée en brouillon, avec le même contenu : vous la corrigerez puis la validerez.`, confirmLabel: 'Créer la nouvelle version' }))) return
+	busy.value = true
+	actionError.value = ''
+	try {
+		const result = await createPieceVersion('paiements', current)
+		emit('changed')
+		await versionRouter.push({ name: 'PaiementFiche', params: { id: result.name } })
+		notice.value = result.note || `Nouvelle version ${result.name} créée en brouillon.`
+	} catch (e) {
+		actionError.value = (e as Error).message
 	} finally {
 		busy.value = false
 	}
@@ -119,6 +144,7 @@ async function confirm() {
 					<div><TagEditor doctype="Payment Entry" :name="paiement.name" :modified="paiement.modified" :tags="paiement.tags" :can-edit="true" @changed="(tags) => (paiement!.tags = tags)" /></div>
 				</template>
 				<template #actions>
+					<button v-if="can('nouvelle_version')" type="button" class="btn-primary" :disabled="busy" @click="nouvelleVersion()">Nouvelle version</button>
 					<button v-if="can('modifier')" type="button" class="btn-secondary" :disabled="busy" @click="editing = true">Modifier</button>
 					<button v-if="can('valider')" type="button" class="btn-primary" :disabled="busy" @click="valider">Valider le paiement</button>
 					<MoreMenu>
@@ -132,7 +158,7 @@ async function confirm() {
 						<template v-if="can('annuler') || can('supprimer')">
 							<div class="app-menu-sep"></div>
 							<button v-if="can('annuler')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'annuler'">Annuler le paiement</button>
-							<button v-if="can('supprimer')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'supprimer'">Supprimer le brouillon</button>
+							<button v-if="can('supprimer')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'supprimer'">{{ paiement.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon' }}</button>
 						</template>
 					</MoreMenu>
 				</template>
@@ -162,6 +188,7 @@ async function confirm() {
 					<p v-if="actionError" role="alert" class="flex-none rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
 					<div class="bureau-detail">
 						<div class="bureau-center">
+							<VersionsCard :versions="paiement.versions" :docstatus="paiement.docstatus" fiche="PaiementFiche" :can-amend="can('nouvelle_version')" :busy="busy" @amend="nouvelleVersion()" />
 							<div v-if="paiement.status === 'Draft'" role="status" class="rounded-control tone-amber px-3.5 py-2.5">
 								<strong class="font-semibold">Brouillon :</strong> relisez le montant et le rapprochement, puis validez pour passer l'écriture.
 							</div>
@@ -205,10 +232,11 @@ async function confirm() {
 
 		<PaiementAssistant v-if="editing && paiement" :paiement="paiement" @close="editing = false" @saved="onSaved" />
 
-		<FormDialog v-if="confirming && paiement" :title="confirming === 'annuler' ? 'Annuler le paiement' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming === 'annuler' ? `Le paiement ${paiement.name} sera annulé : l'écriture est contrepassée et les pièces rapprochées retrouvent leur reste dû.` : `Le brouillon ${paiement.name} sera supprimé.` }}</p>
+		<FormDialog v-if="confirming && paiement" :title="confirming !== 'supprimer' ? 'Annuler le paiement' : paiement.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
+			<p>{{ confirming !== 'supprimer' ? `Le paiement ${paiement.name} sera annulé : l'écriture est contrepassée et les pièces rapprochées retrouvent leur reste dû.` : paiement.docstatus === 2 ? `La pièce annulée ${paiement.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${paiement.name} sera supprimé.` }}</p>
 			<template #actions>
-				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming === 'annuler' ? 'Annuler le paiement' : 'Supprimer' }}</button>
+				<button v-if="confirming === 'annuler' && canCreate('Payment Entry')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
+				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler le paiement' : 'Supprimer' }}</button>
 			</template>
 		</FormDialog>
 

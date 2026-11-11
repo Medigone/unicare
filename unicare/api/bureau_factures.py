@@ -25,6 +25,7 @@ from unicare.api.bureau_list import (
 	row_tags,
 )
 from unicare.api.bureau_postes import require_bureau
+from unicare.api.bureau_versions import amend, cancelled_actions, versions
 
 FACTURE = "Sales Invoice"
 LIGNES = "Sales Invoice Item"
@@ -267,6 +268,8 @@ def blocked(doc):
 
 
 def actions(doc):
+	if doc.docstatus == 2:
+		return cancelled_actions(doc)
 	found = []
 	if doc.docstatus == 0:
 		if doc.has_permission("write"):
@@ -338,6 +341,8 @@ def _facture_payload(doc):
 		"livraisons": sources["livraisons"],
 		"paiements": _paiements(doc),
 		"avoirs": _avoirs(doc),
+		"version_de": doc.get("amended_from") or None,
+		"versions": versions(doc),
 		"actions": allowed,
 		"blocked": blocked(doc) if "valider" in allowed else [],
 		"modes": [{"value": row.name, "type": row.type} for row in _modes()]
@@ -448,6 +453,13 @@ def delete_facture(name, modified):
 	return {"deleted": doc.name}
 
 
+@frappe.whitelist(methods=["POST"])
+def create_version(name, modified):
+	"""Nouvelle version (brouillon `NOM-1`) d'une pièce annulée, comme « Modifier » sur le Desk."""
+	doc = _for_work(name, modified, "nouvelle_version")
+	return amend(doc)
+
+
 def _payment_account(company, mode):
 	"""Compte d'arrivée : celui du mode de paiement pour la société, sinon la caisse ou la banque par défaut."""
 	account = frappe.db.get_value(
@@ -538,7 +550,8 @@ def facture_for_bulk(name, modified):
 
 
 def bulk_guard(doc, operation):
-	if doc.docstatus != 0:
+	# Une pièce annulée peut se supprimer en groupe ; seuls les brouillons se modifient.
+	if doc.docstatus != 0 and not (operation == "delete" and doc.docstatus == 2):
 		return _("Facture validée ou annulée : elle ne change plus.")
 	return None
 

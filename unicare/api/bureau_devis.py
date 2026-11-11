@@ -24,6 +24,7 @@ from unicare.api.bureau_list import (
 	row_tags,
 )
 from unicare.api.bureau_postes import require_bureau
+from unicare.api.bureau_versions import amend, cancelled_actions, versions
 
 DEVIS = "Quotation"
 LIGNES = "Quotation Item"
@@ -335,6 +336,8 @@ def _commandes(doc):
 
 def actions(doc):
 	"""Ce que cette personne peut faire sur ce devis, maintenant. Le serveur reste seul juge à l'exécution."""
+	if doc.docstatus == 2:
+		return cancelled_actions(doc)
 	found = []
 	if doc.docstatus == 0:
 		if doc.has_permission("write"):
@@ -401,6 +404,8 @@ def _devis_payload(doc):
 		"arrondi": flt(doc.rounded_total) or None,
 		"en_lettres": doc.in_words or None,
 		"commandes": _commandes(doc),
+		"version_de": doc.get("amended_from") or None,
+		"versions": versions(doc),
 		"actions": allowed,
 		"blocked": blocked(doc) if "valider" in allowed else [],
 		"raisons_perte": frappe.get_all(LOST_REASON, pluck="name", order_by="name asc")
@@ -566,6 +571,13 @@ def delete_devis(name, modified):
 
 
 @frappe.whitelist(methods=["POST"])
+def create_version(name, modified):
+	"""Nouvelle version (brouillon `NOM-1`) d'une pièce annulée, comme « Modifier » sur le Desk."""
+	doc = _for_work(name, modified, "nouvelle_version")
+	return amend(doc)
+
+
+@frappe.whitelist(methods=["POST"])
 def mark_lost(name, modified, raison, precisions=None):
 	"""Perdu, avec sa raison, comme le bouton du Desk."""
 	doc = _for_work(name, modified, "perdu")
@@ -613,7 +625,8 @@ def devis_for_bulk(name, modified):
 
 def bulk_guard(doc, operation):
 	"""Un devis validé ne se modifie ni ne se supprime en groupe : il passe par sa fiche (perdu, annuler)."""
-	if doc.docstatus != 0:
+	# Une pièce annulée peut se supprimer en groupe ; seuls les brouillons se modifient.
+	if doc.docstatus != 0 and not (operation == "delete" and doc.docstatus == 2):
 		return _("Devis validé ou annulé : il ne change plus.")
 	return None
 

@@ -4,6 +4,7 @@ import { formatDay } from './display'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export type PaiementView = 'all' | 'brouillons' | 'encaissements' | 'decaissements' | 'non_affectes' | 'annules'
 export type PaiementType = 'encaissement_client' | 'remboursement_client' | 'paiement_fournisseur' | 'remboursement_fournisseur'
@@ -63,7 +64,7 @@ export interface PieceOuverte {
 	deja: number
 }
 
-export type PaiementAction = 'modifier' | 'valider' | 'supprimer' | 'annuler'
+export type PaiementAction = 'modifier' | 'valider' | 'supprimer' | 'annuler' | 'nouvelle_version'
 
 export interface PaiementDetail {
 	name: string
@@ -91,6 +92,9 @@ export interface PaiementDetail {
 	en_lettres: string | null
 	affectations: { doctype: string; name: string; echeance: string | null; total: number; reste: number; montant: number }[]
 	cree_par: string
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: PaiementAction[]
 	can_print: boolean
 	comments: { count: number; last: { who: string; at: string; parts: CommentPart[] } | null }

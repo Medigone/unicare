@@ -18,13 +18,14 @@ import AppToast from './AppToast.vue'
 import ClientDialog from './ClientDialog.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
-import { clientActivity, setClientPiece } from '@/lib/api'
+import { clientActivity, deleteClient, setClientPiece } from '@/lib/api'
 import { formatAmount, type ClientDetail, type ClientVente, type VenteKey } from '@/lib/clients'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useClient } from '@/lib/useClient'
 
 const props = defineProps<{ id: string; tab?: string }>()
-const emit = defineEmits<{ tab: [tab: string]; changed: [] }>()
+const emit = defineEmits<{ tab: [tab: string]; changed: []; deleted: [] }>()
 
 const { client, error, notFound, actionError, notice, noticeTone, busy, load, perform, refresh } = useClient(
 	() => props.id,
@@ -111,6 +112,22 @@ function onPieceUploaded(file: UploadedFile) {
 	const current = client.value
 	if (current && pendingPiece) perform(() => setClientPiece(current, pendingPiece, file.file_url))
 }
+// Suppression de la fiche : Frappe refuse tant qu'une pièce ou un autre document y est lié, et le message le dit.
+async function supprimer() {
+	const current = client.value
+	if (!current) return
+	if (!(await confirmAction({ title: 'Supprimer le client', message: `${current.name} sera supprimé définitivement. Si une pièce ou un autre document y est lié, la suppression est refusée et rien ne change.`, confirmLabel: 'Supprimer', danger: true }))) return
+	busy.value = true
+	actionError.value = ''
+	try {
+		await deleteClient(current)
+		emit('deleted')
+	} catch (e) {
+		actionError.value = (e as Error).message
+	} finally {
+		busy.value = false
+	}
+}
 </script>
 
 <template>
@@ -139,6 +156,10 @@ function onPieceUploaded(file: UploadedFile) {
 						<div v-if="DESK_NEW.some((item) => client?.ventes?.[item.key])" class="app-menu-sep"></div>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>
 						<a class="app-menu-item" role="menuitem" :href="deskUrl('Customer', client.name)" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Ouvrir sur le Desk</a>
+						<template v-if="client.can_delete">
+							<div class="app-menu-sep"></div>
+							<button type="button" class="app-menu-item text-tone-red" role="menuitem" :disabled="busy" @click="supprimer">Supprimer le client</button>
+						</template>
 					</MoreMenu>
 				</template>
 			</RecordHeader>

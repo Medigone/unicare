@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { computed, ref } from 'vue'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideBuilding2 from '~icons/lucide/building-2'
@@ -15,6 +16,7 @@ import FormDialog from '@shared/components/FormDialog.vue'
 import MoreMenu from '@shared/components/MoreMenu.vue'
 import StatusPill from '@shared/components/StatusPill.vue'
 import AppToast from './AppToast.vue'
+import VersionsCard from './VersionsCard.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
 import VenteDialog from './VenteDialog.vue'
@@ -24,6 +26,8 @@ import { formatAmount } from '@/lib/clients'
 import { formatPercent, STATUS_ACTIONS, type CommandeDetail, type StatusAction } from '@/lib/commandes'
 import { dayFromToday } from '@/lib/devis'
 import { confirmAction } from '@/lib/confirm'
+import { createPieceVersion } from '@/lib/api'
+import { canCreate } from '@/lib/droits'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useCommande } from '@/lib/useCommande'
 
@@ -99,14 +103,16 @@ async function createNext(kind: 'livraison' | 'facture') {
 }
 
 // Confirmations : annuler une commande validée, supprimer un brouillon.
-const confirming = ref<'annuler' | 'supprimer' | null>(null)
+const confirming = ref<'annuler' | 'annuler_version' | 'supprimer' | null>(null)
 async function confirm() {
 	const current = commande.value
 	const action = confirming.value
 	if (!current || !action) return
-	if (action === 'annuler') {
-		if (await perform(() => runCommandeAction(current, 'annuler'))) notice.value = 'Commande annulée.'
+	if (action === 'annuler' || action === 'annuler_version') {
+		const cancelled = await perform(() => runCommandeAction(current, 'annuler'))
+		if (cancelled) notice.value = 'Commande annulée.'
 		confirming.value = null
+		if (cancelled && action === 'annuler_version') await nouvelleVersion(true)
 		return
 	}
 	busy.value = true
@@ -117,6 +123,25 @@ async function confirm() {
 	} catch (e) {
 		actionError.value = (e as Error).message
 		confirming.value = null
+	} finally {
+		busy.value = false
+	}
+}
+// Versions : une pièce annulée se refait en nouvelle version (brouillon NOM-1), comme « Modifier » sur le Desk.
+const versionRouter = useRouter()
+async function nouvelleVersion(confirmed = false) {
+	const current = commande.value
+	if (!current) return
+	if (!confirmed && !(await confirmAction({ title: 'Nouvelle version', message: `Une nouvelle version de ${current.name} sera créée en brouillon, avec le même contenu : vous la corrigerez puis la validerez.`, confirmLabel: 'Créer la nouvelle version' }))) return
+	busy.value = true
+	actionError.value = ''
+	try {
+		const result = await createPieceVersion('commandes', current)
+		emit('changed')
+		await versionRouter.push({ name: 'CommandeFiche', params: { id: result.name } })
+		notice.value = result.note || `Nouvelle version ${result.name} créée en brouillon.`
+	} catch (e) {
+		actionError.value = (e as Error).message
 	} finally {
 		busy.value = false
 	}
@@ -142,6 +167,7 @@ async function confirm() {
 					<div><TagEditor doctype="Sales Order" :name="commande.name" :modified="commande.modified" :tags="commande.tags" :can-edit="true" @changed="(tags) => (commande!.tags = tags)" /></div>
 				</template>
 				<template #actions>
+					<button v-if="can('nouvelle_version')" type="button" class="btn-primary" :disabled="busy" @click="nouvelleVersion()">Nouvelle version</button>
 					<button v-if="can('valider')" type="button" class="btn-primary" :disabled="busy || commande.blocked.length > 0" :title="commande.blocked.join(' ') || undefined" @click="valider">Valider</button>
 					<button v-if="can('livraison')" type="button" class="btn-primary" :disabled="busy" @click="createNext('livraison')">Créer la livraison</button>
 					<button v-if="can('facture')" type="button" class="btn-secondary" :disabled="busy" @click="createNext('facture')">Créer la facture</button>
@@ -161,7 +187,7 @@ async function confirm() {
 						<template v-if="can('annuler') || can('supprimer')">
 							<div class="app-menu-sep"></div>
 							<button v-if="can('annuler')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'annuler'">Annuler la commande</button>
-							<button v-if="can('supprimer')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'supprimer'">Supprimer le brouillon</button>
+							<button v-if="can('supprimer')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'supprimer'">{{ commande.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon' }}</button>
 						</template>
 					</MoreMenu>
 				</template>
@@ -192,6 +218,7 @@ async function confirm() {
 					<p v-if="actionError" role="alert" class="flex-none rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
 					<div class="bureau-detail">
 						<div class="bureau-center">
+							<VersionsCard :versions="commande.versions" :docstatus="commande.docstatus" fiche="CommandeFiche" :can-amend="can('nouvelle_version')" :busy="busy" @amend="nouvelleVersion()" />
 							<div v-if="commande.blocked.length" role="status" class="rounded-control tone-amber px-3.5 py-2.5">
 								<strong class="font-semibold">Pas encore validable :</strong> {{ commande.blocked.join(' ') }}
 								<button v-if="can('modifier')" type="button" class="font-medium underline" @click="editing = true">Modifier la commande</button>
@@ -250,10 +277,11 @@ async function confirm() {
 
 		<VenteDialog v-if="editing && commande" kind="commande" :piece="commande" @close="editing = false" @saved="(piece) => onSaved(piece as CommandeDetail)" />
 
-		<FormDialog v-if="confirming && commande" :title="confirming === 'annuler' ? 'Annuler la commande' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming === 'annuler' ? `La commande ${commande.name} sera annulée et libérera le stock réservé. ERPNext refuse si une livraison ou une facture validée en dépend.` : `Le brouillon ${commande.name} sera supprimé définitivement.` }}</p>
+		<FormDialog v-if="confirming && commande" :title="confirming !== 'supprimer' ? 'Annuler la commande' : commande.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
+			<p>{{ confirming !== 'supprimer' ? `La commande ${commande.name} sera annulée et libérera le stock réservé. ERPNext refuse si une livraison ou une facture validée en dépend.` : commande.docstatus === 2 ? `La pièce annulée ${commande.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${commande.name} sera supprimé définitivement.` }}</p>
 			<template #actions>
-				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming === 'annuler' ? 'Annuler la commande' : 'Supprimer' }}</button>
+				<button v-if="confirming === 'annuler' && canCreate('Sales Order')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
+				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler la commande' : 'Supprimer' }}</button>
 			</template>
 		</FormDialog>
 

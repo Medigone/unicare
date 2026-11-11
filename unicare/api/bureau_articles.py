@@ -389,6 +389,7 @@ def _article_payload(doc, full=False):
 		"depuis": str(doc.creation)[:10],
 		"stock": stock,
 		"can_edit": bool(doc.has_permission("write")),
+		"can_delete": bool(doc.has_permission("delete")),
 	}
 	if full:
 		payload.update(
@@ -534,3 +535,12 @@ def update_article_comment(name, comment, text, mentions=None):
 def delete_article_comment(name, comment):
 	require_bureau()
 	return activity.delete_comment(ITEM, name, comment)
+
+
+@frappe.whitelist(methods=["POST"])
+def delete_article(name, modified):
+	"""Supprime la fiche, comme sur le Desk : Frappe refuse tant qu'une pièce ou un autre document y est lié."""
+	doc = _article_for_write(name, modified)
+	doc.check_permission("delete")
+	frappe.delete_doc(ITEM, doc.name)
+	return {"deleted": doc.name}

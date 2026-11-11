@@ -36,6 +36,7 @@ from unicare.api.bureau_list import (
 	row_tags,
 )
 from unicare.api.bureau_postes import require_bureau
+from unicare.api.bureau_versions import amend, cancelled_actions, versions
 
 COMMANDE_ACHAT = "Purchase Order"
 LIGNES = "Purchase Order Item"
@@ -241,6 +242,8 @@ def blocked(doc):
 
 def actions(doc):
 	"""Ce que cette personne peut faire sur cette commande, maintenant. Le serveur reste seul juge à l'exécution."""
+	if doc.docstatus == 2:
+		return cancelled_actions(doc)
 	found = []
 	if doc.docstatus == 0:
 		if doc.has_permission("write"):
@@ -321,6 +324,8 @@ def _commande_payload(doc):
 		"devis": devis,
 		"receptions": _suivantes(RECEPTION, "Purchase Receipt Item", doc.name),
 		"factures": _suivantes(FACTURE_ACHAT, "Purchase Invoice Item", doc.name),
+		"version_de": doc.get("amended_from") or None,
+		"versions": versions(doc),
 		"actions": allowed,
 		"blocked": blocked(doc) if "valider" in allowed else [],
 		"can_print": bool(doc.has_permission("print")),
@@ -449,6 +454,13 @@ def delete_commande_achat(name, modified):
 	return {"deleted": doc.name}
 
 
+@frappe.whitelist(methods=["POST"])
+def create_version(name, modified):
+	"""Nouvelle version (brouillon `NOM-1`) d'une pièce annulée, comme « Modifier » sur le Desk."""
+	doc = _for_work(name, modified, "nouvelle_version")
+	return amend(doc)
+
+
 # Action du bureau → statut passé à `PurchaseOrder.update_status`, comme les boutons du Desk.
 STATUS_ACTIONS = {"attente": "On Hold", "reprendre": "Draft", "cloturer": "Closed", "rouvrir": "Draft"}
 
@@ -497,7 +509,8 @@ def commande_achat_for_bulk(name, modified):
 
 def bulk_guard(doc, operation):
 	"""Une commande validée ne se modifie ni ne se supprime en groupe : elle passe par sa fiche."""
-	if doc.docstatus != 0:
+	# Une pièce annulée peut se supprimer en groupe ; seuls les brouillons se modifient.
+	if doc.docstatus != 0 and not (operation == "delete" and doc.docstatus == 2):
 		return _("Commande validée ou annulée : elle ne change plus.")
 	return None
 

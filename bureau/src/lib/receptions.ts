@@ -6,6 +6,7 @@ import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { LivraisonSuivante } from './livraisons'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export type ReceptionView = 'all' | 'brouillons' | 'a_facturer' | 'facturees' | 'retours' | 'clos'
 
@@ -62,7 +63,7 @@ export interface ReceptionLine {
 	commande: string | null
 }
 
-export type ReceptionAction = 'preparer' | 'valider' | 'supprimer' | 'facture' | 'retour' | 'annuler'
+export type ReceptionAction = 'preparer' | 'valider' | 'supprimer' | 'facture' | 'retour' | 'annuler' | 'nouvelle_version'
 
 export interface ReceptionDetail {
 	name: string
@@ -91,6 +92,9 @@ export interface ReceptionDetail {
 	commandes: string[]
 	factures: LivraisonSuivante[] | null
 	retours: LivraisonSuivante[]
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: ReceptionAction[]
 	blocked: string[]
 	can_print: boolean

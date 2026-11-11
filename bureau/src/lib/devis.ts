@@ -5,6 +5,7 @@ import { formatDay } from './display'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export type DevisView = 'all' | 'brouillons' | 'ouverts' | 'expirent' | 'commandes' | 'clos'
 
@@ -56,7 +57,7 @@ export interface DevisLine {
 	montant: number
 }
 
-export type DevisAction = 'modifier' | 'valider' | 'supprimer' | 'commande' | 'perdu' | 'annuler'
+export type DevisAction = 'modifier' | 'valider' | 'supprimer' | 'commande' | 'perdu' | 'annuler' | 'nouvelle_version'
 
 export interface DevisDetail {
 	name: string
@@ -82,6 +83,9 @@ export interface DevisDetail {
 	en_lettres: string | null
 	/** null : la personne ne lit pas les commandes. */
 	commandes: { name: string; status: string; date: string | null; livraison: string | null; total: number }[] | null
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: DevisAction[]
 	blocked: string[]
 	raisons_perte: string[]

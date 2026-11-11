@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { computed, ref, watch } from 'vue'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideBuilding2 from '~icons/lucide/building-2'
@@ -16,6 +17,7 @@ import FormDialog from '@shared/components/FormDialog.vue'
 import MoreMenu from '@shared/components/MoreMenu.vue'
 import StatusPill from '@shared/components/StatusPill.vue'
 import AppToast from './AppToast.vue'
+import VersionsCard from './VersionsCard.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
 import { createAvoirFournisseur, deleteFactureAchat, factureAchatActivity, factureAchatPrintUrl, getFactureAchatOptions, payerFactureAchat, runFactureAchatAction, updateFactureAchat } from '@/lib/api'
@@ -23,6 +25,8 @@ import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
 import { dayFromToday, parseNumber } from '@/lib/devis'
 import { confirmAction } from '@/lib/confirm'
+import { createPieceVersion } from '@/lib/api'
+import { canCreate } from '@/lib/droits'
 import { deskUrl, formatDay } from '@/lib/display'
 import { factureAchatStatus as factureStatus, factureAchatTone as factureTone, validatePaiementFournisseur as validateEncaissement, type FactureAchatValues, type PaiementFournisseurValues as EncaissementValues } from '@/lib/facturesAchat'
 import { useFactureAchat } from '@/lib/useFactureAchat'
@@ -177,14 +181,16 @@ async function avoir() {
 	if (done) createdAvoir.value = name
 }
 
-const confirming = ref<'annuler' | 'supprimer' | null>(null)
+const confirming = ref<'annuler' | 'annuler_version' | 'supprimer' | null>(null)
 async function confirm() {
 	const current = facture.value
 	const action = confirming.value
 	if (!current || !action) return
-	if (action === 'annuler') {
-		if (await perform(() => runFactureAchatAction(current, 'annuler'))) notice.value = current.avoir ? 'Avoir annulé.' : 'Facture annulée.'
+	if (action === 'annuler' || action === 'annuler_version') {
+		const cancelled = await perform(() => runFactureAchatAction(current, 'annuler'))
+		if (cancelled) notice.value = current.avoir ? 'Avoir annulé.' : 'Facture annulée.'
 		confirming.value = null
+		if (cancelled && action === 'annuler_version') await nouvelleVersion(true)
 		return
 	}
 	busy.value = true
@@ -195,6 +201,25 @@ async function confirm() {
 	} catch (e) {
 		actionError.value = (e as Error).message
 		confirming.value = null
+	} finally {
+		busy.value = false
+	}
+}
+// Versions : une pièce annulée se refait en nouvelle version (brouillon NOM-1), comme « Modifier » sur le Desk.
+const versionRouter = useRouter()
+async function nouvelleVersion(confirmed = false) {
+	const current = facture.value
+	if (!current) return
+	if (!confirmed && !(await confirmAction({ title: 'Nouvelle version', message: `Une nouvelle version de ${current.name} sera créée en brouillon, avec le même contenu : vous la corrigerez puis la validerez.`, confirmLabel: 'Créer la nouvelle version' }))) return
+	busy.value = true
+	actionError.value = ''
+	try {
+		const result = await createPieceVersion('factures_achat', current)
+		emit('changed')
+		await versionRouter.push({ name: 'FactureAchatFiche', params: { id: result.name } })
+		notice.value = result.note || `Nouvelle version ${result.name} créée en brouillon.`
+	} catch (e) {
+		actionError.value = (e as Error).message
 	} finally {
 		busy.value = false
 	}
@@ -224,6 +249,7 @@ async function confirm() {
 					<div><TagEditor doctype="Purchase Invoice" :name="facture.name" :modified="facture.modified" :tags="facture.tags" :can-edit="true" @changed="(tags) => (facture!.tags = tags)" /></div>
 				</template>
 				<template #actions>
+					<button v-if="can('nouvelle_version')" type="button" class="btn-primary" :disabled="busy" @click="nouvelleVersion()">Nouvelle version</button>
 					<button v-if="draftDirty" type="button" class="btn-secondary" :disabled="busy" @click="saveDraft">Enregistrer</button>
 					<button v-if="can('valider')" type="button" class="btn-primary" :disabled="busy || (!draftDirty && facture.blocked.length > 0)" :title="facture.blocked.join(' ') || undefined" @click="valider">{{ facture.avoir ? "Valider l'avoir" : 'Valider la facture' }}</button>
 					<button v-if="can('payer')" type="button" class="btn-primary" :disabled="busy" @click="openPaiement">Payer</button>
@@ -239,7 +265,7 @@ async function confirm() {
 						<template v-if="can('annuler') || can('supprimer')">
 							<div class="app-menu-sep"></div>
 							<button v-if="can('annuler')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'annuler'">{{ facture.avoir ? "Annuler l'avoir" : 'Annuler la facture' }}</button>
-							<button v-if="can('supprimer')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'supprimer'">Supprimer le brouillon</button>
+							<button v-if="can('supprimer')" type="button" class="app-menu-item text-tone-red" role="menuitem" @click="confirming = 'supprimer'">{{ facture.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon' }}</button>
 						</template>
 					</MoreMenu>
 				</template>
@@ -288,6 +314,7 @@ async function confirm() {
 					<p v-if="actionError" role="alert" class="flex-none rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
 					<div class="bureau-detail">
 						<div class="bureau-center">
+							<VersionsCard :versions="facture.versions" :docstatus="facture.docstatus" fiche="FactureAchatFiche" :can-amend="can('nouvelle_version')" :busy="busy" @amend="nouvelleVersion()" />
 							<div v-if="can('valider') && facture.blocked.length && !draftDirty" role="status" class="rounded-control tone-amber px-3.5 py-2.5"><strong class="font-semibold">Pas encore validable :</strong> {{ facture.blocked.join(' ') }}</div>
 							<div v-if="late" role="status" class="rounded-control tone-red px-3.5 py-2.5">
 								<strong class="font-semibold">Échéance dépassée</strong> depuis le {{ formatDay(facture.echeance) }} : {{ formatAmount(facture.reste) }} DA restent à payer.
@@ -387,10 +414,11 @@ async function confirm() {
 			</template>
 		</FormDialog>
 
-		<FormDialog v-if="confirming && facture" :title="confirming === 'annuler' ? (facture.avoir ? 'Annuler l\'avoir' : 'Annuler la facture') : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming === 'annuler' ? `${facture.name} sera annulée : l'écriture comptable est contrepassée. ERPNext refuse si un paiement ou un avoir validé en dépend.` : `Le brouillon ${facture.name} sera supprimé ; ses quantités redeviennent à facturer.` }}</p>
+		<FormDialog v-if="confirming && facture" :title="confirming !== 'supprimer' ? (facture.avoir ? 'Annuler l\'avoir' : 'Annuler la facture') : facture.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
+			<p>{{ confirming !== 'supprimer' ? `${facture.name} sera annulée : l'écriture comptable est contrepassée. ERPNext refuse si un paiement ou un avoir validé en dépend.` : facture.docstatus === 2 ? `La pièce annulée ${facture.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${facture.name} sera supprimé ; ses quantités redeviennent à facturer.` }}</p>
 			<template #actions>
-				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming === 'annuler' ? 'Annuler' : 'Supprimer' }}</button>
+				<button v-if="confirming === 'annuler' && canCreate('Purchase Invoice')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
+				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler' : 'Supprimer' }}</button>
 			</template>
 		</FormDialog>
 

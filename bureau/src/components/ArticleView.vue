@@ -16,14 +16,15 @@ import AppToast from './AppToast.vue'
 import ArticleDialog from './ArticleDialog.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
-import { articleActivity } from '@/lib/api'
+import { articleActivity, deleteArticle } from '@/lib/api'
 import { formatQty, type ArticleDetail, type ArticleMouvement, type MouvementKey } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useArticle } from '@/lib/useArticle'
 
 const props = defineProps<{ id: string; tab?: string }>()
-const emit = defineEmits<{ tab: [tab: string]; changed: [] }>()
+const emit = defineEmits<{ tab: [tab: string]; changed: []; deleted: [] }>()
 
 const { article, error, notFound, actionError, notice, noticeTone, busy, load, refresh } = useArticle(
 	() => props.id,
@@ -107,6 +108,22 @@ function onSaved(updated: ArticleDetail) {
 	notice.value = 'Article enregistré.'
 	emit('changed')
 }
+// Suppression de la fiche : Frappe refuse tant qu'une pièce ou un autre document y est lié, et le message le dit.
+async function supprimer() {
+	const current = article.value
+	if (!current) return
+	if (!(await confirmAction({ title: "Supprimer l'article", message: `${current.name} sera supprimé définitivement. Si une pièce ou un autre document y est lié, la suppression est refusée et rien ne change.`, confirmLabel: 'Supprimer', danger: true }))) return
+	busy.value = true
+	actionError.value = ''
+	try {
+		await deleteArticle(current)
+		emit('deleted')
+	} catch (e) {
+		actionError.value = (e as Error).message
+	} finally {
+		busy.value = false
+	}
+}
 </script>
 
 <template>
@@ -138,6 +155,10 @@ function onSaved(updated: ArticleDetail) {
 						<div v-if="article.type === 'Produit fini' && (article.recettes || article.ordres)" class="app-menu-sep"></div>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>
 						<a class="app-menu-item" role="menuitem" :href="deskUrl('Item', article.name)" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Ouvrir sur le Desk</a>
+						<template v-if="article.can_delete">
+							<div class="app-menu-sep"></div>
+							<button type="button" class="app-menu-item text-tone-red" role="menuitem" :disabled="busy" @click="supprimer">Supprimer l'article</button>
+						</template>
 					</MoreMenu>
 				</template>
 			</RecordHeader>

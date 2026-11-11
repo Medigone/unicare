@@ -43,6 +43,7 @@ from unicare.api.bureau_list import (
 	row_tags,
 )
 from unicare.api.bureau_postes import require_bureau
+from unicare.api.bureau_versions import amend, cancelled_actions, versions
 
 DEVIS_F = "Supplier Quotation"
 LIGNES = "Supplier Quotation Item"
@@ -268,6 +269,8 @@ def _commandes(doc):
 
 def actions(doc):
 	"""Ce que cette personne peut faire sur ce devis, maintenant. Le serveur reste seul juge à l'exécution."""
+	if doc.docstatus == 2:
+		return cancelled_actions(doc)
 	found = []
 	if doc.docstatus == 0:
 		if doc.has_permission("write"):
@@ -324,6 +327,8 @@ def _devis_payload(doc):
 		"arrondi": flt(doc.rounded_total) or None,
 		"en_lettres": doc.in_words or None,
 		"commandes": _commandes(doc),
+		"version_de": doc.get("amended_from") or None,
+		"versions": versions(doc),
 		"actions": allowed,
 		"blocked": blocked(doc) if "valider" in allowed else [],
 		"can_print": bool(doc.has_permission("print")),
@@ -438,6 +443,13 @@ def delete_devis_fournisseur(name, modified):
 
 
 @frappe.whitelist(methods=["POST"])
+def create_version(name, modified):
+	"""Nouvelle version (brouillon `NOM-1`) d'une pièce annulée, comme « Modifier » sur le Desk."""
+	doc = _for_work(name, modified, "nouvelle_version")
+	return amend(doc)
+
+
+@frappe.whitelist(methods=["POST"])
 def create_commande_achat(name, modified, reception):
 	"""Commande d'achat en brouillon, reprise du devis par l'outil standard d'ERPNext."""
 	from erpnext.buying.doctype.supplier_quotation.supplier_quotation import make_purchase_order
@@ -464,7 +476,8 @@ def devis_fournisseur_for_bulk(name, modified):
 
 
 def bulk_guard(doc, operation):
-	if doc.docstatus != 0:
+	# Une pièce annulée peut se supprimer en groupe ; seuls les brouillons se modifient.
+	if doc.docstatus != 0 and not (operation == "delete" and doc.docstatus == 2):
 		return _("Devis validé ou annulé : il ne change plus.")
 	return None
 

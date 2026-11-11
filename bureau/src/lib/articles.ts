@@ -115,6 +115,8 @@ export interface ArticleDetail {
 	/** null : article hors stock, ou personne qui ne lit pas le stock. */
 	stock: number | null
 	can_edit: boolean
+	/** Droit de supprimer la fiche ; Frappe refuse encore si une pièce y est liée. */
+	can_delete: boolean
 	/** Fiche seulement. Chaque bloc vaut `null` quand la personne ne lit pas le document, ou qu'il ne s'applique pas. */
 	bins?: ArticleBin[] | null
 	lots?: ArticleLot[] | null

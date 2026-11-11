@@ -5,6 +5,7 @@ import { formatDay } from './display'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { Versions } from './versions'
 
 export type CommandeView = 'all' | 'brouillons' | 'a_livrer' | 'a_facturer' | 'en_retard' | 'en_attente' | 'clos'
 
@@ -62,7 +63,7 @@ export interface CommandeLine {
 	devis: string | null
 }
 
-export type CommandeAction = 'modifier' | 'valider' | 'supprimer' | 'livraison' | 'facture' | 'attente' | 'reprendre' | 'cloturer' | 'rouvrir' | 'annuler'
+export type CommandeAction = 'modifier' | 'valider' | 'supprimer' | 'livraison' | 'facture' | 'attente' | 'reprendre' | 'cloturer' | 'rouvrir' | 'annuler' | 'nouvelle_version'
 export type StatusAction = 'attente' | 'reprendre' | 'cloturer' | 'rouvrir'
 
 export interface Suivante {
@@ -104,6 +105,9 @@ export interface CommandeDetail {
 	/** null : la personne ne lit pas ces pièces. */
 	livraisons: Suivante[] | null
 	factures: Suivante[] | null
+	/** La pièce annulée dont celle-ci est la nouvelle version. */
+	version_de: string | null
+	versions: Versions
 	actions: CommandeAction[]
 	blocked: string[]
 	can_print: boolean
