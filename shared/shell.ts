@@ -1,4 +1,4 @@
-/** Coquille des applications Unicare : entrées du menu de gauche et mémoire de son repli. */
+/** Coquille des applications Unicare : rail des modules, menu du module ouvert et mémoire de son repli. */
 import { ref, watch, type Component } from 'vue'
 
 export interface NavItem {
@@ -15,6 +15,18 @@ export interface NavItem {
 	active?: boolean
 }
 
+/** Un module du rail de gauche : un clic mène à sa page (ou à sa première page). */
+export interface NavModule {
+	id: string
+	label: string
+	icon: Component
+	to?: unknown
+	href?: string
+	active?: boolean
+	/** Le module a une pièce qui attend une décision : un point rouge sur son icône. */
+	alert?: boolean
+}
+
 export interface NavGroup {
 	title: string
 	items: NavItem[]
@@ -25,7 +37,7 @@ export interface Crumb {
 	to?: unknown
 }
 
-/** Sous cette largeur, le menu démarre replié : la liste a besoin de la place. */
+/** Sous cette largeur, le menu du module démarre replié (le rail reste) : la liste a besoin de la place. */
 export const SIDEBAR_OPEN_MIN_WIDTH = 1440
 
 /** Le choix de l'utilisateur prime et reste sur cet appareil ; sans choix, la largeur de l'écran décide. */

@@ -44,52 +44,97 @@ export interface PosteNavGroup {
 const CONDITIONNEMENT: Poste = { key: 'conditionnement', label: 'Conditionnement' }
 const STORAGE_KEY = 'bureau-poste'
 
-// Chaque page reprise dans le poste ajoute ici son entrée, avec le document qui en règle la lecture.
-// Les écrans pas encore repris peuvent s'ouvrir sur le Desk (`href: '/app/...'`).
-export const NAV: Record<string, PosteNavGroup[]> = {
+// Le menu d'un poste se range par MODULE : le rail de gauche montre les modules, le second menu les pages du module
+// ouvert. Une page reprise dans le bureau s'ajoute ici, dans son module, avec le document qui en règle la lecture.
+// Une fiche de base va dans le module qui l'utilise le plus (Clients : Ventes ; Fournisseurs : Achats ; Articles : Stock).
+// Les écrans pas encore repris s'ouvrent sur le Desk (`href: '/app/...'`).
+export interface PosteModule {
+	id: string
+	label: string
+	icon: Component
+	/** Module qui est lui-même une page (Accueil) : pas de second menu. */
+	to?: { name: string }
+	groups: PosteNavGroup[]
+}
+
+export const NAV: Record<string, PosteModule[]> = {
 	conditionnement: [
+		{ id: 'accueil', label: 'Accueil', icon: LucideLayoutDashboard, to: { name: 'Home' }, groups: [] },
 		{
-			title: 'Mon travail',
-			items: [{ id: 'accueil', label: 'Accueil', icon: LucideLayoutDashboard, to: { name: 'Home' } }],
-		},
-		{
-			title: 'Ventes',
-			items: [
-				{ id: 'devis', label: 'Devis', icon: LucideFileText, to: { name: 'DevisListe' }, doctype: 'Quotation' },
-				{ id: 'commandes', label: 'Commandes', icon: LucideShoppingCart, to: { name: 'Commandes' }, doctype: 'Sales Order' },
-				{ id: 'livraisons', label: 'Bons de livraison', icon: LucideTruck, to: { name: 'Livraisons' }, doctype: 'Delivery Note' },
-				{ id: 'factures', label: 'Factures', icon: LucideReceipt, to: { name: 'Factures' }, doctype: 'Sales Invoice' },
+			id: 'ventes',
+			label: 'Ventes',
+			icon: LucideShoppingCart,
+			groups: [
+				{
+					title: 'Pièces',
+					items: [
+						{ id: 'devis', label: 'Devis', icon: LucideFileText, to: { name: 'DevisListe' }, doctype: 'Quotation' },
+						{ id: 'commandes', label: 'Commandes', icon: LucideShoppingCart, to: { name: 'Commandes' }, doctype: 'Sales Order' },
+						{ id: 'livraisons', label: 'Bons de livraison', icon: LucideTruck, to: { name: 'Livraisons' }, doctype: 'Delivery Note' },
+						{ id: 'factures', label: 'Factures', icon: LucideReceipt, to: { name: 'Factures' }, doctype: 'Sales Invoice' },
+					],
+				},
+				{ title: 'Référentiel', items: [{ id: 'clients', label: 'Clients', icon: LucideBuilding2, to: { name: 'Clients' }, doctype: 'Customer' }] },
 			],
 		},
 		{
-			title: 'Achats',
-			items: [
-				{ id: 'devis-fournisseurs', label: 'Devis fournisseur', icon: LucideFileInput, to: { name: 'DevisFournisseurListe' }, doctype: 'Supplier Quotation' },
-				{ id: 'commandes-achat', label: "Commandes d'achat", icon: LucideClipboardList, to: { name: 'CommandesAchat' }, doctype: 'Purchase Order' },
-				{ id: 'receptions', label: 'Réceptions', icon: LucidePackageCheck, to: { name: 'Receptions' }, doctype: 'Purchase Receipt' },
-				{ id: 'factures-achat', label: "Factures d'achat", icon: LucideReceiptText, to: { name: 'FacturesAchat' }, doctype: 'Purchase Invoice' },
+			id: 'achats',
+			label: 'Achats',
+			icon: LucideTruck,
+			groups: [
+				{
+					title: 'Pièces',
+					items: [
+						{ id: 'devis-fournisseurs', label: 'Devis fournisseur', icon: LucideFileInput, to: { name: 'DevisFournisseurListe' }, doctype: 'Supplier Quotation' },
+						{ id: 'commandes-achat', label: "Commandes d'achat", icon: LucideClipboardList, to: { name: 'CommandesAchat' }, doctype: 'Purchase Order' },
+						{ id: 'receptions', label: 'Réceptions', icon: LucidePackageCheck, to: { name: 'Receptions' }, doctype: 'Purchase Receipt' },
+						{ id: 'factures-achat', label: "Factures d'achat", icon: LucideReceiptText, to: { name: 'FacturesAchat' }, doctype: 'Purchase Invoice' },
+					],
+				},
+				{ title: 'Référentiel', items: [{ id: 'fournisseurs', label: 'Fournisseurs', icon: LucideFactory, to: { name: 'Fournisseurs' }, doctype: 'Supplier' }] },
 			],
 		},
 		{
-			title: 'Stock',
-			items: [
-				{ id: 'etat-stock', label: 'État du stock', icon: LucideBoxes, to: { name: 'EtatStock' }, doctype: 'Bin' },
-				{ id: 'mouvements', label: 'Mouvements', icon: LucideArrowLeftRight, to: { name: 'Mouvements' }, doctype: 'Stock Entry' },
-				{ id: 'inventaires', label: 'Inventaires', icon: LucideClipboardCheck, to: { name: 'Inventaires' }, doctype: 'Stock Reconciliation' },
-				{ id: 'lots', label: 'Lots', icon: LucideLayers, to: { name: 'Lots' }, doctype: 'Batch' },
-				{ id: 'depots', label: 'Dépôts', icon: LucideWarehouse, to: { name: 'Depots' }, doctype: 'Warehouse' },
+			id: 'stock',
+			label: 'Stock',
+			icon: LucidePackage,
+			groups: [
+				{
+					title: 'Suivi',
+					items: [
+						{ id: 'etat-stock', label: 'État du stock', icon: LucideBoxes, to: { name: 'EtatStock' }, doctype: 'Bin' },
+						{ id: 'mouvements', label: 'Mouvements', icon: LucideArrowLeftRight, to: { name: 'Mouvements' }, doctype: 'Stock Entry' },
+						{ id: 'inventaires', label: 'Inventaires', icon: LucideClipboardCheck, to: { name: 'Inventaires' }, doctype: 'Stock Reconciliation' },
+						{ id: 'lots', label: 'Lots', icon: LucideLayers, to: { name: 'Lots' }, doctype: 'Batch' },
+					],
+				},
+				{
+					title: 'Référentiel',
+					items: [
+						{ id: 'articles', label: 'Articles', icon: LucidePackage, to: { name: 'Articles' }, doctype: 'Item' },
+						{ id: 'depots', label: 'Dépôts', icon: LucideWarehouse, to: { name: 'Depots' }, doctype: 'Warehouse' },
+					],
+				},
 			],
 		},
 		{
-			title: 'Trésorerie',
-			items: [{ id: 'paiements', label: 'Paiements', icon: LucideBanknote, to: { name: 'Paiements' }, doctype: 'Payment Entry' }],
+			id: 'tresorerie',
+			label: 'Trésorerie',
+			icon: LucideBanknote,
+			groups: [{ title: 'Règlements', items: [{ id: 'paiements', label: 'Paiements', icon: LucideBanknote, to: { name: 'Paiements' }, doctype: 'Payment Entry' }] }],
 		},
 		{
-			title: 'Référentiel',
-			items: [
-				{ id: 'clients', label: 'Clients', icon: LucideBuilding2, to: { name: 'Clients' }, doctype: 'Customer' },
-				{ id: 'fournisseurs', label: 'Fournisseurs', icon: LucideFactory, to: { name: 'Fournisseurs' }, doctype: 'Supplier' },
-				{ id: 'articles', label: 'Articles', icon: LucidePackage, to: { name: 'Articles' }, doctype: 'Item' },
+			id: 'production',
+			label: 'Production',
+			icon: LucideFactory,
+			groups: [
+				{
+					title: 'Sur le Desk',
+					items: [
+						{ id: 'ordres', label: 'Ordres de conditionnement', icon: LucideFactory, href: '/app/ordre-de-conditionnement', doctype: 'Ordre de Conditionnement' },
+						{ id: 'recettes', label: 'Recettes', icon: LucideFileText, href: '/app/recette-de-conditionnement', doctype: 'Recette de Conditionnement' },
+					],
+				},
 			],
 		},
 	],
@@ -125,9 +170,31 @@ export function setPoste(key: string) {
 	}
 }
 
-/** Menu d'un poste, sans les entrées que le rôle ne peut pas lire ni les groupes restés vides. */
-export function navFor(key: string): PosteNavGroup[] {
+/** Modules d'un poste, sans les pages que le rôle ne peut pas lire, ni les groupes et modules restés vides. */
+export function navFor(key: string): PosteModule[] {
 	return (NAV[key] ?? [])
-		.map((group) => ({ ...group, items: group.items.filter((item) => canRead(item.doctype)) }))
-		.filter((group) => group.items.length)
+		.map((module) => ({
+			...module,
+			groups: module.groups.map((group) => ({ ...group, items: group.items.filter((item) => canRead(item.doctype)) })).filter((group) => group.items.length),
+		}))
+		.filter((module) => module.to || module.groups.length)
+}
+
+/** Le module qui contient cette page (ou qui est cette page) ; à défaut, le premier. */
+export function moduleOf(modules: PosteModule[], pageId?: string) {
+	return modules.find((module) => module.id === pageId || module.groups.some((group) => group.items.some((item) => item.id === pageId))) ?? modules[0]
+}
+
+/** Où mène le clic sur un module : sa page, sinon sa première page. */
+export function moduleTarget(module: PosteModule): { to?: { name: string }; href?: string } {
+	if (module.to) return { to: module.to }
+	const first = module.groups[0]?.items[0]
+	return first ? { to: first.to, href: first.href } : {}
+}
+
+/** Toutes les pages du poste, avec leur module : pour la recherche « Aller à… ». */
+export function pagesFor(key: string) {
+	return navFor(key).flatMap((module) =>
+		module.to ? [{ id: module.id, label: module.label, module: '', icon: module.icon, to: module.to, href: undefined as string | undefined }] : module.groups.flatMap((group) => group.items.map((item) => ({ id: item.id, label: item.label, module: module.label, icon: item.icon, to: item.to, href: item.href }))),
+	)
 }

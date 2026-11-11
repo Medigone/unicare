@@ -3,11 +3,19 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucidePanelLeft from '~icons/lucide/panel-left'
 import BrandMark from './BrandMark.vue'
-import { useSidebarCollapse, type Crumb, type NavGroup } from '../shell'
+import { useSidebarCollapse, type Crumb, type NavGroup, type NavModule } from '../shell'
 
-/** Coquille commune : barre du haut, menu de gauche (ou barre du bas sur téléphone) et zone de contenu. */
+/**
+ * Coquille commune : barre du haut, rail des modules, menu des pages du module ouvert, et zone de contenu.
+ * Sur téléphone, le rail devient la barre du bas et les pages du module une bande sous la barre du haut.
+ */
 const props = defineProps<{
 	poste: string
+	/** Les modules du rail, dans l'ordre. */
+	modules: NavModule[]
+	/** Le module ouvert : son nom en tête du second menu. */
+	moduleLabel?: string
+	/** Les pages du module ouvert ; aucune (Accueil) : pas de second menu. */
 	groups: NavGroup[]
 	crumbs: Crumb[]
 	userName: string
@@ -17,6 +25,7 @@ const props = defineProps<{
 }>()
 
 const { collapsed, toggle } = useSidebarCollapse(props.storageKey)
+const hasPanel = computed(() => props.groups.length > 0)
 const accountOpen = ref(false)
 const accountRoot = ref<HTMLElement | null>(null)
 const lastCrumb = computed(() => props.crumbs.length - 1)
@@ -41,9 +50,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<div class="app-shell" :data-collapsed="collapsed">
+	<div class="app-shell" :data-collapsed="collapsed" :data-panel="hasPanel">
 		<header class="app-topbar">
-			<button type="button" class="app-icon-bare app-collapse" :aria-label="collapsed ? 'Ouvrir le menu' : 'Replier le menu'" :title="collapsed ? 'Ouvrir le menu' : 'Replier le menu'" :aria-expanded="!collapsed" @click="toggle">
+			<button v-if="hasPanel" type="button" class="app-icon-bare app-collapse" :aria-label="collapsed ? 'Ouvrir le menu du module' : 'Replier le menu du module'" :title="collapsed ? 'Ouvrir le menu du module' : 'Replier le menu du module'" :aria-expanded="!collapsed" @click="toggle">
 				<LucidePanelLeft class="h-4 w-4" aria-hidden="true" />
 			</button>
 			<span title="Unicare"><BrandMark mark-only /></span>
@@ -67,7 +76,21 @@ onBeforeUnmount(() => {
 			</div>
 		</header>
 
-		<nav class="app-sidebar" aria-label="Navigation principale">
+		<nav class="app-rail" aria-label="Modules">
+			<template v-for="module in modules" :key="module.id">
+				<RouterLink v-if="module.to" :to="module.to as string" class="app-rail-item" :aria-current="module.active ? 'true' : undefined" :title="module.label">
+					<span class="app-rail-icon"><component :is="module.icon" class="h-5 w-5" aria-hidden="true" /><span v-if="module.alert" class="app-rail-alert" aria-hidden="true"></span></span>
+					<span class="app-rail-label">{{ module.label }}</span>
+				</RouterLink>
+				<a v-else :href="module.href" target="_blank" rel="noopener noreferrer" class="app-rail-item" :title="`${module.label} : s'ouvre sur le Desk`">
+					<span class="app-rail-icon"><component :is="module.icon" class="h-5 w-5" aria-hidden="true" /></span>
+					<span class="app-rail-label">{{ module.label }}</span>
+				</a>
+			</template>
+		</nav>
+
+		<nav v-if="hasPanel" class="app-sidebar" :aria-label="`Pages du module ${moduleLabel ?? ''}`">
+			<p v-if="moduleLabel" class="app-module-title">{{ moduleLabel }}</p>
 			<div v-for="group in groups" :key="group.title" class="app-nav-group">
 				<p class="app-nav-title">{{ group.title }}</p>
 				<template v-for="item in group.items" :key="item.id">

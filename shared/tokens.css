@@ -86,7 +86,8 @@
 		--space-gap: 0.625rem;
 
 		--sidebar-open: 216px;
-		--sidebar-rail: 56px;
+		/* Rail des modules : une icône et son nom sous elle. */
+		--module-rail: 76px;
 		--bottom-nav: 76px;
 		--dialog-width: 640px;
 	}

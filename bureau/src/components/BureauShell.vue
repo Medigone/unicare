@@ -7,11 +7,12 @@ import LucideMoon from '~icons/lucide/moon'
 import LucideSun from '~icons/lucide/sun'
 import AppShell from '@shared/components/AppShell.vue'
 import { realtimeConnected } from '@shared/realtime'
-import type { Crumb, NavGroup } from '@shared/shell'
+import type { Crumb, NavGroup, NavModule } from '@shared/shell'
+import GotoPalette from './GotoPalette.vue'
 import HeaderMenu from './HeaderMenu.vue'
 import { logout } from '@/lib/api'
 import { initials } from '@/lib/display'
-import { activePoste, availablePostes, navFor, setPoste } from '@/lib/postes'
+import { activePoste, availablePostes, moduleOf, moduleTarget, navFor, pagesFor, setPoste } from '@/lib/postes'
 import { useAppTheme } from '@/lib/theme'
 
 /** Coquille du poste de bureau : la même barre et le même menu sur toutes ses pages. `active` : l'`id` de l'entrée du menu. */
@@ -33,8 +34,17 @@ function choosePoste(key: string) {
 	router.push({ name: 'Home' })
 }
 
+// Les modules du poste dans le rail ; le module ouvert est celui de la page affichée, et ses pages forment le second menu.
+const modules = computed(() => navFor(currentPoste.value.key))
+const currentModule = computed(() => moduleOf(modules.value, props.active))
+const navModules = computed<NavModule[]>(() =>
+	modules.value.map((module) => ({ id: module.id, label: module.label, icon: module.icon, ...moduleTarget(module), active: module.id === currentModule.value?.id })),
+)
+const pages = computed(() => pagesFor(currentPoste.value.key))
+// Le fil d'Ariane commence par le module : « Achats / Factures d'achat ».
+const shellCrumbs = computed<Crumb[]>(() => (currentModule.value?.groups.length ? [{ label: currentModule.value.label }, ...props.crumbs] : props.crumbs))
 const navGroups = computed<NavGroup[]>(() =>
-	navFor(currentPoste.value.key).map((group) => ({
+	(currentModule.value?.groups ?? []).map((group) => ({
 		title: group.title,
 		items: group.items.map(({ doctype: _doctype, ...item }) => ({ ...item, active: props.active === item.id })),
 	})),
@@ -42,7 +52,7 @@ const navGroups = computed<NavGroup[]>(() =>
 </script>
 
 <template>
-	<AppShell :poste="postes.length > 1 ? currentPoste.label : 'Unicare'" :groups="navGroups" :crumbs="crumbs" :user-name="userName" :initials="initials(userName)" storage-key="bureau-menu">
+	<AppShell :poste="postes.length > 1 ? currentPoste.label : 'Unicare'" :modules="navModules" :module-label="currentModule?.groups.length ? currentModule.label : undefined" :groups="navGroups" :crumbs="shellCrumbs" :user-name="userName" :initials="initials(userName)" storage-key="bureau-menu">
 		<template v-if="postes.length > 1" #poste>
 			<HeaderMenu :label="currentPoste.label" value="" aria-label="Changer de poste">
 				<template #default="{ close }">
@@ -50,6 +60,7 @@ const navGroups = computed<NavGroup[]>(() =>
 				</template>
 			</HeaderMenu>
 		</template>
+		<template #search><GotoPalette :pages="pages" /></template>
 		<template #status>
 			<span class="live-status" :data-live="realtimeConnected" :title="realtimeConnected ? 'Les changements faits ailleurs arrivent seuls' : 'Les changements faits ailleurs n\'arrivent plus seuls : actualisez la page'">
 				<i aria-hidden="true"></i>
