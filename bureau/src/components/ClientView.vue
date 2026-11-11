@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideCalendar from '~icons/lucide/calendar'
 import LucideMail from '~icons/lucide/mail'
@@ -16,6 +17,9 @@ import MoreMenu from '@shared/components/MoreMenu.vue'
 import StatusPill from '@shared/components/StatusPill.vue'
 import AppToast from './AppToast.vue'
 import ClientDialog from './ClientDialog.vue'
+import ContactsCard from './ContactsCard.vue'
+import PieceLink from './PieceLink.vue'
+import VenteDialog from './VenteDialog.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
 import { clientActivity, deleteClient, setClientPiece } from '@/lib/api'
@@ -78,12 +82,16 @@ function onTags(tags: string[]) {
 	if (client.value) client.value.tags = tags
 	emit('changed')
 }
-function newOnDesk(doctype: string, field: string) {
-	return `${deskUrl(doctype, 'new')}?${field}=${encodeURIComponent(props.id)}`
+// Nouveau devis ou nouvelle commande pour ce client : la fenêtre du bureau, le client déjà choisi.
+const NEW_PIECES = VENTES.filter((group) => group.key === 'devis' || group.key === 'commandes')
+const creating = ref<'devis' | 'commande' | null>(null)
+const router = useRouter()
+function onPieceCreated(name: string) {
+	const fiche = creating.value === 'devis' ? 'DevisFiche' : 'CommandeFiche'
+	creating.value = null
+	emit('changed')
+	router.push({ name: fiche, params: { id: name } })
 }
-// Les pièces qui ont leur fiche dans le bureau ; les autres s'ouvrent sur le Desk.
-const FICHES: Record<string, string> = { Quotation: 'DevisFiche', 'Sales Order': 'CommandeFiche', 'Delivery Note': 'LivraisonFiche', 'Sales Invoice': 'FactureFiche' }
-const DESK_NEW = VENTES.filter((group) => group.key === 'devis' || group.key === 'commandes')
 
 async function copyLink() {
 	try {
@@ -152,8 +160,8 @@ async function supprimer() {
 				<template #actions>
 					<button v-if="client.can_edit" type="button" class="btn-primary" :disabled="busy" @click="editing = true">Modifier</button>
 					<MoreMenu>
-						<a v-for="group in DESK_NEW.filter((item) => client?.ventes?.[item.key])" :key="group.key" class="app-menu-item" role="menuitem" :href="newOnDesk(group.doctype, group.field)" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />{{ group.key === 'devis' ? 'Nouveau devis' : 'Nouvelle commande' }}</a>
-						<div v-if="DESK_NEW.some((item) => client?.ventes?.[item.key])" class="app-menu-sep"></div>
+						<button v-for="group in NEW_PIECES.filter((item) => client?.ventes?.[item.key])" :key="group.key" type="button" class="app-menu-item" role="menuitem" @click="creating = group.key === 'devis' ? 'devis' : 'commande'">{{ group.key === 'devis' ? 'Nouveau devis' : 'Nouvelle commande' }}</button>
+						<div v-if="NEW_PIECES.some((item) => client?.ventes?.[item.key])" class="app-menu-sep"></div>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>
 						<a class="app-menu-item" role="menuitem" :href="deskUrl('Customer', client.name)" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Ouvrir sur le Desk</a>
 						<template v-if="client.can_delete">
@@ -240,7 +248,7 @@ async function supprimer() {
 								<p v-if="!lastVentes.length" class="text-ink-gray-6">Aucun devis, commande, livraison ni facture.</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Pièce</th><th>Numéro</th><th>Date</th><th>Statut</th><th class="end">Montant (DA)</th></tr></thead>
-									<tbody><tr v-for="row in lastVentes" :key="`${row.doctype}-${row.name}`"><td>{{ row.piece }}</td><td><RouterLink v-if="row.doctype in FICHES" class="ref-link" :to="{ name: FICHES[row.doctype], params: { id: row.name } }">{{ row.name }}</RouterLink><a v-else class="ref-link" :href="deskUrl(row.doctype, row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td><td class="tabular-nums">{{ formatDay(row.date) }}</td><td><StatusPill :status="row.status" /></td><td class="end tabular-nums">{{ formatAmount(row.total) }}</td></tr></tbody>
+									<tbody><tr v-for="row in lastVentes" :key="`${row.doctype}-${row.name}`"><td>{{ row.piece }}</td><td><PieceLink :doctype="row.doctype" :name="row.name" /></td><td class="tabular-nums">{{ formatDay(row.date) }}</td><td><StatusPill :status="row.status" /></td><td class="end tabular-nums">{{ formatAmount(row.total) }}</td></tr></tbody>
 								</table></div>
 							</section>
 						</div>
@@ -250,14 +258,14 @@ async function supprimer() {
 							<section v-for="group in shownVentes" :key="group.key" class="card ref-card">
 								<div class="ref-card-head">
 									<h3>{{ group.title }}</h3>
-									<a v-if="group.key === 'devis' || group.key === 'commandes'" class="ref-link" :href="newOnDesk(group.doctype, group.field)" target="_blank" rel="noopener noreferrer">{{ group.key === 'devis' ? 'Nouveau devis' : 'Nouvelle commande' }}</a>
+									<button v-if="group.key === 'devis' || group.key === 'commandes'" type="button" class="ref-link" @click="creating = group.key === 'devis' ? 'devis' : 'commande'">{{ group.key === 'devis' ? 'Nouveau devis' : 'Nouvelle commande' }}</button>
 								</div>
 								<p v-if="!client.ventes?.[group.key]?.length" class="text-ink-gray-6">{{ group.empty }}</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Numéro</th><th>Date</th><th>Statut</th><th class="end">Montant (DA)</th><th v-if="group.key === 'factures'" class="end">Reste dû (DA)</th></tr></thead>
 									<tbody>
 										<tr v-for="row in client.ventes?.[group.key] ?? []" :key="row.name">
-											<td><RouterLink v-if="group.doctype in FICHES" class="ref-link" :to="{ name: FICHES[group.doctype], params: { id: row.name } }">{{ row.name }}</RouterLink><a v-else class="ref-link" :href="deskUrl(group.doctype, row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td>
+											<td><PieceLink :doctype="group.doctype" :name="row.name" /></td>
 											<td class="tabular-nums">{{ formatDay(row.date) }}</td>
 											<td><StatusPill :status="row.status" /></td>
 											<td class="end tabular-nums">{{ formatAmount(row.total) }}</td>
@@ -287,7 +295,7 @@ async function supprimer() {
 										<tr v-for="row in client.comptabilite.ecritures" :key="`${row.voucher_type}-${row.voucher_no}`">
 											<td class="tabular-nums">{{ formatDay(row.date) }}</td>
 											<td>{{ row.voucher_type }}</td>
-											<td><a class="ref-link" :href="deskUrl(row.voucher_type, row.voucher_no)" target="_blank" rel="noopener noreferrer">{{ row.voucher_no }}</a></td>
+											<td><PieceLink :doctype="row.voucher_type" :name="row.voucher_no" /></td>
 											<td class="end tabular-nums" :class="!row.debit && 'text-ink-gray-6'">{{ formatAmount(row.debit) }}</td>
 											<td class="end tabular-nums" :class="!row.credit && 'text-ink-gray-6'">{{ formatAmount(row.credit) }}</td>
 										</tr>
@@ -315,18 +323,7 @@ async function supprimer() {
 									</tr></tbody>
 								</table></div>
 							</section>
-							<section class="card ref-card">
-								<div class="ref-card-head"><h3>Contacts</h3><a class="ref-link" :href="deskUrl('Customer', client.name)" target="_blank" rel="noopener noreferrer">Gérer sur le Desk</a></div>
-								<p v-if="!client.contacts.length" class="text-ink-gray-6">Aucun contact enregistré.</p>
-								<div v-for="(contact, index) in client.contacts" :key="index" class="contact">
-									<p><span class="font-semibold text-ink-gray-9">{{ contact.nom || 'Sans nom' }}</span><span v-if="contact.principal" class="text-sm text-ink-gray-6"> Principal</span></p>
-									<p v-if="contact.fonction" class="text-sm text-ink-gray-6">{{ contact.fonction }}</p>
-									<p class="contact-links">
-										<a v-if="contact.telephone" class="ref-link tabular-nums" :href="`tel:${contact.telephone}`"><LucidePhone class="h-3.5 w-3.5" aria-hidden="true" />{{ contact.telephone }}</a>
-										<a v-if="contact.email" class="ref-link" :href="`mailto:${contact.email}`"><LucideMail class="h-3.5 w-3.5" aria-hidden="true" />{{ contact.email }}</a>
-									</p>
-								</div>
-							</section>
+							<ContactsCard :contacts="client.contacts" link-doctype="Customer" :link-name="client.name" :can-edit="client.can_edit" @changed="(message) => refreshAll(message)" />
 							<section class="card ref-card">
 								<h3>Adresse</h3>
 								<dl class="kv">
@@ -348,6 +345,7 @@ async function supprimer() {
 			</div>
 		</template>
 
+		<VenteDialog v-if="creating && client" :kind="creating" :client="{ name: client.name, label: client.client }" @close="creating = null" @created="onPieceCreated" />
 		<ClientDialog v-if="editing && client" :client="client" @close="editing = false" @saved="onSaved" />
 		<AppToast :message="notice" :tone="noticeTone" @close="notice = ''" />
 	</main>

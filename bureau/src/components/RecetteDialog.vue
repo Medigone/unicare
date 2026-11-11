@@ -12,7 +12,7 @@ import { recetteErrors, type RecetteDetail, type RecetteOptions } from '@/lib/re
  * Création ou modification d'une recette : le produit fini, la quantité pour laquelle la recette est donnée, le
  * rendement visé, et les matières (au moins un fût). Les ordres déjà créés gardent leurs quantités.
  */
-const props = defineProps<{ recette?: RecetteDetail }>()
+const props = defineProps<{ recette?: RecetteDetail; produit?: string }>()
 const emit = defineEmits<{ close: []; created: [name: string]; saved: [recette: RecetteDetail] }>()
 
 interface Ligne {
@@ -27,7 +27,7 @@ const ligne = (values: Partial<Ligne> = {}): Ligne => ({ key: nextKey++, article
 
 const options = ref<RecetteOptions | null>(null)
 const loadError = ref('')
-const produit = ref(props.recette?.produit ?? '')
+const produit = ref(props.recette?.produit ?? props.produit ?? '')
 const quantiteBase = ref(props.recette ? String(props.recette.quantite_base).replace('.', ',') : '1')
 const unite = ref(props.recette?.unite ?? '')
 const rendement = ref(props.recette ? String(props.recette.rendement).replace('.', ',') : '100')
@@ -40,6 +40,7 @@ const dirty = ref(false)
 onMounted(async () => {
 	try {
 		options.value = await getRecetteOptions()
+		if (props.produit && !props.recette) unite.value = options.value.produits.find((item) => item.value === props.produit)?.unite ?? unite.value
 	} catch (e) {
 		loadError.value = (e as Error).message
 	}

@@ -42,6 +42,10 @@ export interface ClientsResponse extends ListResponse {
 }
 
 export interface ClientContact {
+	/** Le document Contact ; absent pour le contact principal saisi sur la fiche du client (sans document). */
+	name?: string | null
+	prenom?: string | null
+	nom_famille?: string | null
 	nom: string | null
 	fonction: string | null
 	telephone: string | null

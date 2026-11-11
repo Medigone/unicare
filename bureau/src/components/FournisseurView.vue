@@ -16,6 +16,8 @@ import MoreMenu from '@shared/components/MoreMenu.vue'
 import StatusPill from '@shared/components/StatusPill.vue'
 import AppToast from './AppToast.vue'
 import FournisseurDialog from './FournisseurDialog.vue'
+import ContactsCard from './ContactsCard.vue'
+import PieceLink from './PieceLink.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
 import { deleteFournisseur, fournisseurActivity, setFournisseurPiece } from '@/lib/api'
@@ -275,7 +277,7 @@ async function supprimer() {
 										<tr v-for="row in fournisseur.comptabilite.ecritures" :key="`${row.voucher_type}-${row.voucher_no}`">
 											<td class="tabular-nums">{{ formatDay(row.date) }}</td>
 											<td>{{ row.voucher_type }}</td>
-											<td><a class="ref-link" :href="deskUrl(row.voucher_type, row.voucher_no)" target="_blank" rel="noopener noreferrer">{{ row.voucher_no }}</a></td>
+											<td><PieceLink :doctype="row.voucher_type" :name="row.voucher_no" /></td>
 											<td class="end tabular-nums" :class="!row.debit && 'text-ink-gray-6'">{{ formatAmount(row.debit) }}</td>
 											<td class="end tabular-nums" :class="!row.credit && 'text-ink-gray-6'">{{ formatAmount(row.credit) }}</td>
 										</tr>
@@ -303,18 +305,7 @@ async function supprimer() {
 									</tr></tbody>
 								</table></div>
 							</section>
-							<section class="card ref-card">
-								<div class="ref-card-head"><h3>Contacts</h3><a class="ref-link" :href="deskUrl('Supplier', fournisseur.name)" target="_blank" rel="noopener noreferrer">Gérer sur le Desk</a></div>
-								<p v-if="!fournisseur.contacts.length" class="text-ink-gray-6">Aucun contact enregistré.</p>
-								<div v-for="(contact, index) in fournisseur.contacts" :key="index" class="contact">
-									<p><span class="font-semibold text-ink-gray-9">{{ contact.nom || 'Sans nom' }}</span><span v-if="contact.principal" class="text-sm text-ink-gray-6"> Principal</span></p>
-									<p v-if="contact.fonction" class="text-sm text-ink-gray-6">{{ contact.fonction }}</p>
-									<p class="contact-links">
-										<a v-if="contact.telephone" class="ref-link tabular-nums" :href="`tel:${contact.telephone}`"><LucidePhone class="h-3.5 w-3.5" aria-hidden="true" />{{ contact.telephone }}</a>
-										<a v-if="contact.email" class="ref-link" :href="`mailto:${contact.email}`"><LucideMail class="h-3.5 w-3.5" aria-hidden="true" />{{ contact.email }}</a>
-									</p>
-								</div>
-							</section>
+							<ContactsCard :contacts="fournisseur.contacts" link-doctype="Supplier" :link-name="fournisseur.name" :can-edit="fournisseur.can_edit" @changed="(message) => refreshAll(message)" />
 							<section class="card ref-card">
 								<h3>Adresse</h3>
 								<dl class="kv">

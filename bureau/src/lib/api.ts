@@ -850,3 +850,20 @@ export const saveChecklist = (checklist: { name?: string; modified?: string }, v
 	call<ReglagesProduction>(`${REGLAGES}.save_checklist`, { name: checklist.name, modified: checklist.modified, values }, true)
 export const deleteChecklist = (checklist: { name: string; modified: string }) => call<ReglagesProduction>(`${REGLAGES}.delete_checklist`, { name: checklist.name, modified: checklist.modified }, true)
 export const saveParametresProduction = (modified: string, values: Record<string, unknown>) => call<ReglagesProduction>(`${REGLAGES}.save_parametres`, { modified, values }, true)
+
+/** Contacts d'un client ou d'un fournisseur, gérés depuis leur fiche. */
+const CONTACTS = 'unicare.api.bureau_contacts'
+export interface ContactValues {
+	prenom: string
+	nom: string
+	fonction: string
+	telephone: string
+	email: string
+	principal: boolean
+}
+export const saveContact = (linkDoctype: 'Customer' | 'Supplier', linkName: string, contact: string | null, values: ContactValues) =>
+	call<{ name: string }>(`${CONTACTS}.save_contact`, { link_doctype: linkDoctype, link_name: linkName, contact: contact || undefined, values: { ...values, principal: values.principal ? 1 : 0 } }, true)
+export const deleteContact = (linkDoctype: 'Customer' | 'Supplier', linkName: string, contact: string) =>
+	call<{ deleted: string }>(`${CONTACTS}.delete_contact`, { link_doctype: linkDoctype, link_name: linkName, contact }, true)
+export const setArticleBarcodes = (article: { name: string; modified: string }, barcodes: string[]) =>
+	call<import('./articles').ArticleDetail>('unicare.api.bureau_articles.set_barcodes', { name: article.name, modified: article.modified, barcodes }, true)

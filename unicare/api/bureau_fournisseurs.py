@@ -272,7 +272,7 @@ def _contacts(doc):
 		return []
 	rows = frappe.db.sql(
 		"""
-		select c.name, trim(concat_ws(' ', c.first_name, c.last_name)) as nom, c.designation as fonction,
+		select c.name, c.first_name as prenom, c.last_name as nom_famille, trim(concat_ws(' ', c.first_name, c.last_name)) as nom, c.designation as fonction,
 			coalesce(nullif(c.mobile_no, ''), c.phone) as telephone, c.email_id as email, c.is_primary_contact as principal
 		from `tabContact` c
 		join `tabDynamic Link` dl on dl.parent = c.name and dl.parenttype = 'Contact' and dl.link_doctype = 'Supplier'
@@ -288,6 +288,9 @@ def _contacts(doc):
 		principal = row.name == doc.supplier_primary_contact or (not doc.supplier_primary_contact and index == 0)
 		contacts.append(
 			{
+				"name": row.name,
+				"prenom": row.prenom,
+				"nom_famille": row.nom_famille,
 				"nom": row.nom,
 				"fonction": row.fonction,
 				"telephone": row.telephone,

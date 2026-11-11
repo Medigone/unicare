@@ -496,6 +496,24 @@ def create_article(values=None):
 
 
 @frappe.whitelist(methods=["POST"])
+def set_barcodes(name, modified, barcodes=None):
+	"""Remplace les codes-barres de l'article (dans l'ordre donné, sans doublon ni vide)."""
+	doc = _article_for_write(name, modified)
+	codes = []
+	for code in _parse(barcodes) or []:
+		code = cstr(code).strip()
+		if code and code not in codes:
+			codes.append(code)
+	for code in codes:
+		other = frappe.db.get_value("Item Barcode", {"barcode": code, "parent": ["!=", doc.name]}, "parent")
+		if other:
+			frappe.throw(_("Le code-barres {0} est déjà celui de l'article {1}.").format(code, other))
+	doc.set("barcodes", [{"barcode": code} for code in codes])
+	doc.save()
+	return _article_payload(doc, full=True)
+
+
+@frappe.whitelist(methods=["POST"])
 def update_article(name, modified, values=None):
 	"""Seuls les champs changés arrivent : ce qu'un autre a modifié sur le Desk sur un autre champ reste."""
 	doc = _article_for_write(name, modified)

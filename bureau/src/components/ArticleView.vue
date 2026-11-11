@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideBarcode from '~icons/lucide/barcode'
 import LucideBoxes from '~icons/lucide/boxes'
@@ -8,15 +9,19 @@ import LucideFolder from '~icons/lucide/folder'
 import LucideHourglass from '~icons/lucide/hourglass'
 import LucideLayers from '~icons/lucide/layers'
 import LucideRuler from '~icons/lucide/ruler'
+import LucideTrash2 from '~icons/lucide/trash-2'
 import ActivityFeed from '@shared/components/ActivityFeed.vue'
 import ListState from '@shared/components/ListState.vue'
 import MoreMenu from '@shared/components/MoreMenu.vue'
 import StatusPill from '@shared/components/StatusPill.vue'
 import AppToast from './AppToast.vue'
 import ArticleDialog from './ArticleDialog.vue'
+import OrdreDialog from './OrdreDialog.vue'
+import PieceLink from './PieceLink.vue'
+import RecetteDialog from './RecetteDialog.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
-import { articleActivity, deleteArticle } from '@/lib/api'
+import { articleActivity, deleteArticle, setArticleBarcodes } from '@/lib/api'
 import { formatQty, type ArticleDetail, type ArticleMouvement, type MouvementKey } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
 import { confirmAction } from '@/lib/confirm'
@@ -47,8 +52,6 @@ const MOUVEMENTS: { key: MouvementKey; title: string; piece: string; doctype: st
 	{ key: 'commandes_vente', title: 'Commandes client', piece: 'Commande client', doctype: 'Sales Order', tiers: 'Client', empty: 'Aucune commande client.' },
 	{ key: 'factures', title: 'Factures', piece: 'Facture', doctype: 'Sales Invoice', tiers: 'Client', empty: 'Aucune facture.' },
 ]
-// Les pièces qui ont leur fiche dans le bureau ; les autres s'ouvrent sur le Desk.
-const FICHES: Record<string, string> = { 'Purchase Order': 'CommandeAchatFiche', 'Purchase Receipt': 'ReceptionFiche', 'Sales Order': 'CommandeFiche', 'Sales Invoice': 'FactureFiche' }
 const shownMouvements = computed(() => MOUVEMENTS.filter((group) => article.value?.mouvements?.[group.key]))
 const mouvementCount = computed(() => shownMouvements.value.reduce((total, group) => total + (article.value?.mouvements?.[group.key]?.length ?? 0), 0))
 const recetteCount = computed(() => (article.value?.recettes ? article.value.recettes.produit.length + article.value.recettes.ingredient.length : 0))
@@ -90,8 +93,44 @@ function onTags(tags: string[]) {
 	if (article.value) article.value.tags = tags
 	emit('changed')
 }
-function newOnDesk(doctype: string, field: string) {
-	return `${deskUrl(doctype, 'new')}?${field}=${encodeURIComponent(props.id)}`
+// Nouvelle recette ou nouvel ordre pour ce produit : les fenêtres du bureau, le produit déjà choisi.
+const creating = ref<'recette' | 'ordre' | null>(null)
+const router = useRouter()
+function onCreated(name: string) {
+	const fiche = creating.value === 'recette' ? 'RecetteFiche' : 'OrdreFiche'
+	creating.value = null
+	emit('changed')
+	router.push({ name: fiche, params: { id: name } })
+}
+
+// Codes-barres : ajoutés ou retirés sur place.
+const nouveauCode = ref('')
+async function saveBarcodes(codes: string[], message: string) {
+	const current = article.value
+	if (!current) return
+	busy.value = true
+	actionError.value = ''
+	try {
+		article.value = await setArticleBarcodes(current, codes)
+		notice.value = message
+		nouveauCode.value = ''
+		emit('changed')
+	} catch (e) {
+		actionError.value = (e as Error).message
+		await load()
+	} finally {
+		busy.value = false
+	}
+}
+function addBarcode() {
+	const code = nouveauCode.value.trim()
+	if (!code || !article.value) return
+	saveBarcodes([...article.value.barcodes, code], 'Code-barres ajouté.')
+}
+async function removeBarcode(code: string) {
+	if (!article.value) return
+	if (!(await confirmAction({ title: 'Retirer le code-barres', message: `Le code-barres ${code} ne sera plus celui de cet article.`, confirmLabel: 'Retirer', danger: true }))) return
+	saveBarcodes(article.value.barcodes.filter((item) => item !== code), 'Code-barres retiré.')
 }
 async function copyLink() {
 	try {
@@ -150,8 +189,8 @@ async function supprimer() {
 				<template #actions>
 					<button v-if="article.can_edit" type="button" class="btn-primary" :disabled="busy" @click="editing = true">Modifier</button>
 					<MoreMenu>
-						<a v-if="article.type === 'Produit fini' && article.recettes" class="app-menu-item" role="menuitem" :href="newOnDesk('Recette de Conditionnement', 'produit_fini')" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Nouvelle recette</a>
-						<a v-if="article.type === 'Produit fini' && article.ordres" class="app-menu-item" role="menuitem" :href="newOnDesk('Ordre de Conditionnement', 'produit_fini')" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Nouvel ordre de production</a>
+						<button v-if="article.type === 'Produit fini' && article.recettes" type="button" class="app-menu-item" role="menuitem" @click="creating = 'recette'">Nouvelle recette</button>
+						<button v-if="article.type === 'Produit fini' && article.ordres" type="button" class="app-menu-item" role="menuitem" @click="creating = 'ordre'">Nouvel ordre de production</button>
 						<div v-if="article.type === 'Produit fini' && (article.recettes || article.ordres)" class="app-menu-sep"></div>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>
 						<a class="app-menu-item" role="menuitem" :href="deskUrl('Item', article.name)" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Ouvrir sur le Desk</a>
@@ -224,7 +263,7 @@ async function supprimer() {
 								<p v-if="!lastMouvements.length" class="text-ink-gray-6">Aucun achat ni vente de cet article.</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Pièce</th><th>Numéro</th><th>Date</th><th>Tiers</th><th class="end">Quantité</th></tr></thead>
-									<tbody><tr v-for="row in lastMouvements" :key="`${row.doctype}-${row.name}`"><td>{{ row.piece }}</td><td><RouterLink v-if="row.doctype in FICHES" class="ref-link" :to="{ name: FICHES[row.doctype], params: { id: row.name } }">{{ row.name }}</RouterLink><a v-else class="ref-link" :href="deskUrl(row.doctype, row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td><td class="tabular-nums">{{ formatDay(row.date) }}</td><td>{{ row.tiers || '—' }}</td><td class="end tabular-nums">{{ formatQty(row.qty) }} {{ row.uom }}</td></tr></tbody>
+									<tbody><tr v-for="row in lastMouvements" :key="`${row.doctype}-${row.name}`"><td>{{ row.piece }}</td><td><PieceLink :doctype="row.doctype" :name="row.name" /></td><td class="tabular-nums">{{ formatDay(row.date) }}</td><td>{{ row.tiers || '—' }}</td><td class="end tabular-nums">{{ formatQty(row.qty) }} {{ row.uom }}</td></tr></tbody>
 								</table></div>
 							</section>
 						</div>
@@ -246,7 +285,7 @@ async function supprimer() {
 									<thead><tr><th>Lot</th><th>Origine</th><th>Lot fournisseur</th><th>Fabriqué le</th><th>Périme le</th><th class="end">Quantité</th></tr></thead>
 									<tbody>
 										<tr v-for="lot in article.lots" :key="lot.name" :class="{ 'text-ink-gray-6': lot.disabled }">
-											<td><a class="ref-link tabular-nums" :href="deskUrl('Batch', lot.name)" target="_blank" rel="noopener noreferrer">{{ lot.name }}</a></td>
+											<td><RouterLink class="ref-link tabular-nums" :to="{ name: 'Lot', params: { id: lot.name } }">{{ lot.name }}</RouterLink></td>
 											<td>
 												<RouterLink v-if="lot.ordre" class="ref-link" :to="{ name: 'OrdreFiche', params: { id: lot.ordre } }">{{ lot.origine || 'Production' }}</RouterLink>
 												<template v-else>{{ lot.origine || '—' }}</template>
@@ -264,7 +303,7 @@ async function supprimer() {
 						<!-- Recettes. -->
 						<div v-else-if="activeTab === 'recettes' && article.recettes" class="bureau-center">
 							<section v-if="article.type === 'Produit fini' || article.recettes.produit.length" class="card ref-card">
-								<div class="ref-card-head"><h3>Recettes de ce produit</h3><a class="ref-link" :href="newOnDesk('Recette de Conditionnement', 'produit_fini')" target="_blank" rel="noopener noreferrer">Nouvelle recette</a></div>
+								<div class="ref-card-head"><h3>Recettes de ce produit</h3><button type="button" class="ref-link" @click="creating = 'recette'">Nouvelle recette</button></div>
 								<p v-if="!article.recettes.produit.length" class="text-ink-gray-6">Aucune recette ne produit cet article.</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Recette</th><th>Statut</th><th class="end">Quantité de base</th><th class="end">Rendement théorique</th></tr></thead>
@@ -311,7 +350,7 @@ async function supprimer() {
 									<thead><tr><th>Numéro</th><th>Date</th><th>{{ group.tiers }}</th><th>Statut</th><th class="end">Quantité</th><th class="end">Montant (DA)</th></tr></thead>
 									<tbody>
 										<tr v-for="(row, index) in article.mouvements?.[group.key] ?? []" :key="`${row.name}-${index}`">
-											<td><RouterLink v-if="group.doctype in FICHES" class="ref-link" :to="{ name: FICHES[group.doctype], params: { id: row.name } }">{{ row.name }}</RouterLink><a v-else class="ref-link" :href="deskUrl(group.doctype, row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td>
+											<td><PieceLink :doctype="group.doctype" :name="row.name" /></td>
 											<td class="tabular-nums">{{ formatDay(row.date) }}</td>
 											<td>{{ row.tiers || '—' }}</td>
 											<td><StatusPill :status="row.status" /></td>
@@ -342,9 +381,16 @@ async function supprimer() {
 								<p v-else class="text-ink-gray-6">Aucune description.</p>
 							</section>
 							<section class="card ref-card">
-								<div class="ref-card-head"><h3>Codes-barres</h3><a class="ref-link" :href="deskUrl('Item', article.name)" target="_blank" rel="noopener noreferrer">Gérer sur le Desk</a></div>
+								<h3>Codes-barres</h3>
 								<p v-if="!article.barcodes.length" class="text-ink-gray-6">Aucun code-barres.</p>
-								<p v-for="code in article.barcodes" :key="code" class="tabular-nums">{{ code }}</p>
+								<p v-for="code in article.barcodes" :key="code" class="flex items-center gap-2 tabular-nums">
+									<span class="flex-auto">{{ code }}</span>
+									<button v-if="article.can_edit" type="button" class="icon-btn" :disabled="busy" :aria-label="`Retirer le code-barres ${code}`" @click="removeBarcode(code)"><LucideTrash2 class="h-3.5 w-3.5" aria-hidden="true" /></button>
+								</p>
+								<form v-if="article.can_edit" class="flex gap-2" @submit.prevent="addBarcode">
+									<input v-model="nouveauCode" class="field-input flex-auto tabular-nums" placeholder="Scanner ou saisir un code" aria-label="Nouveau code-barres" autocomplete="off" />
+									<button type="submit" class="btn-secondary" :disabled="busy || !nouveauCode.trim()">Ajouter</button>
+								</form>
 							</section>
 						</div>
 
@@ -357,6 +403,8 @@ async function supprimer() {
 			</div>
 		</template>
 
+		<RecetteDialog v-if="creating === 'recette' && article" :produit="article.name" @close="creating = null" @created="onCreated" />
+		<OrdreDialog v-if="creating === 'ordre' && article" :produit="article.name" @close="creating = null" @created="onCreated" />
 		<ArticleDialog v-if="editing && article" :article="article" @close="editing = false" @saved="onSaved" />
 		<AppToast :message="notice" :tone="noticeTone" @close="notice = ''" />
 	</main>

@@ -312,7 +312,7 @@ def _contacts(doc):
 		return contacts
 	rows = frappe.db.sql(
 		"""
-		select trim(concat_ws(' ', c.first_name, c.last_name)) as nom, c.designation as fonction,
+		select c.name, c.first_name as prenom, c.last_name as nom_famille, trim(concat_ws(' ', c.first_name, c.last_name)) as nom, c.designation as fonction,
 			coalesce(nullif(c.mobile_no, ''), c.phone) as telephone, c.email_id as email, c.is_primary_contact as principal
 		from `tabContact` c
 		join `tabDynamic Link` dl on dl.parent = c.name and dl.parenttype = 'Contact' and dl.link_doctype = 'Customer'
@@ -326,8 +326,9 @@ def _contacts(doc):
 	known = {cstr(contact["nom"]).casefold() for contact in contacts}
 	for row in rows:
 		if cstr(row.nom).casefold() in known:
-			# Le contact principal de la fiche gagne sa fonction, s'il existe aussi comme contact.
+			# Le contact principal de la fiche gagne sa fonction, s'il existe aussi comme contact, et devient modifiable.
 			contacts[0]["fonction"] = contacts[0]["fonction"] or row.fonction
+			contacts[0].update({"name": row.name, "prenom": row.prenom, "nom_famille": row.nom_famille})
 			continue
 		row.principal = 0 if contacts else cint(row.principal)
 		contacts.append(row)
