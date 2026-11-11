@@ -50,16 +50,19 @@ const navModules = computed<NavModule[]>(() =>
 const pages = computed(() => pagesFor(currentPoste.value.key))
 // Le fil d'Ariane commence par le module : « Achats / Factures d'achat ».
 const shellCrumbs = computed<Crumb[]>(() => (currentModule.value?.groups.length ? [{ label: currentModule.value.label }, ...props.crumbs] : props.crumbs))
-const navGroups = computed<NavGroup[]>(() =>
-	(currentModule.value?.groups ?? []).map((group) => ({
-		title: group.title,
-		items: group.items.map(({ doctype: _doctype, ...item }) => ({ ...item, active: props.active === item.id })),
-	})),
-)
+// Un module sans pages propres (l'Accueil) montre dans son menu toutes les pages du poste, rangées par module :
+// le menu se replie et se rouvre comme ailleurs.
+const ownGroups = computed(() => Boolean(currentModule.value?.groups.length))
+const navGroups = computed<NavGroup[]>(() => {
+	const strip = (items: (typeof modules.value)[number]['groups'][number]['items']) => items.map(({ doctype: _doctype, ...item }) => ({ ...item, active: props.active === item.id }))
+	if (ownGroups.value) return (currentModule.value?.groups ?? []).map((group) => ({ title: group.title, items: strip(group.items) }))
+	return modules.value.filter((module) => module.groups.length).map((module) => ({ title: module.label, items: strip(module.groups.flatMap((group) => group.items)) }))
+})
+const panelLabel = computed(() => (ownGroups.value ? currentModule.value?.label : navGroups.value.length ? 'Toutes les pages' : undefined))
 </script>
 
 <template>
-	<AppShell :poste="postes.length > 1 ? currentPoste.label : 'Unicare'" :modules="navModules" :module-label="currentModule?.groups.length ? currentModule.label : undefined" :groups="navGroups" :crumbs="shellCrumbs" :user-name="userName" :initials="initials(userName)" storage-key="bureau-menu">
+	<AppShell :poste="postes.length > 1 ? currentPoste.label : 'Unicare'" :modules="navModules" :module-label="panelLabel" :groups="navGroups" :crumbs="shellCrumbs" :user-name="userName" :initials="initials(userName)" storage-key="bureau-menu">
 		<template v-if="postes.length > 1" #poste>
 			<HeaderMenu :label="currentPoste.label" value="" aria-label="Changer de poste">
 				<template #default="{ close }">
