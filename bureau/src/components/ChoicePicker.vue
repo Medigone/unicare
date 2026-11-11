@@ -82,7 +82,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<div v-if="picked" class="picked" :class="compact && 'min-h-0 py-1'">
+	<div v-if="picked" class="picked" :class="compact && 'py-1'">
 		<strong class="min-w-0 flex-auto truncate font-semibold text-ink-gray-9" :title="picked">{{ picked }}</strong>
 		<button :id="inputId" type="button" class="comment-tool" aria-label="Changer" title="Changer" @click="clear"><LucideX class="h-3.5 w-3.5" aria-hidden="true" /></button>
 	</div>

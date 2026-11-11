@@ -178,7 +178,7 @@ async function submit() {
 			</div>
 			<template v-if="linesLocked">
 				<div v-for="item in form.lignes" :key="item.key" class="devis-line" role="row">
-					<span role="cell" class="truncate pt-1.5">{{ item.designation }}</span>
+					<span role="cell" class="truncate">{{ item.designation }}</span>
 					<span role="cell" class="end tabular-nums">{{ item.quantite }} {{ item.unite }}</span>
 					<span role="cell" class="end tabular-nums">{{ formatAmount(parseNumber(item.prix)) }}</span>
 					<span role="cell" class="end tabular-nums text-ink-gray-7">{{ lineTotal(item) }}</span>
