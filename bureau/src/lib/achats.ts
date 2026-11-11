@@ -7,6 +7,9 @@ export interface AchatArticleChoice {
 	uom: string | null
 	/** null : aucun prix d'achat connu. */
 	prix: number | null
+	groupe?: string | null
+	/** Stock de tous les dépôts ; null : article non stocké, ou stock non lisible pour ce rôle. */
+	stock?: number | null
 }
 
 export interface AchatOptions {

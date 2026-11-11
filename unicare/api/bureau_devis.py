@@ -271,16 +271,14 @@ def _prices(item_codes):
 	return prices
 
 
-@frappe.whitelist()
-def search_devis_articles(search=None):
-	"""Articles vendables actifs, avec leur unité, leur prix de vente du tarif par défaut et leur stock.
+def article_search(search, flag, prices_of, limit=ARTICLE_SEARCH_LIMIT):
+	"""Articles actifs marqués `flag` (vente ou achat), avec unité, prix (`prices_of`) et stock des dépôts.
 
-	Chaque mot tapé doit se trouver dans la désignation ou le code (« 250 bouteille » trouve « Bouteille … 250 Ml »).
-	Le stock est la somme des dépôts de la société, envoyé seulement à qui lit les quantités par dépôt.
+	Chaque mot tapé doit se trouver dans la désignation ou le code, dans n'importe quel ordre et sans tenir compte des
+	accents (« 250 bouteille » trouve « Bouteille … 250 Ml »). Le stock n'est envoyé qu'à qui lit les quantités par dépôt.
 	"""
 	import unicodedata
 
-	require_bureau()
 	words = cstr(search).split()
 
 	def plain(text):
@@ -289,17 +287,18 @@ def search_devis_articles(search=None):
 	first = words[0] if words else ""
 	items = frappe.get_list(
 		"Item",
-		filters={"disabled": 0, "is_sales_item": 1, "has_variants": 0},
+		filters={"disabled": 0, flag: 1, "has_variants": 0},
 		or_filters=[["item_name", "like", f"%{first}%"], ["name", "like", f"%{first}%"]] if first else None,
 		fields=["name", "item_name", "stock_uom", "item_group", "is_stock_item"],
 		order_by="item_name asc",
-		limit_page_length=200 if len(words) > 1 else ARTICLE_SEARCH_LIMIT,
+		limit_page_length=200 if len(words) > 1 else limit,
 	)
 	wanted = [plain(word) for word in words]
-	items = [item for item in items if all(word in plain(f"{item.item_name} {item.name}") for word in wanted)][:ARTICLE_SEARCH_LIMIT]
-	prices = _prices([item.name for item in items])
+	items = [item for item in items if all(word in plain(f"{item.item_name} {item.name}") for word in wanted)][:limit]
+	prices = prices_of([item.name for item in items])
+	stock_lisible = bool(frappe.has_permission("Bin", "read"))
 	stocks = {}
-	if items and frappe.has_permission("Bin", "read"):
+	if items and stock_lisible:
 		from unicare.api.bureau_stock import depots
 
 		for row in frappe.get_all(
@@ -316,10 +315,17 @@ def search_devis_articles(search=None):
 			"prix": prices.get(item.name),
 			"groupe": item.item_group,
 			# null : article non stocké (service), ou stock non lisible pour ce rôle.
-			"stock": flt(stocks.get(item.name, 0), 3) if cint(item.is_stock_item) and frappe.has_permission("Bin", "read") else None,
+			"stock": flt(stocks.get(item.name, 0), 3) if cint(item.is_stock_item) and stock_lisible else None,
 		}
 		for item in items
 	]
+
+
+@frappe.whitelist()
+def search_devis_articles(search=None):
+	"""Articles vendables actifs, avec leur unité, leur prix de vente du tarif par défaut et leur stock."""
+	require_bureau()
+	return article_search(search, "is_sales_item", _prices)
 
 
 def blocked(doc):

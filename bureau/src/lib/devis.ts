@@ -113,6 +113,16 @@ export interface DevisArticleChoice {
 	stock?: number | null
 }
 
+/** Un article proposé par la barre de saisie : vente (prix au tarif) ou achat (dernier prix d'achat connu). */
+export interface QuickAddChoice {
+	name: string
+	label: string
+	uom: string | null
+	prix: number | null
+	groupe?: string | null
+	stock?: number | null
+}
+
 /**
  * Ajoute un article aux lignes : s'il y est déjà, sa quantité augmente au lieu de créer une deuxième ligne.
  * Renvoie la ligne touchée.

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import LucideInfo from '~icons/lucide/info'
-import LucidePlus from '~icons/lucide/plus'
 import LucideTrash2 from '~icons/lucide/trash-2'
 import FormDialog from '@shared/components/FormDialog.vue'
 import ChoicePicker from './ChoicePicker.vue'
+import QuickAddBar from './QuickAddBar.vue'
 import { createCommandeAchat, createDevisFournisseur, getCommandeAchatOptions, getDevisFournisseurOptions, searchAchatArticles, searchFournisseurs, updateCommandeAchat, updateDevisFournisseur } from '@/lib/api'
 import type { AchatArticleChoice, AchatOptions } from '@/lib/achats'
+import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
-import { dayFromToday, draftTotal, linesForServer, parseNumber, validateDevis, type DevisFormErrors, type DraftLine } from '@/lib/devis'
+import { addArticle, dayFromToday, draftTotal, linesForServer, parseNumber, validateDevis, type DevisFormErrors, type DraftLine } from '@/lib/devis'
 import type { CommandeAchatDetail } from '@/lib/commandesAchat'
 import type { DevisFournisseurDetail } from '@/lib/devisFournisseur'
 
@@ -38,7 +39,7 @@ const form = reactive({
 	date: (isDevis ? devis?.valable : commande?.reception) ?? '',
 	taxes: props.piece?.taxes_modele ?? '',
 	reference: devis?.reference ?? '',
-	lignes: props.piece ? props.piece.lignes.map((row) => line({ article: row.article, designation: row.designation, unite: row.unite ?? '', quantite: String(row.quantite), prix: String(row.prix) })) : [line()],
+	lignes: props.piece ? props.piece.lignes.map((row) => line({ article: row.article, designation: row.designation, unite: row.unite ?? '', quantite: String(row.quantite), prix: String(row.prix) })) : ([] as DraftLine[]),
 })
 // Le prix d'achat connu de chaque article : il sert de prix quand le champ reste vide.
 const tarifs = reactive<Record<string, number | null>>(Object.fromEntries((props.piece?.lignes ?? []).map((row) => [row.article, row.prix_tarif || null])))
@@ -68,27 +69,25 @@ onMounted(async () => {
 })
 
 const findFournisseurs = async (query: string) => (await searchFournisseurs(query, true)).map((item) => ({ ...item, hint: item.wilaya }))
-const findArticles = async (query: string) => (await searchAchatArticles(query)).map((article) => ({ ...article, hint: article.prix === null ? "sans prix d'achat connu" : `${formatAmount(article.prix)} DA` }))
+const findArticles = (query: string) => searchAchatArticles(query)
+// Stock de chaque article ajouté par la barre : affiché sous sa désignation.
+const stocks = reactive<Record<string, number | null | undefined>>({})
+const highlighted = ref<number | null>(null)
+let highlightTimer: ReturnType<typeof setTimeout> | null = null
 
-function pickArticle(target: DraftLine, choice: AchatArticleChoice) {
-	target.article = choice.name
-	target.designation = choice.label
-	target.unite = choice.uom ?? ''
+/** Ajout par la barre : un article déjà présent voit sa quantité augmenter, et sa ligne s'éclaire un instant. */
+function onAdd(choice: AchatArticleChoice, quantite: number) {
 	tarifs[choice.name] = choice.prix
+	stocks[choice.name] = choice.stock
+	const target = addArticle(form.lignes, choice, quantite, line)
 	if (errors.value.ligne) delete errors.value.ligne[target.key]
 	delete errors.value.lignes
-	// Une ligne choisie en dernier en ajoute une vide : la saisie continue sans souris.
-	if (form.lignes[form.lignes.length - 1] === target) form.lignes.push(line())
-}
-function clearArticle(target: DraftLine) {
-	target.article = ''
-	target.designation = ''
-	target.unite = ''
-	target.prix = ''
+	highlighted.value = target.key
+	if (highlightTimer) clearTimeout(highlightTimer)
+	highlightTimer = setTimeout(() => (highlighted.value = null), 1500)
 }
 function removeLine(target: DraftLine) {
 	form.lignes = form.lignes.filter((item) => item !== target)
-	if (!form.lignes.length) form.lignes.push(line())
 }
 function lineTotal(target: DraftLine) {
 	if (!target.article) return ''
@@ -173,8 +172,9 @@ async function submit() {
 
 		<h3 class="form-section">Lignes</h3>
 		<p v-if="linesLocked" class="field-note"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Les lignes reprises d'un devis fournisseur se modifient sur le Desk, pour garder le lien au devis.</span></p>
+		<QuickAddBar v-if="!linesLocked" :search="findArticles" input-id="achat-ajout" price-label="Prix d'achat" no-price="pas de prix connu" :invalid="Boolean(errors.lignes)" @add="onAdd" />
 		<div class="devis-lines" role="table" :aria-label="`Lignes ${isDevis ? 'du devis fournisseur' : 'de la commande'}`">
-			<div class="devis-line devis-line-head" role="row">
+			<div v-if="linesLocked || form.lignes.length" class="devis-line devis-line-head" role="row">
 				<span role="columnheader">Article</span>
 				<span role="columnheader" class="end">Quantité</span>
 				<span role="columnheader" class="end">Prix HT (DA)</span>
@@ -190,23 +190,28 @@ async function submit() {
 					<span></span>
 				</div>
 			</template>
-			<div v-for="(item, index) in linesLocked ? [] : form.lignes" :key="item.key" class="devis-line" role="row">
-				<div role="cell" class="min-w-0">
-					<ChoicePicker :search="findArticles" :picked="item.designation" :input-id="`achat-article-${item.key}`" placeholder="Article ou code" compact @pick="(choice) => pickArticle(item, choice)" @clear="clearArticle(item)" />
-					<p v-if="errors.ligne?.[item.key]" class="field-error" role="alert">{{ errors.ligne[item.key] }}</p>
+			<template v-if="!linesLocked">
+				<div v-for="item in form.lignes" :key="item.key" class="devis-line" :class="highlighted === item.key && 'devis-line-new'" role="row">
+					<div role="cell" class="devis-line-article">
+						<strong class="block truncate" :title="item.designation">{{ item.designation }}</strong>
+						<small class="block truncate text-ink-gray-6">
+							{{ item.article }}<template v-if="stocks[item.article] !== undefined && stocks[item.article] !== null"> · <span :class="(stocks[item.article] ?? 0) <= 0 && 'text-tone-red'">{{ (stocks[item.article] ?? 0) <= 0 ? 'plus en stock' : `${formatQty(stocks[item.article] ?? 0)} en stock` }}</span></template>
+						</small>
+						<p v-if="errors.ligne?.[item.key]" class="field-error" role="alert">{{ errors.ligne[item.key] }}</p>
+					</div>
+					<div role="cell" class="flex items-center gap-1">
+						<input v-model="item.quantite" class="field-input end tabular-nums" inputmode="decimal" :aria-label="`Quantité, ${item.designation}`" :aria-invalid="Boolean(errors.ligne?.[item.key])" />
+						<span class="w-10 truncate text-xs text-ink-gray-6" :title="item.unite">{{ item.unite }}</span>
+					</div>
+					<input v-model="item.prix" role="cell" class="field-input end tabular-nums" inputmode="decimal" :placeholder="tarifs[item.article] !== null && tarifs[item.article] !== undefined ? formatAmount(tarifs[item.article]) : 'À saisir'" :aria-label="`Prix HT, ${item.designation}`" />
+					<span role="cell" class="end tabular-nums font-semibold">{{ lineTotal(item) }}</span>
+					<button type="button" role="cell" class="icon-btn" :aria-label="`Retirer ${item.designation}`" @click="removeLine(item)"><LucideTrash2 class="h-3.5 w-3.5" aria-hidden="true" /></button>
 				</div>
-				<div role="cell" class="flex items-center gap-1">
-					<input v-model="item.quantite" class="field-input end tabular-nums" inputmode="decimal" :aria-label="`Quantité, ligne ${index + 1}`" :aria-invalid="Boolean(errors.ligne?.[item.key])" />
-					<span class="w-10 truncate text-xs text-ink-gray-6" :title="item.unite">{{ item.unite }}</span>
-				</div>
-				<input v-model="item.prix" role="cell" class="field-input end tabular-nums" inputmode="decimal" :placeholder="item.article && tarifs[item.article] !== null && tarifs[item.article] !== undefined ? formatAmount(tarifs[item.article]) : item.article ? 'À saisir' : ''" :aria-label="`Prix HT, ligne ${index + 1}`" />
-				<span role="cell" class="end tabular-nums text-ink-gray-7">{{ lineTotal(item) }}</span>
-				<button type="button" role="cell" class="icon-btn" :aria-label="`Retirer la ligne ${index + 1}`" @click="removeLine(item)"><LucideTrash2 class="h-3.5 w-3.5" aria-hidden="true" /></button>
-			</div>
+				<p v-if="!form.lignes.length" class="devis-lines-empty">Aucune ligne : cherchez un article dans la barre ci-dessus.</p>
+			</template>
 		</div>
 		<div class="flex flex-wrap items-center justify-between gap-2">
-			<button v-if="!linesLocked" type="button" class="btn-ghost" @click="form.lignes.push(line())"><LucidePlus class="h-3.5 w-3.5" aria-hidden="true" />Ajouter une ligne</button>
-			<span v-else></span>
+			<span class="text-sm text-ink-gray-6">{{ form.lignes.length }} article{{ form.lignes.length > 1 ? 's' : '' }}</span>
 			<p class="text-sm">Total HT : <strong class="tabular-nums">{{ formatAmount(total) }} DA</strong> <span class="text-ink-gray-6">· TVA calculée à l'enregistrement</span></p>
 		</div>
 		<p v-if="errors.lignes" class="field-error" role="alert">{{ errors.lignes }}</p>

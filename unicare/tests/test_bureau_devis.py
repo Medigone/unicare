@@ -166,3 +166,18 @@ class TestRechercheArticles(FrappeTestCase):
 			self.assertEqual(search_devis_articles("flacon introuvable 750"), [])
 		finally:
 			frappe.db.rollback()
+
+
+class TestRechercheArticlesAchat(FrappeTestCase):
+	def test_meme_recherche_cote_achats(self):
+		from unicare.api.bureau_achats import search_achat_articles
+		from unicare.tests.achats_outils import article
+
+		frappe.set_user("Administrator")
+		try:
+			code = article("Carton essai recherche achat 40x30", prix=85, stock=True)
+			found = search_achat_articles("40x30 carton")
+			self.assertEqual([row["name"] for row in found], [code])
+			self.assertEqual((found[0]["prix"], found[0]["stock"]), (85, 0))
+		finally:
+			frappe.db.rollback()

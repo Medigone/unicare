@@ -175,24 +175,8 @@ def set_lines(doc, lignes, **extra):
 
 @frappe.whitelist()
 def search_achat_articles(search=None):
-	"""Articles d'achat actifs, avec leur unité et leur prix d'achat connu."""
+	"""Articles d'achat actifs, avec leur unité, leur prix d'achat connu et leur stock."""
+	from unicare.api.bureau_devis import article_search
+
 	require_bureau()
-	value = cstr(search).strip()
-	items = frappe.get_list(
-		"Item",
-		filters={"disabled": 0, "is_purchase_item": 1, "has_variants": 0},
-		or_filters=[["item_name", "like", f"%{value}%"], ["name", "like", f"%{value}%"]] if value else None,
-		fields=["name", "item_name", "stock_uom"],
-		order_by="item_name asc",
-		limit_page_length=ARTICLE_SEARCH_LIMIT,
-	)
-	prices = buying_prices([item.name for item in items])
-	return [
-		{
-			"name": item.name,
-			"label": item.item_name or item.name,
-			"uom": item.stock_uom,
-			"prix": prices.get(item.name),
-		}
-		for item in items
-	]
+	return article_search(search, "is_purchase_item", buying_prices)
