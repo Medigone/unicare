@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucidePanelLeft from '~icons/lucide/panel-left'
 import BrandMark from './BrandMark.vue'
@@ -30,6 +30,55 @@ const accountOpen = ref(false)
 const accountRoot = ref<HTMLElement | null>(null)
 const lastCrumb = computed(() => props.crumbs.length - 1)
 
+// Menu replié (ou page sans menu) : survoler un module, ou y arriver au clavier, montre ses pages à côté du rail.
+// Le clic sur le module mène toujours à sa première page (son tableau de bord) ; Flèche droite entre dans la liste.
+const panelHidden = computed(() => collapsed.value || !hasPanel.value)
+const flyout = ref<{ module: NavModule; top: number } | null>(null)
+const flyoutEl = ref<HTMLElement | null>(null)
+let closeTimer: ReturnType<typeof setTimeout> | null = null
+function cancelClose() {
+	if (closeTimer) clearTimeout(closeTimer)
+	closeTimer = null
+}
+function openFlyout(module: NavModule, event: Event) {
+	cancelClose()
+	if (!panelHidden.value || !module.groups?.length || window.matchMedia?.('(max-width: 720px)').matches) {
+		flyout.value = null
+		return
+	}
+	const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+	flyout.value = { module, top: Math.max(rect.top, 56) }
+}
+function closeFlyout() {
+	cancelClose()
+	flyout.value = null
+}
+function scheduleClose() {
+	cancelClose()
+	closeTimer = setTimeout(closeFlyout, 180)
+}
+async function enterFlyout(module: NavModule, event: KeyboardEvent) {
+	if (!flyout.value || flyout.value.module.id !== module.id) openFlyout(module, event)
+	await nextTick()
+	flyoutEl.value?.querySelector<HTMLElement>('a')?.focus()
+}
+function onFlyoutKey(event: KeyboardEvent) {
+	const links = [...(flyoutEl.value?.querySelectorAll<HTMLElement>('a') ?? [])]
+	const index = links.indexOf(document.activeElement as HTMLElement)
+	if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+		event.preventDefault()
+		links[(index + (event.key === 'ArrowDown' ? 1 : links.length - 1)) % links.length]?.focus()
+	} else if (event.key === 'Escape' || event.key === 'ArrowLeft') {
+		event.preventDefault()
+		const id = flyout.value?.module.id
+		closeFlyout()
+		document.querySelector<HTMLElement>(`.app-rail [data-module="${id}"]`)?.focus()
+	}
+}
+function onFlyoutFocusOut(event: FocusEvent) {
+	if (!flyoutEl.value?.contains(event.relatedTarget as Node)) scheduleClose()
+}
+
 function closeAccount() {
 	accountOpen.value = false
 }
@@ -37,7 +86,10 @@ function onPointerDown(event: PointerEvent) {
 	if (accountOpen.value && !accountRoot.value?.contains(event.target as Node)) closeAccount()
 }
 function onKeydown(event: KeyboardEvent) {
-	if (event.key === 'Escape') closeAccount()
+	if (event.key === 'Escape') {
+		closeAccount()
+		closeFlyout()
+	}
 }
 onMounted(() => {
 	document.addEventListener('pointerdown', onPointerDown)
@@ -78,7 +130,21 @@ onBeforeUnmount(() => {
 
 		<nav class="app-rail" aria-label="Modules">
 			<template v-for="module in modules" :key="module.id">
-				<RouterLink v-if="module.to" :to="module.to as string" class="app-rail-item" :aria-current="module.active ? 'true' : undefined" :title="module.label">
+				<RouterLink
+					v-if="module.to"
+					:to="module.to as string"
+					class="app-rail-item"
+					:data-module="module.id"
+					:aria-current="module.active ? 'true' : undefined"
+					:title="panelHidden && module.groups?.length ? undefined : module.label"
+					:aria-haspopup="panelHidden && module.groups?.length ? 'true' : undefined"
+					:aria-expanded="panelHidden && module.groups?.length ? flyout?.module.id === module.id : undefined"
+					@pointerenter="openFlyout(module, $event)"
+					@pointerleave="scheduleClose"
+					@focus="openFlyout(module, $event)"
+					@blur="scheduleClose"
+					@keydown.right.prevent="enterFlyout(module, $event)"
+				>
 					<span class="app-rail-icon"><component :is="module.icon" class="h-5 w-5" aria-hidden="true" /><span v-if="module.alert" class="app-rail-alert" aria-hidden="true"></span></span>
 					<span class="app-rail-label">{{ module.label }}</span>
 				</RouterLink>
@@ -88,6 +154,36 @@ onBeforeUnmount(() => {
 				</a>
 			</template>
 		</nav>
+
+		<div
+			v-if="flyout"
+			ref="flyoutEl"
+			class="app-flyout"
+			:style="{ top: `${flyout.top}px` }"
+			role="group"
+			:aria-label="`Pages du module ${flyout.module.label}`"
+			@pointerenter="cancelClose"
+			@pointerleave="scheduleClose"
+			@focusin="cancelClose"
+			@focusout="onFlyoutFocusOut"
+			@keydown="onFlyoutKey"
+		>
+			<p class="app-flyout-title">{{ flyout.module.label }}</p>
+			<div v-for="(group, index) in flyout.module.groups" :key="group.title || index" class="app-nav-group">
+				<p v-if="group.title" class="app-nav-title">{{ group.title }}</p>
+				<template v-for="item in group.items" :key="item.id">
+					<RouterLink v-if="item.to" :to="item.to as string" class="app-nav-item" :aria-current="item.active ? 'page' : undefined" @click="closeFlyout">
+						<component :is="item.icon" class="h-4 w-4 flex-none" aria-hidden="true" />
+						<span class="app-nav-label">{{ item.label }}</span>
+					</RouterLink>
+					<a v-else :href="item.href" target="_blank" rel="noopener noreferrer" class="app-nav-item" @click="closeFlyout">
+						<component :is="item.icon" class="h-4 w-4 flex-none" aria-hidden="true" />
+						<span class="app-nav-label">{{ item.label }}<span class="sr-only"> (s'ouvre sur le Desk, dans une nouvelle fenêtre)</span></span>
+						<LucideArrowUpRight class="app-nav-out h-3.5 w-3.5" aria-hidden="true" />
+					</a>
+				</template>
+			</div>
+		</div>
 
 		<nav v-if="hasPanel" class="app-sidebar" :aria-label="`Pages du module ${moduleLabel ?? ''}`">
 			<p v-if="moduleLabel" class="app-module-title">{{ moduleLabel }}</p>

@@ -38,7 +38,14 @@ function choosePoste(key: string) {
 const modules = computed(() => navFor(currentPoste.value.key))
 const currentModule = computed(() => moduleOf(modules.value, props.active))
 const navModules = computed<NavModule[]>(() =>
-	modules.value.map((module) => ({ id: module.id, label: module.label, icon: module.icon, ...moduleTarget(module), active: module.id === currentModule.value?.id })),
+	modules.value.map((module) => ({
+		id: module.id,
+		label: module.label,
+		icon: module.icon,
+		...moduleTarget(module),
+		active: module.id === currentModule.value?.id,
+		groups: module.groups.map((group) => ({ title: group.title, items: group.items.map(({ doctype: _doctype, ...item }) => ({ ...item, active: props.active === item.id })) })),
+	})),
 )
 const pages = computed(() => pagesFor(currentPoste.value.key))
 // Le fil d'Ariane commence par le module : « Achats / Factures d'achat ».

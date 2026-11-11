@@ -25,6 +25,8 @@ export interface NavModule {
 	active?: boolean
 	/** Le module a une pièce qui attend une décision : un point rouge sur son icône. */
 	alert?: boolean
+	/** Ses pages : proposées au survol du rail quand le menu du module est replié. */
+	groups?: NavGroup[]
 }
 
 export interface NavGroup {

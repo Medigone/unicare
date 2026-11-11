@@ -420,6 +420,29 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
+	/* Pages d'un module au survol du rail, quand le menu du module est replié. */
+	.app-flyout {
+		position: fixed;
+		left: calc(var(--module-rail) - 4px);
+		z-index: 40;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		width: 15rem;
+		max-height: calc(100dvh - 4.5rem);
+		overflow-y: auto;
+		padding: 0.5rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: 12px;
+		background-color: var(--surface-white);
+		box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+	}
+	.app-flyout-title {
+		padding: 0.25rem 0.5rem 0.125rem;
+		font-size: 14px;
+		font-weight: 700;
+		@apply text-ink-gray-9;
+	}
 	.app-module-title {
 		padding: 0.25rem 0.5rem 0;
 		font-size: 15px;
