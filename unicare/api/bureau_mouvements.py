@@ -424,6 +424,15 @@ def _clean(values, nature):
 	return source, cible, cstr(values.get("remarque")).strip(), cleaned
 
 
+def _entry_rate(article, depot):
+	"""Taux d'une entrée : celui du dépôt, sinon celui de l'article, sinon son dernier prix d'achat."""
+	rate = flt(frappe.db.get_value("Bin", {"item_code": article, "warehouse": depot}, "valuation_rate"))
+	if not rate:
+		values = frappe.db.get_value("Item", article, ["valuation_rate", "last_purchase_rate"], as_dict=True) or {}
+		rate = flt(values.get("valuation_rate")) or flt(values.get("last_purchase_rate"))
+	return rate
+
+
 def _fill(doc, nature, values):
 	from unicare.conditionnement.stock import ensure_batch
 
@@ -435,6 +444,7 @@ def _fill(doc, nature, values):
 	doc.remarks = remarque or None
 	doc.set("items", [])
 	for ligne in lignes:
+		rate = _entry_rate(ligne["article"], cible) if nature == "entree" else 0
 		lot = ligne["lot"]
 		if lot and nature == "entree":
 			# Une entrée peut créer son lot, avec sa péremption, comme une réception.
@@ -453,8 +463,8 @@ def _fill(doc, nature, values):
 				"t_warehouse": cible,
 				"batch_no": lot,
 				"use_serial_batch_fields": 1,
-				# Une entrée sans prix connu garde le taux de valorisation de l'article.
-				"allow_zero_valuation_rate": 1 if nature == "entree" else 0,
+				# Une entrée est valorisée au taux connu de l'article ; sans aucun taux, elle entre à zéro.
+				**({"basic_rate": rate, "allow_zero_valuation_rate": 0 if rate else 1} if nature == "entree" else {}),
 			},
 		)
 

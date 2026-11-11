@@ -148,6 +148,11 @@ FILTER_LISTS = {
 		"projected_qty": "Projeté",
 		"_user_tags": "Tag",
 	},
+	"Stock Reconciliation": {
+		"posting_date": "Date",
+		"set_warehouse": "Dépôt",
+		"_user_tags": "Tag",
+	},
 	"Stock Entry": {
 		"stock_entry_type": "Nature",
 		"posting_date": "Date",

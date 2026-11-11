@@ -31,6 +31,8 @@ from unicare.api.bureau_devis_fournisseur import bulk_guard as devis_fournisseur
 from unicare.api.bureau_factures_achat import FACTURE_ACHAT, facture_achat_for_bulk
 from unicare.api.bureau_factures_achat import bulk_guard as facture_achat_guard
 from unicare.api.bureau_fournisseurs import SUPPLIER, _fournisseur_for_write
+from unicare.api.bureau_inventaires import bulk_guard as inventaire_guard
+from unicare.api.bureau_inventaires import inventaire_for_bulk
 from unicare.api.bureau_list import _bulk_apply, _parse, link_search_values, row_tags
 from unicare.api.bureau_livraisons import LIVRAISON, livraison_for_bulk
 from unicare.api.bureau_lots import lot_for_bulk
@@ -152,6 +154,13 @@ BULK_DOCTYPES = {
 		},
 		"setters": {},
 		"guard": facture_achat_guard,
+	},
+	"Stock Reconciliation": {
+		"load": inventaire_for_bulk,
+		# La feuille de comptage se modifie sur sa fiche ; en groupe, tags et suppression seulement.
+		"excluded": {"purpose", "posting_date", "posting_time", "set_warehouse", "company", "expense_account", "cost_center"},
+		"setters": {},
+		"guard": inventaire_guard,
 	},
 	"Stock Entry": {
 		"load": mouvement_for_bulk,

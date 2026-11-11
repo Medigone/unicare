@@ -4,6 +4,7 @@ import ClientsPage from './pages/ClientsPage.vue'
 import DepotsPage from './pages/DepotsPage.vue'
 import EtatStockPage from './pages/EtatStockPage.vue'
 import LotsPage from './pages/LotsPage.vue'
+import InventairesPage from './pages/InventairesPage.vue'
 import MouvementsPage from './pages/MouvementsPage.vue'
 import FournisseursPage from './pages/FournisseursPage.vue'
 import CommandesPage from './pages/CommandesPage.vue'
@@ -49,6 +50,8 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/stock/:id', name: 'LigneStock', component: EtatStockPage, props: true, meta: { doctype: 'Bin' } },
 	{ path: '/mouvements', name: 'Mouvements', component: MouvementsPage, meta: { doctype: 'Stock Entry' } },
 	{ path: '/mouvements/:id', name: 'MouvementFiche', component: MouvementsPage, props: true, meta: { doctype: 'Stock Entry' } },
+	{ path: '/inventaires', name: 'Inventaires', component: InventairesPage, meta: { doctype: 'Stock Reconciliation' } },
+	{ path: '/inventaires/:id', name: 'InventaireFiche', component: InventairesPage, props: true, meta: { doctype: 'Stock Reconciliation' } },
 	{ path: '/lots', name: 'Lots', component: LotsPage, meta: { doctype: 'Batch' } },
 	{ path: '/lots/:id', name: 'Lot', component: LotsPage, props: true, meta: { doctype: 'Batch' } },
 	{ path: '/depots', name: 'Depots', component: DepotsPage, meta: { doctype: 'Warehouse' } },

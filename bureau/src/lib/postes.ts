@@ -8,6 +8,7 @@ import LucideWarehouse from '~icons/lucide/warehouse'
 import LucideBoxes from '~icons/lucide/boxes'
 import LucideLayers from '~icons/lucide/layers'
 import LucideArrowLeftRight from '~icons/lucide/arrow-left-right'
+import LucideClipboardCheck from '~icons/lucide/clipboard-check'
 import LucideReceiptText from '~icons/lucide/receipt-text'
 import LucidePackageCheck from '~icons/lucide/package-check'
 import LucideClipboardList from '~icons/lucide/clipboard-list'
@@ -74,6 +75,7 @@ export const NAV: Record<string, PosteNavGroup[]> = {
 			items: [
 				{ id: 'etat-stock', label: 'État du stock', icon: LucideBoxes, to: { name: 'EtatStock' }, doctype: 'Bin' },
 				{ id: 'mouvements', label: 'Mouvements', icon: LucideArrowLeftRight, to: { name: 'Mouvements' }, doctype: 'Stock Entry' },
+				{ id: 'inventaires', label: 'Inventaires', icon: LucideClipboardCheck, to: { name: 'Inventaires' }, doctype: 'Stock Reconciliation' },
 				{ id: 'lots', label: 'Lots', icon: LucideLayers, to: { name: 'Lots' }, doctype: 'Batch' },
 				{ id: 'depots', label: 'Dépôts', icon: LucideWarehouse, to: { name: 'Depots' }, doctype: 'Warehouse' },
 			],

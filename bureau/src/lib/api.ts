@@ -10,6 +10,7 @@ import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livra
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
 import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
+import type { InventaireDetail, InventaireOptions, InventairesResponse, InventaireView } from './inventaires'
 import type { MouvementDetail, MouvementOptions, MouvementsResponse, MouvementValues, MouvementView, StockArticleChoice } from './mouvements'
 import type { LotChoice } from './livraisons'
 import type { LotDetail, LotOptions, LotsResponse, LotValues, LotView } from './lots'
@@ -721,6 +722,41 @@ export function mouvementActivity(name: string): ActivityApi {
 		add: (text, mentions) => call<ActivityFeedData>(`${MOUVEMENTS}.add_mouvement_comment`, { name, text, mentions }, true),
 		update: (comment, text, mentions) => call<ActivityFeedData>(`${MOUVEMENTS}.update_mouvement_comment`, { name, comment, text, mentions }, true),
 		remove: (comment) => call<ActivityFeedData>(`${MOUVEMENTS}.delete_mouvement_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}
+
+/** Inventaires : liste, aperçu, fiche, feuille de comptage et cycle (valider, annuler, nouvelle version). */
+const INVENTAIRES = 'unicare.api.bureau_inventaires'
+
+export const getInventaires = (view: InventaireView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<InventairesResponse>(`${INVENTAIRES}.get_inventaires`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getInventaire = (name: string) => call<InventaireDetail>(`${INVENTAIRES}.get_inventaire`, { name })
+export const getInventaireOptions = () => call<InventaireOptions>(`${INVENTAIRES}.get_inventaire_options`)
+export const createInventaire = (values: { depot: string; groupe?: string }) => call<{ name: string }>(`${INVENTAIRES}.create_inventaire`, { values }, true)
+export const compterInventaire = (
+	inventaire: InventaireDetail,
+	changes: { lignes?: { name: string; quantite: number }[]; ajouts?: { article: string; lot?: string; quantite: number }[]; retirer?: string[] },
+) => call<InventaireDetail>(`${INVENTAIRES}.compter`, { name: inventaire.name, modified: inventaire.modified, ...changes }, true)
+export const runInventaireAction = (inventaire: InventaireDetail, action: 'valider' | 'annuler') =>
+	call<InventaireDetail>(`${INVENTAIRES}.${action === 'valider' ? 'validate_inventaire' : 'cancel_inventaire'}`, { name: inventaire.name, modified: inventaire.modified }, true)
+export const deleteInventaire = (inventaire: InventaireDetail) => call<{ deleted: string }>(`${INVENTAIRES}.delete_inventaire`, { name: inventaire.name, modified: inventaire.modified }, true)
+export const inventairePrintUrl = (name: string) => `/printview?doctype=Stock%20Reconciliation&name=${encodeURIComponent(name)}&trigger_print=1`
+
+export function inventaireActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${INVENTAIRES}.get_inventaire_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${INVENTAIRES}.add_inventaire_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${INVENTAIRES}.update_inventaire_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${INVENTAIRES}.delete_inventaire_comment`, { name, comment }, true),
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }

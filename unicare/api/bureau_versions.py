@@ -75,8 +75,12 @@ def _replace_disabled_taxes(doc):
 	)
 
 
-def amend(doc):
-	"""Crée la nouvelle version (brouillon) d'une pièce annulée et la renvoie, avec un message s'il y a lieu."""
+def amend(doc, ignore_validate=False):
+	"""Crée la nouvelle version (brouillon) d'une pièce annulée et la renvoie, avec un message s'il y a lieu.
+
+	`ignore_validate` : pour une pièce dont le brouillon s'enregistre sans les contrôles d'ERPNext (inventaire : ERPNext
+	retirerait les lignes sans écart d'une feuille de comptage) ; ils s'appliquent alors à la validation.
+	"""
 	if doc.docstatus != 2:
 		frappe.throw(_("Seule une pièce annulée peut avoir une nouvelle version."))
 	frappe.has_permission(doc.doctype, "amend", throw=True)
@@ -89,5 +93,6 @@ def amend(doc):
 	new.amended_from = doc.name
 	new.docstatus = 0
 	note = _replace_disabled_taxes(new)
+	new.flags.ignore_validate = ignore_validate
 	new.insert()
 	return {"name": new.name, "note": note}
