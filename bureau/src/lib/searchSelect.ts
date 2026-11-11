@@ -224,10 +224,12 @@ export const vSearch: Directive<HTMLSelectElement> = {
 			}
 		})
 		sync(select, state)
+		queueMicrotask(() => sync(select, state))
 	},
 	updated(select) {
+		// `v-model` choisit l'option dans son propre `updated`, qui passe après celui-ci : on relit ensuite.
 		const state = states.get(select)
-		if (state) sync(select, state)
+		if (state) queueMicrotask(() => sync(select, state))
 	},
 	beforeUnmount(select) {
 		const state = states.get(select)

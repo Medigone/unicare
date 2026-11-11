@@ -90,7 +90,7 @@ async function submit() {
 </script>
 
 <template>
-	<FormDialog :title="recette ? `Modifier la recette ${recette.name}` : 'Nouvelle recette'" :dirty="dirty" :busy="busy" :hint="recette ? 'Ctrl + Entrée pour enregistrer' : 'Ctrl + Entrée pour créer'" @close="emit('close')" @submit="submit">
+	<FormDialog class="recette-dialog" :title="recette ? `Modifier la recette ${recette.name}` : 'Nouvelle recette'" :dirty="dirty" :busy="busy" :hint="recette ? 'Ctrl + Entrée pour enregistrer' : 'Ctrl + Entrée pour créer'" @close="emit('close')" @submit="submit">
 		<p v-if="loadError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ loadError }}</p>
 		<div class="form-field">
 			<label class="field-label" for="recette-produit">Produit fini <span class="req">obligatoire</span></label>
@@ -100,48 +100,53 @@ async function submit() {
 				<option v-for="item in options?.produits" :key="item.value" :value="item.value">{{ item.label }} ({{ item.value }})</option>
 			</select>
 		</div>
-		<div class="form-grid">
+		<div class="recette-head">
 			<div class="form-field">
 				<label class="field-label" for="recette-base">Recette donnée pour</label>
-				<span class="flex items-center gap-1.5">
-					<input id="recette-base" v-model="quantiteBase" class="field-input w-24 text-right tabular-nums" inputmode="decimal" @input="dirty = true" />
-					<select v-search v-model="unite" class="field-input" aria-label="Unité de la quantité de base" @change="dirty = true">
-						<option v-if="unite && !options?.unites.includes(unite)" :value="unite">{{ unite }}</option>
-						<option v-for="item in options?.unites" :key="item" :value="item">{{ item }}</option>
-					</select>
-				</span>
+				<input id="recette-base" v-model="quantiteBase" class="field-input text-right tabular-nums" inputmode="decimal" @input="dirty = true" />
 			</div>
 			<div class="form-field">
-				<label class="field-label" for="recette-rendement">Rendement visé</label>
-				<span class="flex items-center gap-1.5"><input id="recette-rendement" v-model="rendement" class="field-input w-24 text-right tabular-nums" inputmode="decimal" @input="dirty = true" /><span class="text-sm text-ink-gray-7">%</span></span>
+				<label class="field-label" for="recette-unite">Unité</label>
+				<select v-search id="recette-unite" v-model="unite" class="field-input" @change="dirty = true">
+					<option v-if="unite && !options?.unites.includes(unite)" :value="unite">{{ unite }}</option>
+					<option v-for="item in options?.unites" :key="item" :value="item">{{ item }}</option>
+				</select>
+			</div>
+			<div class="form-field">
+				<label class="field-label" for="recette-rendement">Rendement visé (%)</label>
+				<input id="recette-rendement" v-model="rendement" class="field-input text-right tabular-nums" inputmode="decimal" @input="dirty = true" />
 			</div>
 		</div>
 
-		<section class="flex flex-col gap-1.5">
+		<section class="flex flex-col gap-2">
 			<h3 class="text-sm font-semibold">Matières pour {{ quantiteBase || '…' }} {{ unite }}</h3>
-			<div class="ref-scroll"><table class="ref-table">
-				<thead><tr><th>Matière</th><th>Type</th><th class="end">Quantité</th><th>Unité</th><th>Obligatoire</th><th></th></tr></thead>
-				<tbody>
-					<tr v-for="(row, index) in lignes" :key="row.key">
-						<td>
-							<select v-search v-model="row.article" class="field-input" :aria-label="`Matière ${index + 1}`" @change="onMatiere(row)">
-								<option value="">Choisir…</option>
-								<option v-for="item in options?.matieres" :key="item.value" :value="item.value">{{ item.label }}</option>
-							</select>
-						</td>
-						<td class="text-ink-gray-7">{{ matiere(row.article)?.type ?? '—' }}</td>
-						<td class="end"><input v-model="row.quantite" class="field-input w-24 text-right tabular-nums" inputmode="decimal" :aria-label="`Quantité, matière ${index + 1}`" @input="dirty = true" /></td>
-						<td>
-							<select v-search v-model="row.unite" class="field-input" :aria-label="`Unité, matière ${index + 1}`" @change="dirty = true">
-								<option v-if="row.unite && !options?.unites.includes(row.unite)" :value="row.unite">{{ row.unite }}</option>
-								<option v-for="item in options?.unites" :key="item" :value="item">{{ item }}</option>
-							</select>
-						</td>
-						<td><input v-model="row.obligatoire" type="checkbox" :aria-label="`Obligatoire, matière ${index + 1}`" @change="dirty = true" /></td>
-						<td><button type="button" class="icon-btn" :aria-label="`Retirer la matière ${index + 1}`" :disabled="lignes.length === 1" @click="removeLigne(row)"><LucideTrash2 class="h-3.5 w-3.5" aria-hidden="true" /></button></td>
-					</tr>
-				</tbody>
-			</table></div>
+			<div class="recette-lines" role="table" aria-label="Matières de la recette">
+				<div class="recette-line recette-line-head" role="row">
+					<span role="columnheader">Matière</span>
+					<span role="columnheader" class="text-right">Quantité</span>
+					<span role="columnheader">Unité</span>
+					<span role="columnheader" class="text-center">Obligatoire</span>
+					<span role="columnheader"><span class="sr-only">Retirer</span></span>
+				</div>
+				<div v-for="(row, index) in lignes" :key="row.key" class="recette-line" role="row">
+					<span role="cell" class="recette-line-matiere">
+						<select v-search v-model="row.article" class="field-input" :aria-label="`Matière ${index + 1}`" @change="onMatiere(row)">
+							<option value="">Choisir une matière…</option>
+							<option v-for="item in options?.matieres" :key="item.value" :value="item.value">{{ item.label }}</option>
+						</select>
+						<span v-if="matiere(row.article)" class="badge flex-none" :class="matiere(row.article)?.type === 'Fût' ? 'tone-violet' : 'tone-blue'">{{ matiere(row.article)?.type }}</span>
+					</span>
+					<span role="cell"><input v-model="row.quantite" class="field-input text-right tabular-nums" inputmode="decimal" :aria-label="`Quantité, matière ${index + 1}`" @input="dirty = true" /></span>
+					<span role="cell">
+						<select v-search v-model="row.unite" class="field-input" :aria-label="`Unité, matière ${index + 1}`" @change="dirty = true">
+							<option v-if="row.unite && !options?.unites.includes(row.unite)" :value="row.unite">{{ row.unite }}</option>
+							<option v-for="item in options?.unites" :key="item" :value="item">{{ item }}</option>
+						</select>
+					</span>
+					<span role="cell" class="flex justify-center"><input v-model="row.obligatoire" type="checkbox" class="recette-check" :aria-label="`Obligatoire, matière ${index + 1}`" @change="dirty = true" /></span>
+					<span role="cell" class="flex justify-end"><button type="button" class="icon-btn" :aria-label="`Retirer la matière ${index + 1}`" :disabled="lignes.length === 1" @click="removeLigne(row)"><LucideTrash2 class="h-3.5 w-3.5" aria-hidden="true" /></button></span>
+				</div>
+			</div>
 			<div><button type="button" class="btn-secondary" @click="addLigne"><LucidePlus class="h-3.5 w-3.5" aria-hidden="true" />Ajouter une matière</button></div>
 			<p class="field-note"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Au moins une matière de type Fût (le vrac). {{ recette ? 'Les ordres déjà créés gardent leurs quantités.' : '' }}</span></p>
 		</section>
