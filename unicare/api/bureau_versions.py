@@ -19,12 +19,21 @@ def open_version(doc):
 	return frappe.db.get_value(doc.doctype, {"amended_from": doc.name, "docstatus": ["<", 2]}, "name")
 
 
+# Écritures qu'ERPNext garde, marquées annulées, quand une pièce est annulée : elles la rendent impossible à supprimer.
+LEDGERS = ("Stock Ledger Entry", "GL Entry", "Payment Ledger Entry")
+
+
+def has_ledger(doc):
+	"""La pièce a laissé des écritures de stock ou de comptabilité : ERPNext la garde, même annulée (piste d'audit)."""
+	return any(frappe.db.exists(ledger, {"voucher_type": doc.doctype, "voucher_no": doc.name}) for ledger in LEDGERS)
+
+
 def cancelled_actions(doc):
-	"""Ce qu'on peut faire d'une pièce annulée : en faire une nouvelle version, ou la supprimer."""
+	"""Ce qu'on peut faire d'une pièce annulée : en faire une nouvelle version, ou la supprimer si rien ne la garde."""
 	found = []
 	if frappe.has_permission(doc.doctype, "amend") and frappe.has_permission(doc.doctype, "create") and not open_version(doc):
 		found.append("nouvelle_version")
-	if doc.has_permission("delete"):
+	if doc.has_permission("delete") and not has_ledger(doc):
 		found.append("supprimer")
 	return found
 
@@ -32,11 +41,14 @@ def cancelled_actions(doc):
 def versions(doc):
 	"""La pièce d'origine et les versions qui en sont faites, pour la fiche."""
 
+	# Certaines pièces (Stock Entry…) n'ont pas de statut : on le déduit alors de `docstatus`.
+	fields = ["name", "docstatus", "status"] if doc.meta.has_field("status") else ["name", "docstatus"]
+
 	def row(name):
-		values = frappe.db.get_value(doc.doctype, name, ["name", "docstatus", "status"], as_dict=True)
+		values = frappe.db.get_value(doc.doctype, name, fields, as_dict=True)
 		if not values:
 			return None
-		status = "Draft" if cint(values.docstatus) == 0 else values.status or ("Cancelled" if cint(values.docstatus) == 2 else "Submitted")
+		status = "Draft" if cint(values.docstatus) == 0 else values.get("status") or ("Cancelled" if cint(values.docstatus) == 2 else "Submitted")
 		return {"name": values.name, "docstatus": cint(values.docstatus), "status": status}
 
 	origine = row(doc.amended_from) if doc.get("amended_from") else None

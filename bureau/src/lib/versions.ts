@@ -14,7 +14,7 @@ export interface Versions {
 }
 
 /** Pièces qui ont des versions : le module serveur qui les refait. */
-export type VersionModule = 'devis' | 'commandes' | 'livraisons' | 'factures' | 'paiements' | 'devis_fournisseur' | 'commandes_achat' | 'receptions' | 'factures_achat'
+export type VersionModule = 'devis' | 'commandes' | 'livraisons' | 'factures' | 'paiements' | 'devis_fournisseur' | 'commandes_achat' | 'receptions' | 'factures_achat' | 'mouvements' | 'inventaires'
 
 /** La version qui remplace une pièce annulée, si elle existe encore (brouillon ou validée). */
 export function openVersion(versions: Versions | null | undefined) {

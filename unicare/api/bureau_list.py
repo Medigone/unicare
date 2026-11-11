@@ -148,6 +148,14 @@ FILTER_LISTS = {
 		"projected_qty": "Projeté",
 		"_user_tags": "Tag",
 	},
+	"Stock Entry": {
+		"stock_entry_type": "Nature",
+		"posting_date": "Date",
+		"from_warehouse": "Dépôt de départ",
+		"to_warehouse": "Dépôt d'arrivée",
+		"custom_ordre_conditionnement": "Ordre de conditionnement",
+		"_user_tags": "Tag",
+	},
 	"Batch": {
 		"item": "Article",
 		"expiry_date": "Péremption",

@@ -19,17 +19,17 @@ describe('postes du bureau', () => {
 	})
 
 	it("commence par l'accueil, puis le référentiel", () => {
-		expect(ids('conditionnement')).toEqual(['accueil', 'devis', 'commandes', 'livraisons', 'factures', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'etat-stock', 'lots', 'depots', 'paiements', 'clients', 'fournisseurs', 'articles'])
+		expect(ids('conditionnement')).toEqual(['accueil', 'devis', 'commandes', 'livraisons', 'factures', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'etat-stock', 'mouvements', 'lots', 'depots', 'paiements', 'clients', 'fournisseurs', 'articles'])
 	})
 
 	it('retire Clients à qui ne lit pas les clients', () => {
 		window.droits = noRead('Customer')
-		expect(ids('conditionnement')).toEqual(['accueil', 'devis', 'commandes', 'livraisons', 'factures', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'etat-stock', 'lots', 'depots', 'paiements', 'fournisseurs', 'articles'])
+		expect(ids('conditionnement')).toEqual(['accueil', 'devis', 'commandes', 'livraisons', 'factures', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'etat-stock', 'mouvements', 'lots', 'depots', 'paiements', 'fournisseurs', 'articles'])
 	})
 
 	it('retire Articles à qui ne lit pas les articles', () => {
 		window.droits = noRead('Item')
-		expect(ids('conditionnement')).toEqual(['accueil', 'devis', 'commandes', 'livraisons', 'factures', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'etat-stock', 'lots', 'depots', 'paiements', 'clients', 'fournisseurs'])
+		expect(ids('conditionnement')).toEqual(['accueil', 'devis', 'commandes', 'livraisons', 'factures', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'etat-stock', 'mouvements', 'lots', 'depots', 'paiements', 'clients', 'fournisseurs'])
 	})
 
 	it("retient le choix et ignore un poste qui n'est plus à ce compte", () => {

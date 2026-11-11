@@ -10,6 +10,8 @@ import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livra
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
 import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
+import type { MouvementDetail, MouvementOptions, MouvementsResponse, MouvementValues, MouvementView, StockArticleChoice } from './mouvements'
+import type { LotChoice } from './livraisons'
 import type { LotDetail, LotOptions, LotsResponse, LotValues, LotView } from './lots'
 import type { EtatStockOptions, EtatStockResponse, EtatStockView, LigneStockDetail } from './etatStock'
 import type { DepotDetail, DepotOptions, DepotsResponse, DepotValues, DepotView } from './depots'
@@ -684,6 +686,41 @@ export function lotActivity(name: string): ActivityApi {
 		add: (text, mentions) => call<ActivityFeedData>(`${LOTS}.add_lot_comment`, { name, text, mentions }, true),
 		update: (comment, text, mentions) => call<ActivityFeedData>(`${LOTS}.update_lot_comment`, { name, comment, text, mentions }, true),
 		remove: (comment) => call<ActivityFeedData>(`${LOTS}.delete_lot_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}
+
+/** Mouvements de stock : liste, aperçu, fiche, saisie et cycle (valider, annuler, nouvelle version). */
+const MOUVEMENTS = 'unicare.api.bureau_mouvements'
+
+export const getMouvements = (view: MouvementView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<MouvementsResponse>(`${MOUVEMENTS}.get_mouvements`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getMouvement = (name: string) => call<MouvementDetail>(`${MOUVEMENTS}.get_mouvement`, { name })
+export const getMouvementOptions = () => call<MouvementOptions>(`${MOUVEMENTS}.get_mouvement_options`)
+export const searchStockArticles = (search: string, depot?: string) => call<StockArticleChoice[]>(`${MOUVEMENTS}.search_stock_articles`, { search: search.trim() || undefined, depot: depot || undefined })
+export const getLotsArticle = (article: string, depot: string) => call<LotChoice[]>(`${MOUVEMENTS}.get_lots_article`, { article, depot })
+export const createMouvement = (values: MouvementValues) => call<{ name: string }>(`${MOUVEMENTS}.create_mouvement`, { values }, true)
+export const updateMouvement = (mouvement: MouvementDetail, values: MouvementValues) =>
+	call<MouvementDetail>(`${MOUVEMENTS}.update_mouvement`, { name: mouvement.name, modified: mouvement.modified, values }, true)
+export const runMouvementAction = (mouvement: MouvementDetail, action: 'valider' | 'annuler') =>
+	call<MouvementDetail>(`${MOUVEMENTS}.${action === 'valider' ? 'validate_mouvement' : 'cancel_mouvement'}`, { name: mouvement.name, modified: mouvement.modified }, true)
+export const deleteMouvement = (mouvement: MouvementDetail) => call<{ deleted: string }>(`${MOUVEMENTS}.delete_mouvement`, { name: mouvement.name, modified: mouvement.modified }, true)
+export const mouvementPrintUrl = (name: string) => `/printview?doctype=Stock%20Entry&name=${encodeURIComponent(name)}&trigger_print=1`
+
+export function mouvementActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${MOUVEMENTS}.get_mouvement_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${MOUVEMENTS}.add_mouvement_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${MOUVEMENTS}.update_mouvement_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${MOUVEMENTS}.delete_mouvement_comment`, { name, comment }, true),
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }

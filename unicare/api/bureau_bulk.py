@@ -34,6 +34,8 @@ from unicare.api.bureau_fournisseurs import SUPPLIER, _fournisseur_for_write
 from unicare.api.bureau_list import _bulk_apply, _parse, link_search_values, row_tags
 from unicare.api.bureau_livraisons import LIVRAISON, livraison_for_bulk
 from unicare.api.bureau_lots import lot_for_bulk
+from unicare.api.bureau_mouvements import bulk_guard as mouvement_guard
+from unicare.api.bureau_mouvements import mouvement_for_bulk
 from unicare.api.bureau_livraisons import bulk_guard as livraison_guard
 from unicare.api.bureau_paiements import PAIEMENT, paiement_for_bulk
 from unicare.api.bureau_paiements import bulk_guard as paiement_guard
@@ -150,6 +152,22 @@ BULK_DOCTYPES = {
 		},
 		"setters": {},
 		"guard": facture_achat_guard,
+	},
+	"Stock Entry": {
+		"load": mouvement_for_bulk,
+		# Nature, dépôts, lignes et ordre se règlent sur la fiche, avec leurs contrôles.
+		"excluded": {
+			"purpose",
+			"stock_entry_type",
+			"from_warehouse",
+			"to_warehouse",
+			"posting_date",
+			"posting_time",
+			"company",
+			"custom_ordre_conditionnement",
+		},
+		"setters": {},
+		"guard": mouvement_guard,
 	},
 	"Batch": {
 		"load": lot_for_bulk,
