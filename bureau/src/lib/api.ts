@@ -867,3 +867,6 @@ export const deleteContact = (linkDoctype: 'Customer' | 'Supplier', linkName: st
 	call<{ deleted: string }>(`${CONTACTS}.delete_contact`, { link_doctype: linkDoctype, link_name: linkName, contact }, true)
 export const setArticleBarcodes = (article: { name: string; modified: string }, barcodes: string[]) =>
 	call<import('./articles').ArticleDetail>('unicare.api.bureau_articles.set_barcodes', { name: article.name, modified: article.modified, barcodes }, true)
+
+/** Lot périmé : prépare (en brouillon) son transfert vers le dépôt des rebuts (unicare/api/bureau_perimes.py). */
+export const preparerMiseAuRebut = (lot: string) => call<{ name: string }>('unicare.api.bureau_perimes.preparer_mise_au_rebut', { lot }, true)

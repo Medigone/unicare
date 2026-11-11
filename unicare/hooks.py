@@ -163,6 +163,11 @@ override_doctype_class = {
 # Scheduled Tasks
 # ---------------
 
+# Chaque jour : les lots périmés encore en stock reçoivent un transfert vers le rebut, en brouillon (bureau_perimes.py).
+scheduler_events = {
+	"daily": ["unicare.api.bureau_perimes.preparer_tous"],
+}
+
 # scheduler_events = {
 # 	"all": [
 # 		"unicare.tasks.all"

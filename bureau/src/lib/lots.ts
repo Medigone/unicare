@@ -57,6 +57,10 @@ export interface TracabiliteRow {
 }
 
 export interface LotDetail extends LotRow {
+	/** Lot périmé : le transfert vers le rebut déjà préparé (brouillon), ou s'il reste à préparer. */
+	mise_au_rebut: string | null
+	a_mettre_au_rebut: boolean
+	depot_rebuts: string | null
 	description: string | null
 	can_edit: boolean
 	can_delete: boolean

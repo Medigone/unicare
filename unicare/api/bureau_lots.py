@@ -194,6 +194,9 @@ def _lot_payload(doc, full=False):
 				"comments": activity.comment_summary(BATCH, doc.name),
 			}
 		)
+	from unicare.api.bureau_perimes import etat_lot
+
+	payload.update(etat_lot(doc.name))
 	return payload
 
 

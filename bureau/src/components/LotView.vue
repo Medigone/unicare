@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideCalendar from '~icons/lucide/calendar'
 import LucideCalendarClock from '~icons/lucide/calendar-clock'
@@ -14,9 +15,10 @@ import AppToast from './AppToast.vue'
 import LedgerTable from './LedgerTable.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
-import { deleteLot, lotActivity, updateLot } from '@/lib/api'
+import { deleteLot, lotActivity, preparerMiseAuRebut, updateLot } from '@/lib/api'
 import { formatQty } from '@/lib/articles'
 import { confirmAction } from '@/lib/confirm'
+import { canCreate } from '@/lib/droits'
 import { deskUrl, formatDay } from '@/lib/display'
 import { etatPeremption } from '@/lib/lots'
 import { useLot } from '@/lib/useLot'
@@ -70,6 +72,23 @@ async function save() {
 	if (done) {
 		editing.value = false
 		notice.value = 'Lot enregistré.'
+	}
+}
+
+// Lot périmé : le transfert vers le rebut se prépare en brouillon, puis s'ouvre pour vérification.
+const router = useRouter()
+async function mettreAuRebut() {
+	const current = lot.value
+	if (!current) return
+	if (!(await confirmAction({ title: 'Mettre le lot au rebut', message: `Un transfert de ${current.name} vers ${current.depot_rebuts ?? 'le dépôt des rebuts'} sera préparé en brouillon, pour tout son stock hors atelier. Rien ne bouge avant que vous le validiez.`, confirmLabel: 'Préparer le transfert' }))) return
+	busy.value = true
+	try {
+		const { name } = await preparerMiseAuRebut(current.name)
+		await router.push({ name: 'MouvementFiche', params: { id: name } })
+	} catch (e) {
+		actionError.value = (e as Error).message
+	} finally {
+		busy.value = false
 	}
 }
 
@@ -158,7 +177,16 @@ async function supprimer() {
 
 					<div class="bureau-detail">
 						<div class="bureau-center">
-							<div v-if="etat === 'perime'" role="status" class="rounded-control tone-red px-3.5 py-2.5"><strong class="font-semibold">Lot périmé</strong> depuis le {{ formatDay(lot.peremption) }} : il n'est plus proposé à la sortie. Sortez-le du stock (mouvement de sortie vers le rebut) ou corrigez sa péremption.</div>
+							<div v-if="etat === 'perime'" role="status" class="flex flex-wrap items-center gap-2.5 rounded-control tone-red px-3.5 py-2.5">
+								<span class="flex-auto">
+									<strong class="font-semibold">Lot périmé</strong> depuis le {{ formatDay(lot.peremption) }} : il n'est plus proposé à la vente ni à la production.
+									<template v-if="lot.mise_au_rebut"> Un transfert vers {{ lot.depot_rebuts ?? 'le rebut' }} est prêt en brouillon : vérifiez-le, puis validez-le.</template>
+									<template v-else-if="lot.a_mettre_au_rebut"> Préparez son transfert vers {{ lot.depot_rebuts }}, ou corrigez sa péremption.</template>
+									<template v-else> Corrigez sa péremption s'il est encore bon.</template>
+								</span>
+								<RouterLink v-if="lot.mise_au_rebut" class="btn-secondary" :to="{ name: 'MouvementFiche', params: { id: lot.mise_au_rebut } }">Ouvrir {{ lot.mise_au_rebut }}</RouterLink>
+								<button v-else-if="lot.a_mettre_au_rebut && canCreate('Stock Entry')" type="button" class="btn-secondary" :disabled="busy" @click="mettreAuRebut">Préparer le transfert au rebut</button>
+							</div>
 							<section v-if="activeTab === 'stock'" class="card ref-card">
 								<h3>Stock par dépôt</h3>
 								<p v-if="!lot.depots.length" class="text-ink-gray-6">Plus rien en stock.</p>
