@@ -108,6 +108,25 @@ export interface DevisArticleChoice {
 	uom: string | null
 	/** Prix du tarif de vente ; null : pas de prix au tarif. */
 	prix: number | null
+	groupe?: string | null
+	/** Stock de tous les dépôts ; null : article non stocké, ou stock non lisible pour ce rôle. */
+	stock?: number | null
+}
+
+/**
+ * Ajoute un article aux lignes : s'il y est déjà, sa quantité augmente au lieu de créer une deuxième ligne.
+ * Renvoie la ligne touchée.
+ */
+export function addArticle(lines: DraftLine[], choice: { name: string; label: string; uom: string | null }, quantite: number, make: (values: Partial<DraftLine>) => DraftLine) {
+	const existing = lines.find((line) => line.article === choice.name)
+	if (existing) {
+		const current = parseNumber(existing.quantite)
+		existing.quantite = String((Number.isFinite(current) ? current : 0) + quantite).replace('.', ',')
+		return existing
+	}
+	const created = make({ article: choice.name, designation: choice.label, unite: choice.uom ?? '', quantite: String(quantite).replace('.', ',') })
+	lines.push(created)
+	return created
 }
 
 /** Une ligne en cours de saisie. Le prix reste du texte : vide, il reprend le tarif. */

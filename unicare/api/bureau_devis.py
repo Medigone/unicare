@@ -273,24 +273,50 @@ def _prices(item_codes):
 
 @frappe.whitelist()
 def search_devis_articles(search=None):
-	"""Articles vendables actifs, avec leur unité et leur prix de vente du tarif par défaut."""
+	"""Articles vendables actifs, avec leur unité, leur prix de vente du tarif par défaut et leur stock.
+
+	Chaque mot tapé doit se trouver dans la désignation ou le code (« 250 bouteille » trouve « Bouteille … 250 Ml »).
+	Le stock est la somme des dépôts de la société, envoyé seulement à qui lit les quantités par dépôt.
+	"""
+	import unicodedata
+
 	require_bureau()
-	value = cstr(search).strip()
+	words = cstr(search).split()
+
+	def plain(text):
+		return "".join(c for c in unicodedata.normalize("NFD", cstr(text).casefold()) if unicodedata.category(c) != "Mn")
+
+	first = words[0] if words else ""
 	items = frappe.get_list(
 		"Item",
 		filters={"disabled": 0, "is_sales_item": 1, "has_variants": 0},
-		or_filters=[["item_name", "like", f"%{value}%"], ["name", "like", f"%{value}%"]] if value else None,
-		fields=["name", "item_name", "stock_uom"],
+		or_filters=[["item_name", "like", f"%{first}%"], ["name", "like", f"%{first}%"]] if first else None,
+		fields=["name", "item_name", "stock_uom", "item_group", "is_stock_item"],
 		order_by="item_name asc",
-		limit_page_length=ARTICLE_SEARCH_LIMIT,
+		limit_page_length=200 if len(words) > 1 else ARTICLE_SEARCH_LIMIT,
 	)
+	wanted = [plain(word) for word in words]
+	items = [item for item in items if all(word in plain(f"{item.item_name} {item.name}") for word in wanted)][:ARTICLE_SEARCH_LIMIT]
 	prices = _prices([item.name for item in items])
+	stocks = {}
+	if items and frappe.has_permission("Bin", "read"):
+		from unicare.api.bureau_stock import depots
+
+		for row in frappe.get_all(
+			"Bin",
+			filters={"item_code": ["in", [item.name for item in items]], "warehouse": ["in", depots() or [""]]},
+			fields=["item_code", "actual_qty"],
+		):
+			stocks[row.item_code] = stocks.get(row.item_code, 0) + flt(row.actual_qty)
 	return [
 		{
 			"name": item.name,
 			"label": item.item_name or item.name,
 			"uom": item.stock_uom,
 			"prix": prices.get(item.name),
+			"groupe": item.item_group,
+			# null : article non stocké (service), ou stock non lisible pour ce rôle.
+			"stock": flt(stocks.get(item.name, 0), 3) if cint(item.is_stock_item) and frappe.has_permission("Bin", "read") else None,
 		}
 		for item in items
 	]

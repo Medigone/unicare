@@ -148,3 +148,21 @@ class TestDevis(FrappeTestCase):
 		self.assertIn("Quotation", bureau_bulk.BULK_DOCTYPES)
 		articles = bureau_devis.search_devis_articles("essai devis")
 		self.assertEqual({row["name"]: row["prix"] for row in articles}[self.avec_prix], 450)
+
+
+class TestRechercheArticles(FrappeTestCase):
+	def test_mots_dans_le_desordre_prix_et_stock(self):
+		from unicare.api.bureau_devis import search_devis_articles
+		from unicare.tests.achats_outils import article
+
+		frappe.set_user("Administrator")
+		try:
+			code = article("Flacon essai recherche 750 Ml", stock=True)
+			frappe.db.set_value("Item", code, "is_sales_item", 1)
+			found = search_devis_articles("750 flacon")
+			self.assertEqual([row["name"] for row in found], [code])
+			self.assertIn("stock", found[0])
+			self.assertEqual(found[0]["stock"], 0)
+			self.assertEqual(search_devis_articles("flacon introuvable 750"), [])
+		finally:
+			frappe.db.rollback()

@@ -34,3 +34,20 @@ describe('devis', () => {
 		expect(DEFAULT_DEVIS_COLUMNS).toEqual(['name', 'client_label', 'status', 'date', 'valable', 'total_ttc', 'tags'])
 	})
 })
+
+describe("ajout d'un article à la pièce", () => {
+	it('augmente la quantité au lieu de créer une deuxième ligne', async () => {
+		const { addArticle } = await import('./devis')
+		let key = 0
+		const make = (values: Record<string, string>) => ({ key: ++key, article: '', designation: '', unite: '', quantite: '1', prix: '', ...values })
+		const lines: ReturnType<typeof make>[] = []
+		addArticle(lines, { name: 'PF-1', label: 'Bouteille', uom: 'U' }, 200, make)
+		addArticle(lines, { name: 'PF-2', label: 'Gel', uom: 'U' }, 1.5, make)
+		const again = addArticle(lines, { name: 'PF-1', label: 'Bouteille', uom: 'U' }, 50, make)
+		expect(lines.map((line) => [line.article, line.quantite])).toEqual([
+			['PF-1', '250'],
+			['PF-2', '1,5'],
+		])
+		expect(again.key).toBe(1)
+	})
+})
