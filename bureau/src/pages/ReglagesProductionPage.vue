@@ -36,7 +36,8 @@ const selected = ref<string | null>(null)
 const draft = ref<{ titre: string; actif: boolean; lignes: ChecklistLigne[] }>({ titre: '', actif: true, lignes: [] })
 const nouvelle = ref(false)
 // Modifié : la copie de travail diffère de ce qui a été chargé.
-const draftBase = ref('')
+// Départ : la copie de travail vide est « propre », pour que les réglages chargés la remplissent.
+const draftBase = ref(JSON.stringify(draft.value))
 const checklistDirty = computed(() => JSON.stringify(draft.value) !== draftBase.value)
 const current = computed(() => reglages.value?.checklists.find((row) => row.name === selected.value) ?? null)
 function openChecklist(name: string | null) {
@@ -55,7 +56,7 @@ function startNew() {
 
 // Paramètres : copie de travail.
 const parametres = ref<Record<DepotField, string> & { tolerance: string }>({ warehouse_mp: '', warehouse_conditionnement: '', warehouse_atelier: '', warehouse_pf: '', warehouse_rebuts: '', tolerance: '' })
-const parametresBase = ref('')
+const parametresBase = ref(JSON.stringify(parametres.value))
 const parametresDirty = computed(() => JSON.stringify(parametres.value) !== parametresBase.value)
 
 function apply(fresh: ReglagesProduction) {
