@@ -113,6 +113,14 @@ FILTER_LISTS = {
 		"grand_total": "Total TTC",
 		"_user_tags": "Tag",
 	},
+	"Purchase Order": {
+		"status": "Statut",
+		"supplier": "Fournisseur",
+		"transaction_date": "Date",
+		"schedule_date": "Réception prévue",
+		"grand_total": "Total TTC",
+		"_user_tags": "Tag",
+	},
 	"Payment Entry": {
 		"payment_type": "Sens",
 		"party_type": "Type de tiers",

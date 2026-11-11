@@ -1,24 +1,32 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import LucideInfo from '~icons/lucide/info'
 import LucidePlus from '~icons/lucide/plus'
 import LucideTrash2 from '~icons/lucide/trash-2'
 import FormDialog from '@shared/components/FormDialog.vue'
 import ChoicePicker from './ChoicePicker.vue'
-import { createDevisFournisseur, getDevisFournisseurOptions, searchAchatArticles, searchFournisseurs, updateDevisFournisseur } from '@/lib/api'
+import { createCommandeAchat, createDevisFournisseur, getCommandeAchatOptions, getDevisFournisseurOptions, searchAchatArticles, searchFournisseurs, updateCommandeAchat, updateDevisFournisseur } from '@/lib/api'
 import type { AchatArticleChoice, AchatOptions } from '@/lib/achats'
 import { formatAmount } from '@/lib/clients'
 import { dayFromToday, draftTotal, linesForServer, parseNumber, validateDevis, type DevisFormErrors, type DraftLine } from '@/lib/devis'
+import type { CommandeAchatDetail } from '@/lib/commandesAchat'
 import type { DevisFournisseurDetail } from '@/lib/devisFournisseur'
 
 /**
- * Saisie d'un devis fournisseur : fournisseur, référence, validité, TVA déductible et lignes au prix d'achat connu.
- * Sans `piece`, la fenêtre crée ; avec, elle modifie le brouillon. Le fournisseur ne change plus une fois la pièce créée.
+ * Saisie d'un devis fournisseur ou d'une commande d'achat : fournisseur, date (validité ou réception prévue), TVA
+ * déductible et lignes au prix d'achat connu. Sans `piece`, la fenêtre crée ; avec, elle modifie le brouillon.
+ * Le fournisseur ne change plus une fois la pièce créée.
  */
-const props = defineProps<{ kind: 'devis'; piece?: DevisFournisseurDetail; fournisseur?: { name: string; label: string } }>()
-const emit = defineEmits<{ close: []; created: [name: string]; saved: [piece: DevisFournisseurDetail] }>()
+const props = defineProps<{ kind: 'devis' | 'commande'; piece?: DevisFournisseurDetail | CommandeAchatDetail; fournisseur?: { name: string; label: string } }>()
+const emit = defineEmits<{ close: []; created: [name: string]; saved: [piece: DevisFournisseurDetail | CommandeAchatDetail] }>()
 
+const isDevis = props.kind === 'devis'
+const devis = isDevis ? (props.piece as DevisFournisseurDetail | undefined) : undefined
+const commande = isDevis ? undefined : (props.piece as CommandeAchatDetail | undefined)
 const editing = computed(() => Boolean(props.piece))
-const pieceLabel = 'le devis fournisseur'
+const pieceLabel = isDevis ? 'le devis fournisseur' : "la commande d'achat"
+// Les lignes reprises d'un devis fournisseur gardent leur lien : elles se modifient sur le Desk.
+const linesLocked = Boolean(commande?.lignes.some((row) => row.devis))
 
 let nextKey = 0
 function line(values: Partial<DraftLine> = {}): DraftLine {
@@ -27,9 +35,9 @@ function line(values: Partial<DraftLine> = {}): DraftLine {
 const form = reactive({
 	fournisseur: props.piece?.fournisseur ?? props.fournisseur?.name ?? '',
 	fournisseurLabel: props.piece?.fournisseur_label ?? props.fournisseur?.label ?? '',
-	date: props.piece?.valable ?? '',
+	date: (isDevis ? devis?.valable : commande?.reception) ?? '',
 	taxes: props.piece?.taxes_modele ?? '',
-	reference: props.piece?.reference ?? '',
+	reference: devis?.reference ?? '',
 	lignes: props.piece ? props.piece.lignes.map((row) => line({ article: row.article, designation: row.designation, unite: row.unite ?? '', quantite: String(row.quantite), prix: String(row.prix) })) : [line()],
 })
 // Le prix d'achat connu de chaque article : il sert de prix quand le champ reste vide.
@@ -42,13 +50,13 @@ const serverError = ref('')
 const errors = ref<DevisFormErrors>({})
 const busy = ref(false)
 const total = computed(() => draftTotal(form.lignes, tarifs))
-const dateLabel = 'la date de validité'
+const dateLabel = isDevis ? 'la date de validité' : 'la date de réception prévue'
 
 onMounted(async () => {
 	try {
-		options.value = await getDevisFournisseurOptions()
+		options.value = isDevis ? await getDevisFournisseurOptions() : await getCommandeAchatOptions()
 		if (!editing.value) {
-			form.date ||= dayFromToday(options.value.validite_jours ?? 30)
+			form.date ||= dayFromToday(isDevis ? (options.value.validite_jours ?? 30) : 7)
 			form.taxes ||= options.value.taxes_defaut ?? ''
 			// Préremplis : ce n'est pas une saisie, la fermeture ne demande pas de confirmation.
 			initial.date = form.date
@@ -105,9 +113,16 @@ async function submit() {
 	}
 	busy.value = true
 	try {
-		const values = { valable: form.date, taxes: form.taxes, reference: form.reference.trim(), lignes: linesForServer(form.lignes) }
-		if (props.piece) emit('saved', await updateDevisFournisseur(props.piece, values))
-		else emit('created', (await createDevisFournisseur({ ...values, fournisseur: form.fournisseur })).name)
+		const lignes = linesLocked ? undefined : linesForServer(form.lignes)
+		if (isDevis) {
+			const values = { valable: form.date, taxes: form.taxes, reference: form.reference.trim(), lignes }
+			if (devis) emit('saved', await updateDevisFournisseur(devis, values))
+			else emit('created', (await createDevisFournisseur({ ...values, fournisseur: form.fournisseur })).name)
+		} else {
+			const values = { reception: form.date, taxes: form.taxes, lignes }
+			if (commande) emit('saved', await updateCommandeAchat(commande, values))
+			else emit('created', (await createCommandeAchat({ ...values, fournisseur: form.fournisseur })).name)
+		}
 		emit('close')
 	} catch (e) {
 		// La saisie reste en place : rien n'est perdu si le serveur refuse.
@@ -119,7 +134,7 @@ async function submit() {
 </script>
 
 <template>
-	<FormDialog :title="editing ? `Modifier ${pieceLabel} ${piece?.name}` : 'Nouveau devis fournisseur'" :dirty="dirty" :busy="busy" :hint="editing ? 'Ctrl + Entrée pour enregistrer' : 'Ctrl + Entrée pour créer'" class="devis-dialog" @close="emit('close')" @submit="submit">
+	<FormDialog :title="editing ? `Modifier ${pieceLabel} ${piece?.name}` : isDevis ? 'Nouveau devis fournisseur' : 'Nouvelle commande d\'achat'" :dirty="dirty" :busy="busy" :hint="editing ? 'Ctrl + Entrée pour enregistrer' : 'Ctrl + Entrée pour créer'" class="devis-dialog" @close="emit('close')" @submit="submit">
 		<p v-if="loadError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ loadError }}</p>
 
 		<div class="form-grid">
@@ -139,7 +154,7 @@ async function submit() {
 				<p v-if="errors.client" class="field-error" role="alert">{{ errors.client }}</p>
 			</div>
 			<div class="form-field">
-				<label class="field-label" for="achat-date">Valable jusqu'au <span class="req">obligatoire</span></label>
+				<label class="field-label" for="achat-date">{{ isDevis ? "Valable jusqu'au" : 'Réception prévue le' }} <span class="req">obligatoire</span></label>
 				<input id="achat-date" v-model="form.date" class="field-input tabular-nums" type="date" :min="dayFromToday(0)" :aria-invalid="Boolean(errors.valable)" @input="delete errors.valable" />
 				<p v-if="errors.valable" class="field-error" role="alert">{{ errors.valable }}</p>
 			</div>
@@ -150,14 +165,15 @@ async function submit() {
 					<option v-for="item in options?.taxes" :key="item.value" :value="item.value">{{ item.label }}</option>
 				</select>
 			</div>
-			<div class="form-field">
+			<div v-if="isDevis" class="form-field">
 				<label class="field-label" for="achat-reference">Référence fournisseur</label>
 				<input id="achat-reference" v-model="form.reference" class="field-input" placeholder="Numéro du devis reçu" autocomplete="off" />
 			</div>
 		</div>
 
 		<h3 class="form-section">Lignes</h3>
-		<div class="devis-lines" role="table" aria-label="Lignes du devis fournisseur">
+		<p v-if="linesLocked" class="field-note"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Les lignes reprises d'un devis fournisseur se modifient sur le Desk, pour garder le lien au devis.</span></p>
+		<div class="devis-lines" role="table" :aria-label="`Lignes ${isDevis ? 'du devis fournisseur' : 'de la commande'}`">
 			<div class="devis-line devis-line-head" role="row">
 				<span role="columnheader">Article</span>
 				<span role="columnheader" class="end">Quantité</span>
@@ -165,7 +181,16 @@ async function submit() {
 				<span role="columnheader" class="end">Montant</span>
 				<span></span>
 			</div>
-			<div v-for="(item, index) in form.lignes" :key="item.key" class="devis-line" role="row">
+			<template v-if="linesLocked">
+				<div v-for="item in form.lignes" :key="item.key" class="devis-line" role="row">
+					<span role="cell" class="truncate pt-1.5">{{ item.designation }}</span>
+					<span role="cell" class="end tabular-nums">{{ item.quantite }} {{ item.unite }}</span>
+					<span role="cell" class="end tabular-nums">{{ formatAmount(parseNumber(item.prix)) }}</span>
+					<span role="cell" class="end tabular-nums text-ink-gray-7">{{ lineTotal(item) }}</span>
+					<span></span>
+				</div>
+			</template>
+			<div v-for="(item, index) in linesLocked ? [] : form.lignes" :key="item.key" class="devis-line" role="row">
 				<div role="cell" class="min-w-0">
 					<ChoicePicker :search="findArticles" :picked="item.designation" :input-id="`achat-article-${item.key}`" placeholder="Article ou code" compact @pick="(choice) => pickArticle(item, choice)" @clear="clearArticle(item)" />
 					<p v-if="errors.ligne?.[item.key]" class="field-error" role="alert">{{ errors.ligne[item.key] }}</p>
@@ -180,16 +205,17 @@ async function submit() {
 			</div>
 		</div>
 		<div class="flex flex-wrap items-center justify-between gap-2">
-			<button type="button" class="btn-ghost" @click="form.lignes.push(line())"><LucidePlus class="h-3.5 w-3.5" aria-hidden="true" />Ajouter une ligne</button>
+			<button v-if="!linesLocked" type="button" class="btn-ghost" @click="form.lignes.push(line())"><LucidePlus class="h-3.5 w-3.5" aria-hidden="true" />Ajouter une ligne</button>
+			<span v-else></span>
 			<p class="text-sm">Total HT : <strong class="tabular-nums">{{ formatAmount(total) }} DA</strong> <span class="text-ink-gray-6">· TVA calculée à l'enregistrement</span></p>
 		</div>
 		<p v-if="errors.lignes" class="field-error" role="alert">{{ errors.lignes }}</p>
-		<p class="field-note"><span>Un prix laissé vide reprend le tarif « {{ options?.liste_prix ?? "d'achat" }} », sinon le dernier prix d'achat. Une ligne sans prix empêche la validation.</span></p>
+		<p v-if="!linesLocked" class="field-note"><span>Un prix laissé vide reprend le tarif « {{ options?.liste_prix ?? "d'achat" }} », sinon le dernier prix d'achat. Une ligne sans prix empêche la validation.</span></p>
 
 		<p v-if="serverError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ serverError }}</p>
 
 		<template #actions>
-			<button type="button" class="btn-primary" :disabled="busy" @click="submit">{{ busy ? 'Enregistrement…' : editing ? 'Enregistrer' : 'Créer le devis' }}</button>
+			<button type="button" class="btn-primary" :disabled="busy" @click="submit">{{ busy ? 'Enregistrement…' : editing ? 'Enregistrer' : isDevis ? 'Créer le devis' : 'Créer la commande' }}</button>
 		</template>
 	</FormDialog>
 </template>

@@ -219,7 +219,7 @@ async function createCommande() {
 			</div>
 		</template>
 
-		<AchatDialog v-if="editing && devis" kind="devis" :piece="devis" @close="editing = false" @saved="onSaved" />
+		<AchatDialog v-if="editing && devis" kind="devis" :piece="devis" @close="editing = false" @saved="(piece) => onSaved(piece as DevisFournisseurDetail)" />
 
 		<FormDialog v-if="ordering && devis" title="Créer la commande d'achat" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour créer" @close="ordering = false" @submit="createCommande">
 			<p class="text-sm">La commande reprend les lignes et les prix du devis, en brouillon : elle se vérifie et se valide ensuite depuis sa fiche.</p>

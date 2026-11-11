@@ -9,6 +9,7 @@ import type { FactureDetail, FactureOptions, FacturesResponse, FactureView } fro
 import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livraisons'
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
 import type { AchatArticleChoice, AchatLineValues } from './achats'
+import type { CommandeAchatDetail, CommandeAchatOptions, CommandesAchatResponse, CommandeAchatView } from './commandesAchat'
 import type { DevisFournisseurDetail, DevisFournisseurOptions, DevisFournisseurResponse, DevisFournisseurView } from './devisFournisseur'
 import type { FournisseurChoice, FournisseurDetail, FournisseurOptions, FournisseursResponse, FournisseurValues, FournisseurView } from './fournisseurs'
 import type { ClientChoice, ClientDetail, ClientOptions, ClientsResponse, ClientValues, ClientView, CommuneChoice } from './clients'
@@ -477,6 +478,51 @@ export function devisFournisseurActivity(name: string): ActivityApi {
 		add: (text, mentions) => call<ActivityFeedData>(`${DEVIS_F}.add_devis_fournisseur_comment`, { name, text, mentions }, true),
 		update: (comment, text, mentions) => call<ActivityFeedData>(`${DEVIS_F}.update_devis_fournisseur_comment`, { name, comment, text, mentions }, true),
 		remove: (comment) => call<ActivityFeedData>(`${DEVIS_F}.delete_devis_fournisseur_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}
+
+/** Commandes d'achat : liste, aperçu, fiche, création et cycle (valider, réception, facture, statuts, annuler). */
+const COMMANDES_ACHAT = 'unicare.api.bureau_commandes_achat'
+
+export const getCommandesAchat = (view: CommandeAchatView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<CommandesAchatResponse>(`${COMMANDES_ACHAT}.get_commandes_achat`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getCommandeAchat = (name: string) => call<CommandeAchatDetail>(`${COMMANDES_ACHAT}.get_commande_achat`, { name })
+export const getCommandeAchatOptions = () => call<CommandeAchatOptions>(`${COMMANDES_ACHAT}.get_commande_achat_options`)
+
+export interface CommandeAchatValues {
+	fournisseur?: string
+	reception?: string
+	taxes?: string
+	lignes?: AchatLineValues[]
+}
+export const createCommandeAchat = (values: CommandeAchatValues) => call<{ name: string }>(`${COMMANDES_ACHAT}.create_commande_achat`, { values }, true)
+export const updateCommandeAchat = (commande: CommandeAchatDetail, values: CommandeAchatValues) =>
+	call<CommandeAchatDetail>(`${COMMANDES_ACHAT}.update_commande_achat`, { name: commande.name, modified: commande.modified, values }, true)
+export const runCommandeAchatAction = (commande: CommandeAchatDetail, action: 'valider' | 'annuler') =>
+	call<CommandeAchatDetail>(`${COMMANDES_ACHAT}.${action === 'valider' ? 'validate_commande_achat' : 'cancel_commande_achat'}`, { name: commande.name, modified: commande.modified }, true)
+export const deleteCommandeAchat = (commande: CommandeAchatDetail) => call<{ deleted: string }>(`${COMMANDES_ACHAT}.delete_commande_achat`, { name: commande.name, modified: commande.modified }, true)
+export const setCommandeAchatStatus = (commande: CommandeAchatDetail, action: StatusAction) =>
+	call<CommandeAchatDetail>(`${COMMANDES_ACHAT}.set_commande_achat_status`, { name: commande.name, modified: commande.modified, action }, true)
+export const createCommandeAchatSuivante = (commande: CommandeAchatDetail, kind: 'reception' | 'facture') =>
+	call<{ doctype: string; name: string; commande: CommandeAchatDetail }>(`${COMMANDES_ACHAT}.create_suivante`, { name: commande.name, modified: commande.modified, kind }, true)
+export const commandeAchatPrintUrl = (name: string) => `/printview?doctype=Purchase%20Order&name=${encodeURIComponent(name)}&trigger_print=1`
+export const commandeAchatPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Purchase%20Order&name=${encodeURIComponent(name)}`
+
+export function commandeAchatActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${COMMANDES_ACHAT}.get_commande_achat_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${COMMANDES_ACHAT}.add_commande_achat_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${COMMANDES_ACHAT}.update_commande_achat_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${COMMANDES_ACHAT}.delete_commande_achat_comment`, { name, comment }, true),
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }
