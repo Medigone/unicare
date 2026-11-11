@@ -91,8 +91,8 @@ onBeforeUnmount(() => {
 
 		<nav v-if="hasPanel" class="app-sidebar" :aria-label="`Pages du module ${moduleLabel ?? ''}`">
 			<p v-if="moduleLabel" class="app-module-title">{{ moduleLabel }}</p>
-			<div v-for="group in groups" :key="group.title" class="app-nav-group">
-				<p class="app-nav-title">{{ group.title }}</p>
+			<div v-for="(group, index) in groups" :key="group.title || index" class="app-nav-group">
+				<p v-if="group.title" class="app-nav-title">{{ group.title }}</p>
 				<template v-for="item in group.items" :key="item.id">
 					<RouterLink v-if="item.to" :to="item.to as string" class="app-nav-item" :title="item.label" :aria-current="item.active ? 'page' : undefined">
 						<component :is="item.icon" class="h-4 w-4 flex-none" aria-hidden="true" />

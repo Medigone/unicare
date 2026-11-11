@@ -51,6 +51,11 @@
 		/* Listes : plateau de lignes et actions neutres (densité Poste). */
 		--tray: #f9f9f9;
 		--line-soft: #eaeaea;
+		/* Graphiques : séries dans l'ordre, grille et ligne de base (palette validée, daltonisme compris). */
+		--chart-1: #2a78d6;
+		--chart-2: #eb6834;
+		--chart-grid: #e1e0d9;
+		--chart-base: #c3c2b7;
 		--soft-bg: #f8f8f8;
 		--soft-hover: #efefef;
 		--soft-line: #e4e4e4;
@@ -129,6 +134,10 @@
 
 		--tray: #1b1b1b;
 		--line-soft: #292929;
+		--chart-1: #3987e5;
+		--chart-2: #dc6532;
+		--chart-grid: #2c2c2a;
+		--chart-base: #4a4945;
 		--soft-bg: #1e1e1e;
 		--soft-hover: #2a2a2a;
 		--soft-line: #313131;

@@ -760,3 +760,7 @@ export function inventaireActivity(name: string): ActivityApi {
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }
+
+/** Tableau de bord d'un module (unicare/api/bureau_tableaux.py). */
+export const getTableau = (module: import('./tableaux').TableauModule, periode: import('./tableaux').PeriodeKey) =>
+	call<import('./tableaux').Tableau>('unicare.api.bureau_tableaux.get_tableau', { module, periode_key: periode })

@@ -18,6 +18,7 @@ import LucideShoppingCart from '~icons/lucide/shopping-cart'
 import LucideTruck from '~icons/lucide/truck'
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard'
 import LucidePackage from '~icons/lucide/package'
+import LucideChartColumn from '~icons/lucide/chart-column'
 import { canRead } from './droits'
 
 export interface Poste {
@@ -54,6 +55,8 @@ export interface PosteModule {
 	icon: Component
 	/** Module qui est lui-même une page (Accueil) : pas de second menu. */
 	to?: { name: string }
+	/** Tableau de bord du module : première entrée de son menu, et page ouverte par le clic sur le module. */
+	dashboard?: { name: string }
 	groups: PosteNavGroup[]
 }
 
@@ -64,6 +67,7 @@ export const NAV: Record<string, PosteModule[]> = {
 			id: 'ventes',
 			label: 'Ventes',
 			icon: LucideShoppingCart,
+			dashboard: { name: 'TableauVentes' },
 			groups: [
 				{
 					title: 'Pièces',
@@ -81,6 +85,7 @@ export const NAV: Record<string, PosteModule[]> = {
 			id: 'achats',
 			label: 'Achats',
 			icon: LucideTruck,
+			dashboard: { name: 'TableauAchats' },
 			groups: [
 				{
 					title: 'Pièces',
@@ -98,6 +103,7 @@ export const NAV: Record<string, PosteModule[]> = {
 			id: 'stock',
 			label: 'Stock',
 			icon: LucidePackage,
+			dashboard: { name: 'TableauStock' },
 			groups: [
 				{
 					title: 'Suivi',
@@ -121,6 +127,7 @@ export const NAV: Record<string, PosteModule[]> = {
 			id: 'tresorerie',
 			label: 'Trésorerie',
 			icon: LucideBanknote,
+			dashboard: { name: 'TableauTresorerie' },
 			groups: [{ title: 'Règlements', items: [{ id: 'paiements', label: 'Paiements', icon: LucideBanknote, to: { name: 'Paiements' }, doctype: 'Payment Entry' }] }],
 		},
 		{
@@ -170,13 +177,22 @@ export function setPoste(key: string) {
 	}
 }
 
-/** Modules d'un poste, sans les pages que le rôle ne peut pas lire, ni les groupes et modules restés vides. */
+/** L'entrée « Tableau de bord » d'un module (son `id` : `tableau-<module>`). */
+export function dashboardItem(module: PosteModule): PosteNavItem | undefined {
+	return module.dashboard && { id: `tableau-${module.id}`, label: 'Tableau de bord', icon: LucideChartColumn, to: module.dashboard }
+}
+
+/**
+ * Modules d'un poste, sans les pages que le rôle ne peut pas lire, ni les groupes et modules restés vides.
+ * Le tableau de bord passe en tête (groupe sans titre) tant qu'il reste au moins une page lisible dans le module.
+ */
 export function navFor(key: string): PosteModule[] {
 	return (NAV[key] ?? [])
-		.map((module) => ({
-			...module,
-			groups: module.groups.map((group) => ({ ...group, items: group.items.filter((item) => canRead(item.doctype)) })).filter((group) => group.items.length),
-		}))
+		.map((module) => {
+			const groups = module.groups.map((group) => ({ ...group, items: group.items.filter((item) => canRead(item.doctype)) })).filter((group) => group.items.length)
+			const dashboard = dashboardItem(module)
+			return { ...module, groups: dashboard && groups.length ? [{ title: '', items: [dashboard] }, ...groups] : groups }
+		})
 		.filter((module) => module.to || module.groups.length)
 }
 
@@ -185,7 +201,7 @@ export function moduleOf(modules: PosteModule[], pageId?: string) {
 	return modules.find((module) => module.id === pageId || module.groups.some((group) => group.items.some((item) => item.id === pageId))) ?? modules[0]
 }
 
-/** Où mène le clic sur un module : sa page, sinon sa première page. */
+/** Où mène le clic sur un module : sa page, sinon sa première page (son tableau de bord quand il en a un). */
 export function moduleTarget(module: PosteModule): { to?: { name: string }; href?: string } {
 	if (module.to) return { to: module.to }
 	const first = module.groups[0]?.items[0]

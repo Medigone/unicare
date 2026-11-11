@@ -21,10 +21,10 @@ describe('postes du bureau', () => {
 
 	it('range le menu par module, Accueil en tête', () => {
 		expect(modules('conditionnement')).toEqual(['accueil', 'ventes', 'achats', 'stock', 'tresorerie', 'production'])
-		expect(pages('conditionnement', 'ventes')).toEqual(['devis', 'commandes', 'livraisons', 'factures', 'clients'])
-		expect(pages('conditionnement', 'achats')).toEqual(['devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'fournisseurs'])
-		expect(pages('conditionnement', 'stock')).toEqual(['etat-stock', 'mouvements', 'inventaires', 'lots', 'articles', 'depots'])
-		expect(pages('conditionnement', 'tresorerie')).toEqual(['paiements'])
+		expect(pages('conditionnement', 'ventes')).toEqual(['tableau-ventes', 'devis', 'commandes', 'livraisons', 'factures', 'clients'])
+		expect(pages('conditionnement', 'achats')).toEqual(['tableau-achats', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'fournisseurs'])
+		expect(pages('conditionnement', 'stock')).toEqual(['tableau-stock', 'etat-stock', 'mouvements', 'inventaires', 'lots', 'articles', 'depots'])
+		expect(pages('conditionnement', 'tresorerie')).toEqual(['tableau-tresorerie', 'paiements'])
 	})
 
 	it('retire une page non lue, puis le module resté vide', () => {
@@ -41,7 +41,8 @@ describe('postes du bureau', () => {
 		expect(moduleOf(list, 'factures-achat')?.id).toBe('achats')
 		expect(moduleOf(list, 'accueil')?.id).toBe('accueil')
 		expect(moduleOf(list, 'inconnue')?.id).toBe('accueil')
-		expect(moduleTarget(list.find((module) => module.id === 'stock')!)).toEqual({ to: { name: 'EtatStock' }, href: undefined })
+		expect(moduleTarget(list.find((module) => module.id === 'stock')!)).toEqual({ to: { name: 'TableauStock' }, href: undefined })
+		expect(moduleOf(list, 'tableau-ventes')?.id).toBe('ventes')
 		expect(moduleTarget(list.find((module) => module.id === 'accueil')!)).toEqual({ to: { name: 'Home' } })
 		expect(moduleTarget(list.find((module) => module.id === 'production')!).href).toBe('/app/ordre-de-conditionnement')
 	})
@@ -50,6 +51,7 @@ describe('postes du bureau', () => {
 		const all = pagesFor('conditionnement')
 		expect(all[0]).toMatchObject({ id: 'accueil', module: '' })
 		expect(all.find((page) => page.id === 'lots')).toMatchObject({ label: 'Lots', module: 'Stock' })
+		expect(all.find((page) => page.id === 'tableau-achats')).toMatchObject({ label: 'Tableau de bord', module: 'Achats' })
 	})
 
 	it("retient le choix et ignore un poste qui n'est plus à ce compte", () => {

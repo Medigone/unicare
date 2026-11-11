@@ -1312,3 +1312,254 @@
 .dialog-scrim.confirm-dialog {
 	z-index: 60;
 }
+
+/* Tableaux de bord des modules : indicateurs, graphiques et listes « À traiter ». La page défile en entier. */
+@layer components {
+	.tdb {
+		gap: 1rem;
+		overflow-y: auto;
+		padding-block: 1rem 1.5rem;
+	}
+	.tdb-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem;
+	}
+	.tdb-periods {
+		display: flex;
+		gap: 2px;
+		padding: 2px;
+		border-radius: 8px;
+		background-color: var(--soft-hover, #ededed);
+	}
+	.tdb-period {
+		height: 28px;
+		padding: 0 10px;
+		border-radius: 6px;
+		font-size: 13px;
+		font-weight: 500;
+		@apply text-ink-gray-7;
+	}
+	.tdb-period[aria-pressed='true'] {
+		background-color: var(--surface-cards);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+		@apply text-ink-gray-9;
+	}
+	.tdb-kpis {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 0.75rem;
+	}
+	.tdb-kpi {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		padding: 0.875rem 1rem;
+		text-decoration: none;
+		transition: border-color 0.15s;
+	}
+	.tdb-kpi:hover,
+	.tdb-kpi:focus-visible {
+		border-color: rgb(var(--accent-rgb) / 0.45);
+	}
+	.tdb-kpi-value {
+		font-size: 24px;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		font-variant-numeric: tabular-nums;
+		@apply text-ink-gray-9;
+	}
+	.tdb-ink-red {
+		color: var(--tone-red-ink);
+	}
+	.tdb-ink-amber {
+		color: var(--tone-amber-ink);
+	}
+	.tdb-ink-green {
+		color: var(--tone-green-ink);
+	}
+	.tdb-ink-blue {
+		color: var(--tone-blue-ink);
+	}
+	.tdb-charts {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+		gap: 0.75rem;
+	}
+	.tdb-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+		min-width: 0;
+		padding: 0.875rem 1rem;
+	}
+	.tdb-card-title {
+		margin: 0;
+		font-size: 14px;
+		font-weight: 600;
+		@apply text-ink-gray-9;
+	}
+	.tdb-hbars {
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
+		margin: 0;
+		padding: 0.25rem 0 0;
+		list-style: none;
+	}
+	.tdb-track {
+		height: 8px;
+		margin-top: 5px;
+		border-radius: 4px;
+		background-color: var(--line-soft);
+	}
+	.tdb-fill {
+		height: 8px;
+		border-radius: 4px;
+	}
+	.tdb-lists {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.75rem;
+	}
+	.tdb-list {
+		overflow: hidden;
+	}
+	.tdb-list-head {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1rem 0.625rem;
+	}
+	.tdb-row {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		min-height: 38px;
+		padding: 0.25rem 1rem;
+		border-top: 1px solid var(--line-soft);
+		font-size: 13px;
+		text-decoration: none;
+		@apply text-ink-gray-9;
+	}
+	.tdb-row:hover,
+	.tdb-row:focus-visible {
+		background-color: var(--soft-bg, #f8fafa);
+	}
+	.tdb-ref {
+		flex: none;
+		max-width: 46%;
+		overflow: hidden;
+		font-weight: 500;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.tdb-nature {
+		flex: none;
+		justify-content: center;
+		min-width: 4.5rem;
+	}
+	.tdb-amount {
+		flex: none;
+		min-width: 6.5rem;
+		font-variant-numeric: tabular-nums;
+		font-weight: 500;
+		text-align: right;
+	}
+	.tdb-empty {
+		padding: 0.75rem 1rem 1rem;
+		border-top: 1px solid var(--line-soft);
+		font-size: 13px;
+		@apply text-ink-gray-6;
+	}
+	/* Graphique en barres */
+	.chart-legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.875rem;
+		font-size: 12px;
+		@apply text-ink-gray-7;
+	}
+	.chart-legend-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+	}
+	.chart-swatch {
+		display: inline-block;
+		flex: none;
+		width: 10px;
+		height: 10px;
+		border-radius: 3px;
+	}
+	.chart-grid {
+		stroke: var(--chart-grid);
+		stroke-width: 1;
+	}
+	.chart-base {
+		stroke: var(--chart-base);
+		stroke-width: 1;
+	}
+	.chart-axis {
+		font-size: 11px;
+		fill: currentColor;
+		@apply text-ink-gray-6;
+	}
+	.chart-axis-current {
+		font-weight: 600;
+		@apply text-ink-gray-9;
+	}
+	.chart-hit {
+		outline: none;
+		cursor: default;
+	}
+	.chart-hit:focus-visible {
+		stroke: var(--accent);
+		stroke-width: 1.5;
+	}
+	.chart-empty {
+		position: absolute;
+		inset: 0 0 2rem 2.75rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: none;
+		font-size: 13px;
+		@apply text-ink-gray-6;
+	}
+	.chart-tip {
+		position: absolute;
+		top: 0.25rem;
+		z-index: 5;
+		min-width: 12rem;
+		padding: 0.5rem 0.625rem;
+		border: 1px solid var(--line-soft);
+		border-radius: 8px;
+		background-color: var(--surface-cards);
+		box-shadow: 0 4px 14px rgb(0 0 0 / 0.1);
+		font-size: 12px;
+		pointer-events: none;
+		transform: translateX(-50%);
+	}
+	.chart-tip-right {
+		transform: translateX(-100%);
+	}
+	@media (max-width: 1100px) {
+		.tdb-kpis {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.tdb-charts,
+		.tdb-lists {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+	@media (max-width: 560px) {
+		.tdb-kpis {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.tdb-amount {
+			min-width: 0;
+		}
+	}
+}

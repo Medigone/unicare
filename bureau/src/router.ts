@@ -17,6 +17,7 @@ import LivraisonsPage from './pages/LivraisonsPage.vue'
 import ReceptionsPage from './pages/ReceptionsPage.vue'
 import PaiementsPage from './pages/PaiementsPage.vue'
 import HomePage from './pages/HomePage.vue'
+import TableauPage from './pages/TableauPage.vue'
 import LoginPage from './pages/LoginPage.vue'
 
 // Chaque page reprise ajoute sa route avec `meta.doctype` : App.vue affiche un refus si le rôle ne lit pas ce document.
@@ -24,6 +25,11 @@ export const routes: RouteRecordRaw[] = [
 	// Seule page servie sans session : hors de la coquille.
 	{ path: '/connexion', name: 'Login', component: LoginPage },
 	{ path: '/', name: 'Home', component: HomePage },
+	// Tableaux de bord des modules : chaque bloc n'est envoyé que si le rôle lit ses documents (bureau_tableaux.py).
+	{ path: '/tableau-de-bord/ventes', name: 'TableauVentes', component: TableauPage, props: { module: 'ventes' } },
+	{ path: '/tableau-de-bord/achats', name: 'TableauAchats', component: TableauPage, props: { module: 'achats' } },
+	{ path: '/tableau-de-bord/stock', name: 'TableauStock', component: TableauPage, props: { module: 'stock' } },
+	{ path: '/tableau-de-bord/tresorerie', name: 'TableauTresorerie', component: TableauPage, props: { module: 'tresorerie' } },
 	{ path: '/clients', name: 'Clients', component: ClientsPage, meta: { doctype: 'Customer' } },
 	{ path: '/clients/:id', name: 'Client', component: ClientsPage, props: true, meta: { doctype: 'Customer' } },
 	{ path: '/fournisseurs', name: 'Fournisseurs', component: FournisseursPage, meta: { doctype: 'Supplier' } },
