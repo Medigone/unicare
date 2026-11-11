@@ -60,7 +60,7 @@ const tabs = computed(() => {
 	const list: { key: string; label: string; count?: number }[] = [{ key: 'apercu', label: 'Aperçu' }]
 	if (current.bins || current.lots) list.push({ key: 'stock', label: 'Stock et lots', count: current.lots?.length })
 	if (current.recettes) list.push({ key: 'recettes', label: 'Recettes', count: recetteCount.value })
-	if (current.ordres) list.push({ key: 'ordres', label: 'Ordres de conditionnement', count: ordreCount.value })
+	if (current.ordres) list.push({ key: 'ordres', label: 'Ordres de production', count: ordreCount.value })
 	if (shownMouvements.value.length) list.push({ key: 'mouvements', label: 'Achats et ventes', count: mouvementCount.value })
 	list.push({ key: 'infos', label: 'Informations' })
 	return list
@@ -151,7 +151,7 @@ async function supprimer() {
 					<button v-if="article.can_edit" type="button" class="btn-primary" :disabled="busy" @click="editing = true">Modifier</button>
 					<MoreMenu>
 						<a v-if="article.type === 'Produit fini' && article.recettes" class="app-menu-item" role="menuitem" :href="newOnDesk('Recette de Conditionnement', 'produit_fini')" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Nouvelle recette</a>
-						<a v-if="article.type === 'Produit fini' && article.ordres" class="app-menu-item" role="menuitem" :href="newOnDesk('Ordre de Conditionnement', 'produit_fini')" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Nouvel ordre de conditionnement</a>
+						<a v-if="article.type === 'Produit fini' && article.ordres" class="app-menu-item" role="menuitem" :href="newOnDesk('Ordre de Conditionnement', 'produit_fini')" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Nouvel ordre de production</a>
 						<div v-if="article.type === 'Produit fini' && (article.recettes || article.ordres)" class="app-menu-sep"></div>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>
 						<a class="app-menu-item" role="menuitem" :href="deskUrl('Item', article.name)" target="_blank" rel="noopener noreferrer"><LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />Ouvrir sur le Desk</a>
@@ -241,7 +241,7 @@ async function supprimer() {
 							</section>
 							<section v-if="article.lots" class="card ref-card">
 								<h3>Lots</h3>
-								<ListState v-if="!article.lots.length" illustration title="Aucun lot" text="Les lots se créent à la réception des matières ou à la clôture d'un ordre de conditionnement." />
+								<ListState v-if="!article.lots.length" illustration title="Aucun lot" text="Les lots se créent à la réception des matières ou à la clôture d'un ordre de production." />
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Lot</th><th>Origine</th><th>Lot fournisseur</th><th>Fabriqué le</th><th>Périme le</th><th class="end">Quantité</th></tr></thead>
 									<tbody>
@@ -281,7 +281,7 @@ async function supprimer() {
 							</section>
 						</div>
 
-						<!-- Ordres de conditionnement. -->
+						<!-- Ordres de production. -->
 						<div v-else-if="activeTab === 'ordres' && article.ordres" class="bureau-center">
 							<section v-for="group in [{ key: 'produit', title: 'Ordres qui produisent cet article', rows: article.ordres.produit, empty: 'Aucun ordre ne produit cet article.', show: article.type === 'Produit fini' || article.ordres.produit.length > 0 }, { key: 'matiere', title: 'Ordres qui consomment cet article', rows: article.ordres.matiere, empty: 'Aucun ordre ne consomme cet article.', show: article.type !== 'Produit fini' || article.ordres.matiere.length > 0 }].filter((item) => item.show)" :key="group.key" class="card ref-card">
 								<h3>{{ group.title }}</h3>

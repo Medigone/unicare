@@ -172,8 +172,8 @@ async function supprimer() {
 								<LedgerTable :rows="lot.mouvements" :show-article="false" :show-lots="false" empty="Ce lot n'a pas encore bougé." />
 							</section>
 							<section v-else-if="activeTab === 'tracabilite' && lot.tracabilite" class="card ref-card">
-								<h3>Ordres de conditionnement</h3>
-								<p v-if="!lot.tracabilite.length" class="text-ink-gray-6">Ce lot n'apparaît dans aucun ordre de conditionnement.</p>
+								<h3>Ordres de production</h3>
+								<p v-if="!lot.tracabilite.length" class="text-ink-gray-6">Ce lot n'apparaît dans aucun ordre de production.</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Sens</th><th>Ordre</th><th>Date</th><th>Produit</th><th>Lot matière</th><th>Lot produit</th><th class="end">Quantité</th></tr></thead>
 									<tbody>

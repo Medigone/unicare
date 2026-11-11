@@ -139,7 +139,7 @@ export const NAV: Record<string, PosteModule[]> = {
 			groups: [
 				{
 					title: 'Pièces',
-					items: [{ id: 'ordres', label: 'Ordres de conditionnement', icon: LucideFactory, to: { name: 'Ordres' }, doctype: 'Ordre de Conditionnement' }],
+					items: [{ id: 'ordres', label: 'Ordres de production', icon: LucideFactory, to: { name: 'Ordres' }, doctype: 'Ordre de Conditionnement' }],
 				},
 				{
 					title: 'Référentiel',

@@ -314,7 +314,7 @@ def _recettes(name):
 
 
 def _ordres(name):
-	"""Ordres de conditionnement qui produisent l'article, et ceux qui le consomment comme matière."""
+	"""Ordres de production qui produisent l'article, et ceux qui le consomment comme matière."""
 	if not _readable(ORDRE):
 		return None
 	fields = ["name", "produit_fini", "nom_produit", "date_prevue", "workflow_state", "docstatus"]

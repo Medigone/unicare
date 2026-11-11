@@ -1,6 +1,6 @@
 # Copyright (c) 2026, Intrapro and contributors
 # For license information, please see license.txt
-"""Ordres de conditionnement du poste de bureau (/bureau/ordres) : liste, aperçu, fiche guidée et cycle.
+"""Ordres de production du poste de bureau (/bureau/ordres) : liste, aperçu, fiche guidée et cycle.
 
 L'Ordre de Conditionnement n'est pas soumettable : son cycle passe par le Workflow `workflow_state`
 (Brouillon → Préparé → En production → Terminé, ou Annulé). Les pièces de stock (transfert de préparation, production,

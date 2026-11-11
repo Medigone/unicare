@@ -153,7 +153,7 @@ def get_lot_options():
 
 
 def _tracabilite(name):
-	"""Les ordres de conditionnement où le lot entre (matière) ou dont il sort (produit fini)."""
+	"""Les ordres de production où le lot entre (matière) ou dont il sort (produit fini)."""
 	if not readable("Ordre de Conditionnement"):
 		return None
 	from unicare.conditionnement.report.tracabilite_lot.tracabilite_lot import get_data

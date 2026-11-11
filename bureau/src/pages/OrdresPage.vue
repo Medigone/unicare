@@ -66,9 +66,9 @@ watch([() => route.name, () => route.query.vue], () => {
 const drawer = ref<InstanceType<typeof OrdreDrawer> | null>(null)
 const fiche = ref<InstanceType<typeof OrdreView> | null>(null)
 const crumbs = computed<Crumb[]>(() => {
-	if (!props.id) return [{ label: 'Ordres de conditionnement' }]
+	if (!props.id) return [{ label: 'Ordres de production' }]
 	const label = props.id
-	return [{ label: 'Ordres de conditionnement', to: { name: 'Ordres' } }, { label }]
+	return [{ label: 'Ordres de production', to: { name: 'Ordres' } }, { label }]
 })
 
 // Position dans la liste affichée, commune à l'aperçu et à la fiche.
@@ -121,7 +121,7 @@ onBeforeUnmount(closeRealtime)
 				<div class="flex flex-none flex-wrap items-center justify-between gap-2">
 					<button type="button" class="btn-ghost" @click="backToList">
 						<LucideArrowLeft class="h-3.5 w-3.5" aria-hidden="true" />
-						Ordres de conditionnement
+						Ordres de production
 					</button>
 					<div class="flex items-center gap-1.5">
 						<span class="text-xs text-ink-gray-6">{{ position }}</span>

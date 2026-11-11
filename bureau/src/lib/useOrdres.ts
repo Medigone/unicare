@@ -1,4 +1,4 @@
-/** État de la liste des ordres de conditionnement. */
+/** État de la liste des ordres de production. */
 import { computed } from 'vue'
 import { getOrdres } from './api'
 import { DEFAULT_ORDRE_VIEW, type OrdresResponse, type OrdreView } from './ordres'

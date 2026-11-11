@@ -42,7 +42,7 @@ export interface MouvementRow {
 	source: string | null
 	cible: string | null
 	valeur: number
-	/** L'ordre de conditionnement qui a créé ce mouvement : il est alors en lecture seule. */
+	/** L'ordre de production qui a créé ce mouvement : il est alors en lecture seule. */
 	ordre: string | null
 	remarque: string | null
 	lignes: number
@@ -87,7 +87,7 @@ export interface MouvementDetail {
 	cible: string | null
 	remarque: string | null
 	ordre: string | null
-	/** Piloté par un ordre de conditionnement (ou d'une nature que le bureau ne saisit pas) : lecture seule. */
+	/** Piloté par un ordre de production (ou d'une nature que le bureau ne saisit pas) : lecture seule. */
 	depuis_ordre: boolean
 	cree_par: string
 	lignes: MouvementLine[]

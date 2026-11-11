@@ -11,7 +11,7 @@ export const STATUS_TONES: Record<string, string> = {
 	Nouveau: 'tone-blue',
 	'En Cours': 'tone-orange',
 	Terminé: 'tone-green',
-	// Ordres de conditionnement (nom d'étape)
+	// Ordres de production (nom d'étape)
 	'À planifier': 'tone-gray',
 	'Prêt à démarrer': 'tone-blue',
 	'En production': 'tone-amber',

@@ -1564,7 +1564,7 @@
 	}
 }
 
-/* Ordres de conditionnement : bandeau d'étapes, ce qui manque, planification, contrôles, clôture. */
+/* Ordres de production : bandeau d'étapes, ce qui manque, planification, contrôles, clôture. */
 @layer components {
 	.ordre-steps {
 		display: flex;

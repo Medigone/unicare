@@ -768,7 +768,7 @@ export function inventaireActivity(name: string): ActivityApi {
 export const getTableau = (module: import('./tableaux').TableauModule, periode: import('./tableaux').PeriodeKey) =>
 	call<import('./tableaux').Tableau>('unicare.api.bureau_tableaux.get_tableau', { module, periode_key: periode })
 
-/** Ordres de conditionnement : liste, aperçu, fiche guidée et étapes (unicare/api/bureau_ordres.py). */
+/** Ordres de production : liste, aperçu, fiche guidée et étapes (unicare/api/bureau_ordres.py). */
 const ORDRES = 'unicare.api.bureau_ordres'
 
 export const getOrdres = (view: OrdreView, conditions: Condition[], search: string, paging: ListPaging = {}) =>

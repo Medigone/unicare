@@ -172,7 +172,7 @@ FILTER_LISTS = {
 		"posting_date": "Date",
 		"from_warehouse": "Dépôt de départ",
 		"to_warehouse": "Dépôt d'arrivée",
-		"custom_ordre_conditionnement": "Ordre de conditionnement",
+		"custom_ordre_conditionnement": "Ordre de production",
 		"_user_tags": "Tag",
 	},
 	"Batch": {

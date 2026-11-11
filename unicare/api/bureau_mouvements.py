@@ -6,7 +6,7 @@ Les Stock Entry d'ERPNext, de trois natures saisies ici : transfert entre deux d
 dans un dépôt (Material Receipt, lot saisi ou créé) et sortie d'un dépôt (Material Issue : consommation, casse, rebut).
 Un brouillon se modifie, se valide ou se supprime ; un mouvement validé s'annule, puis se refait en nouvelle version.
 
-Un mouvement créé par un ordre de conditionnement (transfert de matières, reconditionnement…) est montré en lecture
+Un mouvement créé par un ordre de production (transfert de matières, reconditionnement…) est montré en lecture
 seule : c'est l'ordre qui le crée et qui l'annule. Le serveur refuse toute action sur lui depuis le bureau.
 """
 
@@ -76,7 +76,7 @@ def nature_of(purpose):
 
 
 def from_ordre(doc):
-	"""Un mouvement que pilote un ordre de conditionnement, ou d'une nature que le bureau ne saisit pas."""
+	"""Un mouvement que pilote un ordre de production, ou d'une nature que le bureau ne saisit pas."""
 	return bool(doc.get("custom_ordre_conditionnement")) or nature_of(doc.get("purpose")) == "production"
 
 
@@ -378,7 +378,7 @@ def _for_work(name, modified, action):
 	doc = _load(name, modified)
 	if from_ordre(doc):
 		frappe.throw(
-			_("Ce mouvement est piloté par l'ordre de conditionnement {0} : c'est l'ordre qui le modifie ou l'annule.").format(
+			_("Ce mouvement est piloté par l'ordre de production {0} : c'est l'ordre qui le modifie ou l'annule.").format(
 				doc.get("custom_ordre_conditionnement") or ""
 			),
 			frappe.PermissionError,
@@ -534,7 +534,7 @@ def mouvement_for_bulk(name, modified):
 def bulk_guard(doc, operation):
 	"""Brouillons seulement en groupe (annulés aussi pour la suppression) ; jamais un mouvement d'ordre."""
 	if from_ordre(doc):
-		return _("Mouvement piloté par un ordre de conditionnement : il ne change pas d'ici.")
+		return _("Mouvement piloté par un ordre de production : il ne change pas d'ici.")
 	if doc.docstatus != 0 and not (operation == "delete" and doc.docstatus == 2):
 		return _("Mouvement validé ou annulé : il ne change plus.")
 	return None

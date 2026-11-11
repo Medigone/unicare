@@ -1,4 +1,4 @@
-/** Chargement et écritures d'un ordre de conditionnement, communs à l'aperçu et à la fiche. */
+/** Chargement et écritures d'un ordre de production, communs à l'aperçu et à la fiche. */
 import { getOrdre } from './api'
 import type { OrdreDetail } from './ordres'
 import { useRecord } from './useRecord'

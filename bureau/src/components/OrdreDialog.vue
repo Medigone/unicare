@@ -90,7 +90,7 @@ async function submit() {
 </script>
 
 <template>
-	<FormDialog title="Nouvel ordre de conditionnement" :dirty="dirty" :busy="busy" hint="Ctrl + Entrée pour créer l'ordre" @close="emit('close')" @submit="submit">
+	<FormDialog title="Nouvel ordre de production" :dirty="dirty" :busy="busy" hint="Ctrl + Entrée pour créer l'ordre" @close="emit('close')" @submit="submit">
 		<p class="text-sm text-ink-gray-7">Choisissez le produit et la quantité : les matières se calculent toutes seules d'après la recette.</p>
 		<p v-if="loadError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ loadError }}</p>
 		<p v-else-if="options && !options.produits.length" role="alert" class="rounded-control tone-amber px-3 py-2 text-sm">Aucun produit n'a de recette active : créez d'abord une recette.</p>

@@ -1,4 +1,4 @@
-/** Règles de la page Ordres de conditionnement : types, vues, colonnes, étapes et contrôle de la clôture. */
+/** Règles de la page Ordres de production : types, vues, colonnes, étapes et contrôle de la clôture. */
 import type { CommentPart } from '@shared/activity'
 import { formatDay } from './display'
 import type { FilterField } from './filters'

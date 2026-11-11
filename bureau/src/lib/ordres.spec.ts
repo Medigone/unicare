@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { clotureLignes, dureeText, echeanceText, parseQty, rendementCloture } from './ordres'
 
-describe('ordres de conditionnement', () => {
+describe('ordres de production', () => {
 	it('lit les nombres à la française', () => {
 		expect(parseQty('1 250,5')).toBe(1250.5)
 		expect(parseQty('')).toBeNaN()
