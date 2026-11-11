@@ -8,6 +8,8 @@ import type { PaiementDetail, PaiementOptions, PaiementsResponse, PaiementType, 
 import type { FactureDetail, FactureOptions, FacturesResponse, FactureView } from './factures'
 import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livraisons'
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
+import type { AchatArticleChoice, AchatLineValues } from './achats'
+import type { DevisFournisseurDetail, DevisFournisseurOptions, DevisFournisseurResponse, DevisFournisseurView } from './devisFournisseur'
 import type { FournisseurChoice, FournisseurDetail, FournisseurOptions, FournisseursResponse, FournisseurValues, FournisseurView } from './fournisseurs'
 import type { ClientChoice, ClientDetail, ClientOptions, ClientsResponse, ClientValues, ClientView, CommuneChoice } from './clients'
 import type { Condition, FilterField } from './filters'
@@ -427,6 +429,54 @@ export function paiementActivity(name: string): ActivityApi {
 		add: (text, mentions) => call<ActivityFeedData>(`${PAIEMENTS}.add_paiement_comment`, { name, text, mentions }, true),
 		update: (comment, text, mentions) => call<ActivityFeedData>(`${PAIEMENTS}.update_paiement_comment`, { name, comment, text, mentions }, true),
 		remove: (comment) => call<ActivityFeedData>(`${PAIEMENTS}.delete_paiement_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}
+
+/** Pièces d'achat : articles d'achat proposés dans les fenêtres. */
+const ACHATS = 'unicare.api.bureau_achats'
+export const searchAchatArticles = (search: string) => call<AchatArticleChoice[]>(`${ACHATS}.search_achat_articles`, { search: search.trim() || undefined })
+
+/** Devis fournisseur : liste, aperçu, fiche, création et cycle (valider, commande d'achat, annuler). */
+const DEVIS_F = 'unicare.api.bureau_devis_fournisseur'
+
+export const getDevisFournisseurs = (view: DevisFournisseurView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<DevisFournisseurResponse>(`${DEVIS_F}.get_devis_fournisseurs`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getDevisFournisseur = (name: string) => call<DevisFournisseurDetail>(`${DEVIS_F}.get_devis_fournisseur`, { name })
+export const getDevisFournisseurOptions = () => call<DevisFournisseurOptions>(`${DEVIS_F}.get_devis_fournisseur_options`)
+
+export interface DevisFournisseurValues {
+	fournisseur?: string
+	valable?: string
+	reference?: string
+	taxes?: string
+	lignes?: AchatLineValues[]
+}
+export const createDevisFournisseur = (values: DevisFournisseurValues) => call<{ name: string }>(`${DEVIS_F}.create_devis_fournisseur`, { values }, true)
+export const updateDevisFournisseur = (devis: DevisFournisseurDetail, values: DevisFournisseurValues) =>
+	call<DevisFournisseurDetail>(`${DEVIS_F}.update_devis_fournisseur`, { name: devis.name, modified: devis.modified, values }, true)
+const DEVIS_F_METHODS = { valider: 'validate_devis_fournisseur', annuler: 'cancel_devis_fournisseur' } as const
+export const runDevisFournisseurAction = (devis: DevisFournisseurDetail, action: 'valider' | 'annuler') =>
+	call<DevisFournisseurDetail>(`${DEVIS_F}.${DEVIS_F_METHODS[action]}`, { name: devis.name, modified: devis.modified }, true)
+export const deleteDevisFournisseur = (devis: DevisFournisseurDetail) => call<{ deleted: string }>(`${DEVIS_F}.delete_devis_fournisseur`, { name: devis.name, modified: devis.modified }, true)
+export const createDevisFournisseurCommande = (devis: DevisFournisseurDetail, reception: string) =>
+	call<{ commande: string; devis: DevisFournisseurDetail }>(`${DEVIS_F}.create_commande_achat`, { name: devis.name, modified: devis.modified, reception }, true)
+export const devisFournisseurPrintUrl = (name: string) => `/printview?doctype=Supplier%20Quotation&name=${encodeURIComponent(name)}&trigger_print=1`
+
+export function devisFournisseurActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${DEVIS_F}.get_devis_fournisseur_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${DEVIS_F}.add_devis_fournisseur_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${DEVIS_F}.update_devis_fournisseur_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${DEVIS_F}.delete_devis_fournisseur_comment`, { name, comment }, true),
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }

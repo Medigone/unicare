@@ -104,6 +104,15 @@ FILTER_LISTS = {
 		"outstanding_amount": "Reste dû",
 		"_user_tags": "Tag",
 	},
+	"Supplier Quotation": {
+		"status": "Statut",
+		"supplier": "Fournisseur",
+		"transaction_date": "Date",
+		"valid_till": "Valable jusqu'au",
+		"quotation_number": "Référence fournisseur",
+		"grand_total": "Total TTC",
+		"_user_tags": "Tag",
+	},
 	"Payment Entry": {
 		"payment_type": "Sens",
 		"party_type": "Type de tiers",

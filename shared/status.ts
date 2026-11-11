@@ -56,6 +56,12 @@ export const STATUS_TONES: Record<string, string> = {
 	'À livrer': 'tone-blue',
 	'À facturer': 'tone-amber',
 	Clôturé: 'tone-gray',
+	// Achats (libellés traduits)
+	Validé: 'tone-blue',
+	Arrêté: 'tone-gray',
+	'À recevoir et facturer': 'tone-blue',
+	'À recevoir': 'tone-blue',
+	Livré: 'tone-green',
 	// Réclamations et fabrication
 	'En Traitement': 'tone-amber',
 	Traité: 'tone-green',
@@ -92,6 +98,12 @@ const STATUS_LABELS: Record<string, string> = {
 	'To Deliver': 'À livrer',
 	Completed: 'Terminé',
 	Closed: 'Clôturé',
+	// Achats
+	Submitted: 'Validé',
+	Stopped: 'Arrêté',
+	'To Receive and Bill': 'À recevoir et facturer',
+	'To Receive': 'À recevoir',
+	Delivered: 'Livré',
 }
 
 /** Le libellé affiché : un statut ERPNext passe en français, les autres restent tels quels. */

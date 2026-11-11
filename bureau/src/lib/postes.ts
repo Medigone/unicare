@@ -4,6 +4,7 @@ import LucideBuilding2 from '~icons/lucide/building-2'
 import LucideBanknote from '~icons/lucide/banknote'
 import LucideFactory from '~icons/lucide/factory'
 import LucideFileText from '~icons/lucide/file-text'
+import LucideFileInput from '~icons/lucide/file-input'
 import LucideReceipt from '~icons/lucide/receipt'
 import LucideShoppingCart from '~icons/lucide/shopping-cart'
 import LucideTruck from '~icons/lucide/truck'
@@ -50,6 +51,12 @@ export const NAV: Record<string, PosteNavGroup[]> = {
 				{ id: 'commandes', label: 'Commandes', icon: LucideShoppingCart, to: { name: 'Commandes' }, doctype: 'Sales Order' },
 				{ id: 'livraisons', label: 'Bons de livraison', icon: LucideTruck, to: { name: 'Livraisons' }, doctype: 'Delivery Note' },
 				{ id: 'factures', label: 'Factures', icon: LucideReceipt, to: { name: 'Factures' }, doctype: 'Sales Invoice' },
+			],
+		},
+		{
+			title: 'Achats',
+			items: [
+				{ id: 'devis-fournisseurs', label: 'Devis fournisseur', icon: LucideFileInput, to: { name: 'DevisFournisseurListe' }, doctype: 'Supplier Quotation' },
 			],
 		},
 		{
