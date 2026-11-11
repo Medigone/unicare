@@ -2299,7 +2299,11 @@
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 0.5rem;
-		padding: 0.875rem 1rem 0.375rem;
+		padding: 0.875rem 1rem 0.625rem;
+	}
+	/* Sous un titre de groupe, la première ligne n'a pas de second filet. */
+	.accueil-groupe + .accueil-ligne {
+		border-top: 0;
 	}
 	.accueil-filtres {
 		display: flex;
@@ -2321,9 +2325,12 @@
 		background-color: var(--ink-gray-9, #171717);
 		color: var(--surface-cards);
 	}
+	/* Titre de groupe : une bande fine, collée aux lignes, plutôt qu'un vide au-dessus. */
 	.accueil-groupe {
 		margin: 0;
-		padding: 0.75rem 1rem 0.375rem;
+		padding: 0.375rem 1rem;
+		border-top: 1px solid var(--line-soft);
+		background-color: var(--soft-bg, #fafafa);
 		font-size: 12px;
 		font-weight: 700;
 		letter-spacing: 0.02em;
