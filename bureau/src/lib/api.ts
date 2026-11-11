@@ -10,6 +10,7 @@ import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livra
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
 import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
+import type { LotDetail, LotOptions, LotsResponse, LotValues, LotView } from './lots'
 import type { EtatStockOptions, EtatStockResponse, EtatStockView, LigneStockDetail } from './etatStock'
 import type { DepotDetail, DepotOptions, DepotsResponse, DepotValues, DepotView } from './depots'
 import type { ReceptionDetail, ReceptionPrepChange, ReceptionsResponse, ReceptionView } from './receptions'
@@ -657,3 +658,32 @@ export const getEtatStock = (view: EtatStockView, conditions: Condition[], searc
 export const getEtatStockOptions = () => call<EtatStockOptions>(`${ETAT_STOCK}.get_etat_stock_options`)
 export const getLigneStock = (name: string) => call<LigneStockDetail>(`${ETAT_STOCK}.get_ligne_stock`, { name })
 export const getLigneStockFiche = (name: string) => call<LigneStockDetail>(`${ETAT_STOCK}.get_ligne_stock`, { name, full: 1 })
+
+/** Lots : liste, aperçu, fiche (stock par dépôt, mouvements, traçabilité), modification et suppression. */
+const LOTS = 'unicare.api.bureau_lots'
+
+export const getLots = (view: LotView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<LotsResponse>(`${LOTS}.get_lots`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getLot = (name: string) => call<LotDetail>(`${LOTS}.get_lot`, { name })
+export const getLotFiche = (name: string) => call<LotDetail>(`${LOTS}.get_lot`, { name, full: 1 })
+export const getLotOptions = () => call<LotOptions>(`${LOTS}.get_lot_options`)
+export const updateLot = (lot: LotDetail, values: LotValues) => call<LotDetail>(`${LOTS}.update_lot`, { name: lot.name, modified: lot.modified, values }, true)
+export const deleteLot = (lot: { name: string; modified: string }) => call<{ deleted: string }>(`${LOTS}.delete_lot`, { name: lot.name, modified: lot.modified }, true)
+
+export function lotActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${LOTS}.get_lot_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${LOTS}.add_lot_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${LOTS}.update_lot_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${LOTS}.delete_lot_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}

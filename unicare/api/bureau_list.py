@@ -148,6 +148,15 @@ FILTER_LISTS = {
 		"projected_qty": "Projeté",
 		"_user_tags": "Tag",
 	},
+	"Batch": {
+		"item": "Article",
+		"expiry_date": "Péremption",
+		"custom_origine": "Origine",
+		"custom_lot_fournisseur": "Lot fournisseur",
+		"supplier": "Fournisseur",
+		"disabled": "Désactivé",
+		"_user_tags": "Tag",
+	},
 	"Warehouse": {
 		"parent_warehouse": "Groupe",
 		"warehouse_type": "Type",

@@ -3,6 +3,7 @@ import ArticlesPage from './pages/ArticlesPage.vue'
 import ClientsPage from './pages/ClientsPage.vue'
 import DepotsPage from './pages/DepotsPage.vue'
 import EtatStockPage from './pages/EtatStockPage.vue'
+import LotsPage from './pages/LotsPage.vue'
 import FournisseursPage from './pages/FournisseursPage.vue'
 import CommandesPage from './pages/CommandesPage.vue'
 import CommandesAchatPage from './pages/CommandesAchatPage.vue'
@@ -45,6 +46,8 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/factures-achat/:id', name: 'FactureAchatFiche', component: FacturesAchatPage, props: true, meta: { doctype: 'Purchase Invoice' } },
 	{ path: '/stock', name: 'EtatStock', component: EtatStockPage, meta: { doctype: 'Bin' } },
 	{ path: '/stock/:id', name: 'LigneStock', component: EtatStockPage, props: true, meta: { doctype: 'Bin' } },
+	{ path: '/lots', name: 'Lots', component: LotsPage, meta: { doctype: 'Batch' } },
+	{ path: '/lots/:id', name: 'Lot', component: LotsPage, props: true, meta: { doctype: 'Batch' } },
 	{ path: '/depots', name: 'Depots', component: DepotsPage, meta: { doctype: 'Warehouse' } },
 	{ path: '/depots/:id', name: 'Depot', component: DepotsPage, props: true, meta: { doctype: 'Warehouse' } },
 	{ path: '/paiements', name: 'Paiements', component: PaiementsPage, meta: { doctype: 'Payment Entry' } },

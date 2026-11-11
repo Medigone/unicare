@@ -35,3 +35,16 @@ describe('état du stock', async () => {
 		expect(ETAT_STOCK_VIEWS.map((view) => view.key)).toEqual(['all', 'en_stock', 'rupture', 'sous_seuil', 'negatif', 'reserve'])
 	})
 })
+
+describe('lots', async () => {
+	const { etatPeremption, LOT_VIEWS } = await import('./lots')
+	it('signale un lot périmé ou qui périme bientôt, seulement s’il reste du stock', () => {
+		expect(etatPeremption({ peremption: '2026-01-01', quantite: 5 }, 30, '2026-02-01')).toBe('perime')
+		expect(etatPeremption({ peremption: '2026-02-20', quantite: 5 }, 30, '2026-02-01')).toBe('proche')
+		expect(etatPeremption({ peremption: '2026-06-20', quantite: 5 }, 30, '2026-02-01')).toBeNull()
+		expect(etatPeremption({ peremption: '2026-01-01', quantite: 0 }, 30, '2026-02-01')).toBeNull()
+	})
+	it('a les mêmes vues que le serveur', () => {
+		expect(LOT_VIEWS.map((view) => view.key)).toEqual(['all', 'avec_stock', 'expirent', 'perimes', 'vides', 'desactives'])
+	})
+})

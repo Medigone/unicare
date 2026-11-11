@@ -183,3 +183,41 @@ def ledger(item_code=None, warehouse=None, lot=None, limit=LEDGER_LIMIT):
 		}
 		for row in rows
 	]
+
+
+def stock_par_lot(lots=None):
+	"""Stock réel de chaque lot par dépôt, lots périmés compris : {lot: {dépôt: quantité}}.
+
+	`get_batch_qty` d'ERPNext ignore les lots périmés (il sert au choix d'un lot à sortir) ; ici on veut tout ce qui est
+	physiquement en stock. On lit les Serial and Batch Bundle validés, plus les anciennes lignes sans bundle.
+	"""
+	lot_filter = "and sbe.batch_no in %(lots)s" if lots is not None else ""
+	legacy_filter = "and batch_no in %(lots)s" if lots is not None else ""
+	if lots is not None and not lots:
+		return {}
+	values = {"lots": tuple(lots or ())}
+	rows = frappe.db.sql(
+		f"""
+		select sbe.batch_no as lot, sbe.warehouse as depot, sum(sbe.qty) as qty
+		from `tabSerial and Batch Entry` sbe
+		join `tabSerial and Batch Bundle` sbb on sbb.name = sbe.parent
+		where sbb.is_cancelled = 0 and sbb.docstatus = 1 and ifnull(sbe.batch_no, '') != '' {lot_filter}
+		group by sbe.batch_no, sbe.warehouse
+		""",
+		values,
+		as_dict=True,
+	) + frappe.db.sql(
+		f"""
+		select batch_no as lot, warehouse as depot, sum(actual_qty) as qty
+		from `tabStock Ledger Entry`
+		where is_cancelled = 0 and ifnull(batch_no, '') != '' and ifnull(serial_and_batch_bundle, '') = '' {legacy_filter}
+		group by batch_no, warehouse
+		""",
+		values,
+		as_dict=True,
+	)
+	result = {}
+	for row in rows:
+		depots_lot = result.setdefault(row.lot, {})
+		depots_lot[row.depot] = flt(depots_lot.get(row.depot, 0) + flt(row.qty), 3)
+	return {lot: {depot: qty for depot, qty in entries.items() if qty} for lot, entries in result.items()}

@@ -33,6 +33,7 @@ from unicare.api.bureau_factures_achat import bulk_guard as facture_achat_guard
 from unicare.api.bureau_fournisseurs import SUPPLIER, _fournisseur_for_write
 from unicare.api.bureau_list import _bulk_apply, _parse, link_search_values, row_tags
 from unicare.api.bureau_livraisons import LIVRAISON, livraison_for_bulk
+from unicare.api.bureau_lots import lot_for_bulk
 from unicare.api.bureau_livraisons import bulk_guard as livraison_guard
 from unicare.api.bureau_paiements import PAIEMENT, paiement_for_bulk
 from unicare.api.bureau_paiements import bulk_guard as paiement_guard
@@ -149,6 +150,24 @@ BULK_DOCTYPES = {
 		},
 		"setters": {},
 		"guard": facture_achat_guard,
+	},
+	"Batch": {
+		"load": lot_for_bulk,
+		# L'identité du lot (article, numéro, quantité, origine) vient des pièces : elle ne change pas en groupe.
+		"excluded": {
+			"batch_id",
+			"item",
+			"item_name",
+			"batch_qty",
+			"stock_uom",
+			"custom_origine",
+			"custom_ordre_conditionnement",
+			"allow_negative_stock_for_batch",
+			"reference_doctype",
+			"reference_name",
+			"parent_batch",
+		},
+		"setters": {},
 	},
 	"Warehouse": {
 		"load": depot_for_bulk,
