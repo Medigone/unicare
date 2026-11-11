@@ -39,12 +39,12 @@ export const CREER_ITEMS: CreerItem[] = [
 	{ key: 'ordre', label: 'Ordre de production', hint: 'produit, quantité, date', groupe: 'frequent', lettre: 'o', doctype: 'Ordre de Conditionnement', fiche: 'OrdreFiche', icon: LucideFactory },
 	{ key: 'client', label: 'Client', groupe: 'Ventes', lettre: 'l', doctype: 'Customer', fiche: 'Client', icon: LucideBuilding2 },
 	{ key: 'commande_achat', label: "Commande d'achat", groupe: 'Achats', lettre: 'a', doctype: 'Purchase Order', fiche: 'CommandeAchatFiche', icon: LucideClipboardList },
-	{ key: 'devis_fournisseur', label: 'Devis fournisseur', groupe: 'Achats', doctype: 'Supplier Quotation', fiche: 'DevisFournisseurFiche', icon: LucideFileInput },
+	{ key: 'devis_fournisseur', label: 'Devis fournisseur', groupe: 'Achats', lettre: 'u', doctype: 'Supplier Quotation', fiche: 'DevisFournisseurFiche', icon: LucideFileInput },
 	{ key: 'fournisseur', label: 'Fournisseur', groupe: 'Achats', lettre: 'f', doctype: 'Supplier', fiche: 'Fournisseur', icon: LucideTruck },
 	{ key: 'mouvement', label: 'Mouvement de stock', groupe: 'Stock et production', lettre: 'm', doctype: 'Stock Entry', fiche: 'MouvementFiche', icon: LucideArrowLeftRight },
 	{ key: 'inventaire', label: 'Inventaire', groupe: 'Stock et production', lettre: 'i', doctype: 'Stock Reconciliation', fiche: 'InventaireFiche', icon: LucideClipboardCheck },
 	{ key: 'article', label: 'Article', groupe: 'Stock et production', lettre: 'r', doctype: 'Item', fiche: 'Article', icon: LucidePackage },
-	{ key: 'recette', label: 'Recette', groupe: 'Stock et production', doctype: 'Recette de Conditionnement', fiche: 'RecetteFiche', icon: LucideBookOpen },
+	{ key: 'recette', label: 'Recette', groupe: 'Stock et production', lettre: 'e', doctype: 'Recette de Conditionnement', fiche: 'RecetteFiche', icon: LucideBookOpen },
 ]
 
 /** Les entrées que ce rôle peut créer. */

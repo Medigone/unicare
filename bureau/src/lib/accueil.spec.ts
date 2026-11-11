@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { quandText, resumeJournee } from './accueil'
-import { creerItems, itemForLetter } from './creer'
+import { CREER_ITEMS, creerItems, itemForLetter } from './creer'
 
 describe('accueil', () => {
 	it('résume la journée en une phrase', () => {
@@ -19,6 +19,11 @@ describe('accueil', () => {
 	it('trouve la création d’un raccourci, selon les droits', () => {
 		expect(itemForLetter('D')?.key).toBe('devis')
 		expect(itemForLetter('z')).toBeUndefined()
+		expect(itemForLetter('e')?.key).toBe('recette')
+		// Chaque entrée a sa lettre, et aucune lettre ne sert deux fois.
+		const lettres = CREER_ITEMS.map((item) => item.lettre)
+		expect(lettres.every(Boolean)).toBe(true)
+		expect(new Set(lettres).size).toBe(lettres.length)
 		window.droits = { Quotation: { read: true, create: false } }
 		expect(creerItems().some((item) => item.key === 'devis')).toBe(false)
 		expect(itemForLetter('d', creerItems())).toBeUndefined()
