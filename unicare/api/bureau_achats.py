@@ -8,7 +8,7 @@ s'en servent pour leur saisie ; les règles restent celles d'ERPNext (`insert`, 
 
 import frappe
 from frappe import _
-from frappe.utils import cstr, flt
+from frappe.utils import cint, cstr, flt
 
 from unicare.api.bureau_devis import LIGNES_MAX
 from unicare.api.bureau_list import _parse
@@ -78,6 +78,39 @@ def set_purchase_taxes(doc, template):
 		frappe.throw(_("Choisissez un modèle de TVA de la liste."))
 	doc.taxes_and_charges = template or None
 	doc.set("taxes", (get_taxes_and_charges(TAXES_ACHAT, template) or []) if template else [])
+
+
+def replace_disabled_taxes(doc):
+	"""Une pièce reprise d'une plus ancienne garde son modèle de TVA ; s'il a été désactivé depuis, ERPNext la refuse.
+
+	Le modèle désactivé est remplacé par le modèle d'achat par défaut de la société (ou retiré s'il n'y en a pas), avec
+	ses lignes. Renvoie le message à montrer, ou `None` si rien n'a changé.
+	"""
+	old = doc.get("taxes_and_charges")
+	if not old or not frappe.db.get_value(TAXES_ACHAT, old, "disabled"):
+		return None
+	default = next((row.name for row in purchase_taxes_templates(doc.company) if row.is_default), None)
+	set_purchase_taxes(doc, default)
+	if default:
+		return _("Le modèle de TVA « {0} » est désactivé : remplacé par « {1} ». Vérifiez la TVA avant de valider.").format(
+			old, default
+		)
+	return _("Le modèle de TVA « {0} » est désactivé : la pièce est sans TVA. Choisissez la TVA avant de valider.").format(
+		old
+	)
+
+
+def drop_invoice_batches(doc):
+	"""Une facture d'achat qui ne mouvemente pas le stock n'a pas besoin du lot de ses lignes.
+
+	ERPNext le recopie de la réception, puis refuse la facture si ce lot a expiré depuis. Le lot reste sur la
+	réception et dans le stock ; seule la facture s'en passe.
+	"""
+	if doc.doctype != "Purchase Invoice" or cint(doc.get("update_stock")):
+		return
+	for row in doc.get("items") or []:
+		row.batch_no = None
+		row.serial_and_batch_bundle = None
 
 
 def check_supplier(fournisseur):

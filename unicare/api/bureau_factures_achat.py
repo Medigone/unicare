@@ -14,7 +14,12 @@ from frappe import _
 from frappe.utils import cint, cstr, flt, get_fullname, getdate, today
 
 from unicare.api import activity
-from unicare.api.bureau_achats import purchase_taxes_templates, set_purchase_taxes
+from unicare.api.bureau_achats import (
+	drop_invoice_batches,
+	purchase_taxes_templates,
+	replace_disabled_taxes,
+	set_purchase_taxes,
+)
 from unicare.api.bureau_devis import _company, _day, _status
 from unicare.api.bureau_factures import MODE, PAIEMENT, _modes, _payment_account
 from unicare.api.bureau_list import (
@@ -509,8 +514,10 @@ def create_avoir(name, modified):
 		frappe.throw(_("Il ne reste rien à créditer."))
 	# Tant que la facture n'est pas soldée, l'avoir réduit son reste à payer ; sinon il garde son propre solde.
 	avoir.update_outstanding_for_self = 0 if flt(doc.outstanding_amount) > 0 else 1
+	note = replace_disabled_taxes(avoir)
+	drop_invoice_batches(avoir)
 	avoir.insert()
-	return {"name": avoir.name, "facture": _facture_payload(frappe.get_doc(FACTURE_ACHAT, doc.name))}
+	return {"name": avoir.name, "note": note, "facture": _facture_payload(frappe.get_doc(FACTURE_ACHAT, doc.name))}
 
 
 def facture_achat_for_bulk(name, modified):

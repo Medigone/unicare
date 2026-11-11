@@ -15,6 +15,8 @@ from frappe.utils import cint, cstr, flt, get_fullname, getdate, today
 
 from unicare.api import activity
 from unicare.api.bureau_achats import (
+	drop_invoice_batches,
+	replace_disabled_taxes,
 	buying_price_list,
 	check_supplier,
 	clean_lines,
@@ -480,9 +482,12 @@ def create_suivante(name, modified, kind):
 		frappe.throw(
 			_("Il ne reste rien à recevoir.") if kind == "reception" else _("Il ne reste rien à facturer.")
 		)
+	note = replace_disabled_taxes(target)
+	drop_invoice_batches(target)
 	target.insert()
 	return {
 		"doctype": target.doctype,
+		"note": note,
 		"name": target.name,
 		"commande": _commande_payload(frappe.get_doc(COMMANDE_ACHAT, doc.name)),
 	}

@@ -165,6 +165,7 @@ async function avoir() {
 	const done = await perform(async () => {
 		const result = await createAvoirFournisseur(current)
 		name = result.name
+		if (result.note) notice.value = result.note
 		return result.facture
 	})
 	if (done) createdAvoir.value = name

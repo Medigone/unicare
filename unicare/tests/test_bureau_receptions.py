@@ -6,7 +6,7 @@ import frappe
 from frappe.tests.utils import FrappeTestCase
 from frappe.utils import add_days, today
 
-from unicare.api import bureau_bulk, bureau_commandes_achat, bureau_receptions
+from unicare.api import bureau_achats, bureau_bulk, bureau_commandes_achat, bureau_receptions
 from unicare.tests.achats_outils import article, fournisseur
 
 RE = bureau_receptions
@@ -89,3 +89,109 @@ class TestReception(FrappeTestCase):
 			RE.prepare_reception(name, "2000-01-01 00:00:00", json.dumps([]))
 		result = bureau_bulk.bulk_add_tags("Purchase Receipt", json.dumps([{"name": name, "modified": fiche["modified"]}]), json.dumps(["essai"]))
 		self.assertEqual(result["done"], [name])
+
+
+class TestTvaDesactivee(FrappeTestCase):
+	"""Une réception antérieure au changement de TVA garde un modèle désactivé depuis : sa facture prend le modèle par défaut."""
+
+	def setUp(self):
+		frappe.set_user("Administrator")
+		self.fournisseur = fournisseur("Fournisseur Essai TVA")
+		self.article = article("Bidon essai TVA", 80, stock=True)
+
+	def tearDown(self):
+		frappe.db.rollback()
+
+	def test_facture_depuis_reception_au_modele_desactive(self):
+		company = CA._company()
+		ancien = frappe.get_doc(
+			{
+				"doctype": "Purchase Taxes and Charges Template",
+				"title": "TVA essai ancienne",
+				"company": company,
+				"taxes": [
+					{
+						"charge_type": "On Net Total",
+						"account_head": frappe.db.get_value(
+							"Account", {"company": company, "account_type": "Tax", "is_group": 0}, "name"
+						),
+						"description": "TVA ancienne",
+						"rate": 17,
+					}
+				],
+			}
+		).insert()
+		name = CA.create_commande_achat(
+			json.dumps(
+				{
+					"fournisseur": self.fournisseur,
+					"reception": add_days(today(), 2),
+					"taxes": ancien.name,
+					"lignes": [{"article": self.article, "quantite": 4}],
+				}
+			)
+		)["name"]
+		fiche = CA.validate_commande_achat(name, CA.get_commande_achat(name)["modified"])
+		reception = CA.create_suivante(name, fiche["modified"], "reception")["name"]
+		ligne = RE.get_reception(reception)["lignes"][0]["name"]
+		fiche = RE.prepare_reception(
+			reception,
+			RE.get_reception(reception)["modified"],
+			json.dumps([{"name": ligne, "depot": frappe.db.get_value("Warehouse", {"company": company, "is_group": 0}, "name")}]),
+		)
+		fiche = RE.validate_reception(reception, fiche["modified"])
+		frappe.db.set_value("Purchase Taxes and Charges Template", ancien.name, "disabled", 1)
+		result = RE.create_suivante(reception, fiche["modified"], "facture")
+		defaut = next(row.name for row in bureau_achats.purchase_taxes_templates(company) if row.is_default)
+		self.assertEqual(frappe.db.get_value("Purchase Invoice", result["name"], "taxes_and_charges"), defaut)
+		self.assertIn(ancien.name, result["note"])
+
+
+class TestLotExpireSurFacture(FrappeTestCase):
+	"""Le lot d'une réception expiré depuis ne bloque pas sa facture d'achat, qui ne touche pas au stock."""
+
+	def setUp(self):
+		frappe.set_user("Administrator")
+		self.fournisseur = fournisseur("Fournisseur Essai Lot Expiré")
+		self.article = article("Flacon essai lot expiré", 25, stock=True, lots=True)
+
+	def tearDown(self):
+		frappe.db.rollback()
+
+	def test_facture_malgre_lot_expire(self):
+		company = CA._company()
+		name = CA.create_commande_achat(
+			json.dumps(
+				{
+					"fournisseur": self.fournisseur,
+					"reception": add_days(today(), 2),
+					"lignes": [{"article": self.article, "quantite": 3}],
+				}
+			)
+		)["name"]
+		fiche = CA.validate_commande_achat(name, CA.get_commande_achat(name)["modified"])
+		reception = CA.create_suivante(name, fiche["modified"], "reception")["name"]
+		fiche = RE.get_reception(reception)
+		fiche = RE.prepare_reception(
+			reception,
+			fiche["modified"],
+			json.dumps(
+				[
+					{
+						"name": fiche["lignes"][0]["name"],
+						"lot": "LF-EXPIRE-01",
+						"peremption": add_days(today(), 30),
+						"depot": frappe.db.get_value("Warehouse", {"company": company, "is_group": 0}, "name"),
+					}
+				]
+			),
+		)
+		fiche = RE.validate_reception(reception, fiche["modified"])
+		frappe.db.set_value("Batch", "LF-EXPIRE-01", "expiry_date", add_days(today(), -1))
+		frappe.clear_document_cache("Batch", "LF-EXPIRE-01")
+		frappe.local.document_cache = {}
+		frappe.cache.delete_value("Batch")
+		result = RE.create_suivante(reception, fiche["modified"], "facture")
+		facture = frappe.get_doc("Purchase Invoice", result["name"])
+		self.assertFalse(facture.items[0].batch_no)
+		self.assertEqual(facture.items[0].purchase_receipt, reception)

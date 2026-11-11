@@ -110,15 +110,15 @@ const created = ref<{ doctype: string; name: string; label: string } | null>(nul
 async function createNext(kind: 'facture' | 'retour') {
 	const current = livraison.value
 	if (!current) return
-	let result: { doctype: string; name: string } | null = null
+	let result: { doctype: string; name: string; note: string | null } | null = null
 	const done = await perform(async () => {
 		const response = await createReceptionSuivante(current, kind)
 		result = response
 		return response.reception
 	})
 	if (done && result) {
-		const { doctype, name } = result
-		created.value = { doctype, name, label: kind === 'facture' ? `Facture d'achat ${name} créée en brouillon : saisissez le n° du fournisseur puis validez-la.` : `Retour fournisseur ${name} créé : saisissez les quantités rendues.` }
+		const { doctype, name, note } = result
+		created.value = { doctype, name, label: [kind === 'facture' ? `Facture d'achat ${name} créée en brouillon : saisissez le n° du fournisseur puis validez-la.` : `Retour fournisseur ${name} créé : saisissez les quantités rendues.`, note].filter(Boolean).join(' ') }
 	}
 }
 

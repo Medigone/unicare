@@ -84,15 +84,15 @@ const created = ref<{ doctype: string; name: string; label: string } | null>(nul
 async function createNext(kind: 'reception' | 'facture') {
 	const current = commande.value
 	if (!current) return
-	let result: { doctype: string; name: string } | null = null
+	let result: { doctype: string; name: string; note: string | null } | null = null
 	const done = await perform(async () => {
 		const response = await createCommandeAchatSuivante(current, kind)
 		result = response
 		return response.commande
 	})
 	if (done && result) {
-		const { doctype, name } = result
-		created.value = { doctype, name, label: kind === 'reception' ? `Réception ${name} créée : saisissez les quantités reçues et les lots, puis validez-la.` : `Facture d'achat ${name} créée en brouillon : saisissez le n° du fournisseur puis validez-la.` }
+		const { doctype, name, note } = result
+		created.value = { doctype, name, label: [kind === 'reception' ? `Réception ${name} créée : saisissez les quantités reçues et les lots, puis validez-la.` : `Facture d'achat ${name} créée en brouillon : saisissez le n° du fournisseur puis validez-la.`, note].filter(Boolean).join(' ') }
 	}
 }
 

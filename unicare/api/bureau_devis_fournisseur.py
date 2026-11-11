@@ -14,6 +14,7 @@ from frappe.utils import add_days, cint, cstr, flt, get_fullname, getdate, today
 
 from unicare.api import activity
 from unicare.api.bureau_achats import (
+	replace_disabled_taxes,
 	SUPPLIER,
 	buying_price_list,
 	check_supplier,
@@ -447,8 +448,9 @@ def create_commande_achat(name, modified, reception):
 	commande.schedule_date = getdate(reception)
 	for item in commande.items:
 		item.schedule_date = commande.schedule_date
+	note = replace_disabled_taxes(commande)
 	commande.insert()
-	return {"commande": commande.name, "devis": _devis_payload(frappe.get_doc(DEVIS_F, doc.name))}
+	return {"commande": commande.name, "note": note, "devis": _devis_payload(frappe.get_doc(DEVIS_F, doc.name))}
 
 
 def devis_fournisseur_for_bulk(name, modified):

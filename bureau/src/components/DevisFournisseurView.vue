@@ -104,6 +104,7 @@ async function createCommande() {
 	const done = await perform(async () => {
 		const result = await createDevisFournisseurCommande(current, livraison.value)
 		name = result.commande
+		if (result.note) notice.value = result.note
 		return result.devis
 	})
 	if (done) {

@@ -471,7 +471,7 @@ export const runDevisFournisseurAction = (devis: DevisFournisseurDetail, action:
 	call<DevisFournisseurDetail>(`${DEVIS_F}.${DEVIS_F_METHODS[action]}`, { name: devis.name, modified: devis.modified }, true)
 export const deleteDevisFournisseur = (devis: DevisFournisseurDetail) => call<{ deleted: string }>(`${DEVIS_F}.delete_devis_fournisseur`, { name: devis.name, modified: devis.modified }, true)
 export const createDevisFournisseurCommande = (devis: DevisFournisseurDetail, reception: string) =>
-	call<{ commande: string; devis: DevisFournisseurDetail }>(`${DEVIS_F}.create_commande_achat`, { name: devis.name, modified: devis.modified, reception }, true)
+	call<{ commande: string; note: string | null; devis: DevisFournisseurDetail }>(`${DEVIS_F}.create_commande_achat`, { name: devis.name, modified: devis.modified, reception }, true)
 export const devisFournisseurPrintUrl = (name: string) => `/printview?doctype=Supplier%20Quotation&name=${encodeURIComponent(name)}&trigger_print=1`
 
 export function devisFournisseurActivity(name: string): ActivityApi {
@@ -515,7 +515,7 @@ export const deleteCommandeAchat = (commande: CommandeAchatDetail) => call<{ del
 export const setCommandeAchatStatus = (commande: CommandeAchatDetail, action: StatusAction) =>
 	call<CommandeAchatDetail>(`${COMMANDES_ACHAT}.set_commande_achat_status`, { name: commande.name, modified: commande.modified, action }, true)
 export const createCommandeAchatSuivante = (commande: CommandeAchatDetail, kind: 'reception' | 'facture') =>
-	call<{ doctype: string; name: string; commande: CommandeAchatDetail }>(`${COMMANDES_ACHAT}.create_suivante`, { name: commande.name, modified: commande.modified, kind }, true)
+	call<{ doctype: string; name: string; note: string | null; commande: CommandeAchatDetail }>(`${COMMANDES_ACHAT}.create_suivante`, { name: commande.name, modified: commande.modified, kind }, true)
 export const commandeAchatPrintUrl = (name: string) => `/printview?doctype=Purchase%20Order&name=${encodeURIComponent(name)}&trigger_print=1`
 export const commandeAchatPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Purchase%20Order&name=${encodeURIComponent(name)}`
 
@@ -550,7 +550,7 @@ export const runReceptionAction = (reception: ReceptionDetail, action: 'valider'
 	call<ReceptionDetail>(`${RECEPTIONS}.${action === 'valider' ? 'validate_reception' : 'cancel_reception'}`, { name: reception.name, modified: reception.modified }, true)
 export const deleteReception = (reception: ReceptionDetail) => call<{ deleted: string }>(`${RECEPTIONS}.delete_reception`, { name: reception.name, modified: reception.modified }, true)
 export const createReceptionSuivante = (reception: ReceptionDetail, kind: 'facture' | 'retour') =>
-	call<{ doctype: string; name: string; reception: ReceptionDetail }>(`${RECEPTIONS}.create_suivante`, { name: reception.name, modified: reception.modified, kind }, true)
+	call<{ doctype: string; name: string; note: string | null; reception: ReceptionDetail }>(`${RECEPTIONS}.create_suivante`, { name: reception.name, modified: reception.modified, kind }, true)
 export const receptionPrintUrl = (name: string) => `/printview?doctype=Purchase%20Receipt&name=${encodeURIComponent(name)}&trigger_print=1`
 
 export function receptionActivity(name: string): ActivityApi {
@@ -585,7 +585,7 @@ export const runFactureAchatAction = (facture: FactureAchatDetail, action: 'vali
 export const deleteFactureAchat = (facture: FactureAchatDetail) => call<{ deleted: string }>(`${FACTURES_ACHAT}.delete_facture_achat`, { name: facture.name, modified: facture.modified }, true)
 export const payerFactureAchat = (facture: FactureAchatDetail, values: { montant: number; mode: string; date: string; reference?: string; date_reference?: string }) =>
 	call<{ paiement: string; facture: FactureAchatDetail }>(`${FACTURES_ACHAT}.payer`, { name: facture.name, modified: facture.modified, ...values }, true)
-export const createAvoirFournisseur = (facture: FactureAchatDetail) => call<{ name: string; facture: FactureAchatDetail }>(`${FACTURES_ACHAT}.create_avoir`, { name: facture.name, modified: facture.modified }, true)
+export const createAvoirFournisseur = (facture: FactureAchatDetail) => call<{ name: string; note: string | null; facture: FactureAchatDetail }>(`${FACTURES_ACHAT}.create_avoir`, { name: facture.name, modified: facture.modified }, true)
 export const factureAchatPrintUrl = (name: string) => `/printview?doctype=Purchase%20Invoice&name=${encodeURIComponent(name)}&trigger_print=1`
 
 export function factureAchatActivity(name: string): ActivityApi {
