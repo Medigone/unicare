@@ -141,7 +141,7 @@ async function supprimer() {
 							<div><dt><LucidePackage aria-hidden="true" />Article</dt><dd><RouterLink class="ref-link" :to="{ name: 'Article', params: { id: lot.article } }">{{ lot.designation }}</RouterLink></dd></div>
 							<div><dt><LucideCalendarClock aria-hidden="true" />Péremption</dt><dd class="tabular-nums" :class="etat === 'perime' ? 'text-tone-red' : etat === 'proche' ? 'text-tone-amber' : !lot.peremption && 'record-fact-none'">{{ formatDay(lot.peremption) || 'Non renseignée' }}</dd></div>
 							<div><dt><LucideCalendar aria-hidden="true" />Fabrication</dt><dd class="tabular-nums" :class="!lot.fabrication && 'record-fact-none'">{{ formatDay(lot.fabrication) || 'Non renseignée' }}</dd></div>
-							<div><dt><LucideFactory aria-hidden="true" />Origine</dt><dd :class="!lot.origine && 'record-fact-none'">{{ lot.origine || 'Non renseignée' }}<template v-if="lot.ordre"> · <a class="ref-link" :href="deskUrl('Ordre de Conditionnement', lot.ordre)" target="_blank" rel="noopener noreferrer">{{ lot.ordre }}</a></template></dd></div>
+							<div><dt><LucideFactory aria-hidden="true" />Origine</dt><dd :class="!lot.origine && 'record-fact-none'">{{ lot.origine || 'Non renseignée' }}<template v-if="lot.ordre"> · <RouterLink class="ref-link" :to="{ name: 'OrdreFiche', params: { id: lot.ordre } }">{{ lot.ordre }}</RouterLink></template></dd></div>
 							<div><dt><LucideHash aria-hidden="true" />Lot fournisseur</dt><dd class="tabular-nums" :class="!lot.lot_fournisseur && 'record-fact-none'">{{ lot.lot_fournisseur || 'Non renseigné' }}</dd></div>
 							<div v-if="lot.fournisseur"><dt>Fournisseur</dt><dd><RouterLink class="ref-link" :to="{ name: 'Fournisseur', params: { id: lot.fournisseur } }">{{ lot.fournisseur }}</RouterLink></dd></div>
 						</dl>
@@ -179,7 +179,7 @@ async function supprimer() {
 									<tbody>
 										<tr v-for="(row, index) in lot.tracabilite" :key="`${row.ordre}-${index}`">
 											<td>{{ row.sens }}</td>
-											<td><a class="ref-link tabular-nums" :href="deskUrl('Ordre de Conditionnement', row.ordre)" target="_blank" rel="noopener noreferrer">{{ row.ordre }}</a><span v-if="row.statut" class="block text-xs text-ink-gray-6">{{ row.statut }}</span></td>
+											<td><RouterLink class="ref-link tabular-nums" :to="{ name: 'OrdreFiche', params: { id: row.ordre } }">{{ row.ordre }}</RouterLink><span v-if="row.statut" class="block text-xs text-ink-gray-6">{{ row.statut }}</span></td>
 											<td class="tabular-nums">{{ formatDay(row.date) }}</td>
 											<td>{{ row.produit || '—' }}</td>
 											<td class="tabular-nums"><RouterLink v-if="row.lot_mp && row.lot_mp !== lot.name" class="ref-link" :to="{ name: 'Lot', params: { id: row.lot_mp } }">{{ row.lot_mp }}</RouterLink><template v-else>{{ row.lot_mp || '—' }}</template></td>

@@ -335,6 +335,18 @@ doc_events = {
 		"on_change": "unicare.bureau_events.on_change",
 		"on_trash": "unicare.bureau_events.on_trash",
 	},
+	"Ordre de Conditionnement": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Recette de Conditionnement": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Checklist Ordre Conditionnement": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
 }
 
 fixture_auto_order = True

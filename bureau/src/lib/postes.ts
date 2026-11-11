@@ -136,11 +136,12 @@ export const NAV: Record<string, PosteModule[]> = {
 			icon: LucideFactory,
 			groups: [
 				{
-					title: 'Sur le Desk',
-					items: [
-						{ id: 'ordres', label: 'Ordres de conditionnement', icon: LucideFactory, href: '/app/ordre-de-conditionnement', doctype: 'Ordre de Conditionnement' },
-						{ id: 'recettes', label: 'Recettes', icon: LucideFileText, href: '/app/recette-de-conditionnement', doctype: 'Recette de Conditionnement' },
-					],
+					title: 'Pièces',
+					items: [{ id: 'ordres', label: 'Ordres de conditionnement', icon: LucideFactory, to: { name: 'Ordres' }, doctype: 'Ordre de Conditionnement' }],
+				},
+				{
+					title: 'Référentiel',
+					items: [{ id: 'recettes', label: 'Recettes', icon: LucideFileText, href: '/app/recette-de-conditionnement', doctype: 'Recette de Conditionnement' }],
 				},
 			],
 		},

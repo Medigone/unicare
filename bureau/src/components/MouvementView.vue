@@ -168,7 +168,7 @@ async function confirm() {
 							<div><dt><LucideArrowRight aria-hidden="true" />Trajet</dt><dd>{{ mouvement.lignes[0]?.source || 'Entrée' }} → {{ mouvement.lignes[0]?.cible || 'Sortie du stock' }}</dd></div>
 							<div><dt><LucideCalendar aria-hidden="true" />Date</dt><dd class="tabular-nums">{{ formatDay(mouvement.date) || '—' }}</dd></div>
 							<div v-if="mouvement.remarque"><dt><LucideMessageSquare aria-hidden="true" />Remarque</dt><dd class="font-normal">{{ mouvement.remarque }}</dd></div>
-							<div v-if="mouvement.ordre"><dt><LucideFactory aria-hidden="true" />Ordre de conditionnement</dt><dd><a class="ref-link" :href="deskUrl('Ordre de Conditionnement', mouvement.ordre)" target="_blank" rel="noopener noreferrer">{{ mouvement.ordre }}</a></dd></div>
+							<div v-if="mouvement.ordre"><dt><LucideFactory aria-hidden="true" />Ordre de conditionnement</dt><dd><RouterLink class="ref-link" :to="{ name: 'OrdreFiche', params: { id: mouvement.ordre } }">{{ mouvement.ordre }}</RouterLink></dd></div>
 							<div><dt><LucideUser aria-hidden="true" />Créé par</dt><dd>{{ mouvement.cree_par }}</dd></div>
 						</dl>
 					</div>

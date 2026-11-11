@@ -6,6 +6,7 @@ import EtatStockPage from './pages/EtatStockPage.vue'
 import LotsPage from './pages/LotsPage.vue'
 import InventairesPage from './pages/InventairesPage.vue'
 import MouvementsPage from './pages/MouvementsPage.vue'
+import OrdresPage from './pages/OrdresPage.vue'
 import FournisseursPage from './pages/FournisseursPage.vue'
 import CommandesPage from './pages/CommandesPage.vue'
 import CommandesAchatPage from './pages/CommandesAchatPage.vue'
@@ -62,6 +63,8 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/lots/:id', name: 'Lot', component: LotsPage, props: true, meta: { doctype: 'Batch' } },
 	{ path: '/depots', name: 'Depots', component: DepotsPage, meta: { doctype: 'Warehouse' } },
 	{ path: '/depots/:id', name: 'Depot', component: DepotsPage, props: true, meta: { doctype: 'Warehouse' } },
+	{ path: '/ordres', name: 'Ordres', component: OrdresPage, meta: { doctype: 'Ordre de Conditionnement' } },
+	{ path: '/ordres/:id', name: 'OrdreFiche', component: OrdresPage, props: true, meta: { doctype: 'Ordre de Conditionnement' } },
 	{ path: '/paiements', name: 'Paiements', component: PaiementsPage, meta: { doctype: 'Payment Entry' } },
 	{ path: '/paiements/:id', name: 'PaiementFiche', component: PaiementsPage, props: true, meta: { doctype: 'Payment Entry' } },
 	{ path: '/:pathMatch(.*)*', redirect: '/' },

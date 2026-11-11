@@ -44,7 +44,7 @@ describe('postes du bureau', () => {
 		expect(moduleTarget(list.find((module) => module.id === 'stock')!)).toEqual({ to: { name: 'TableauStock' }, href: undefined })
 		expect(moduleOf(list, 'tableau-ventes')?.id).toBe('ventes')
 		expect(moduleTarget(list.find((module) => module.id === 'accueil')!)).toEqual({ to: { name: 'Home' } })
-		expect(moduleTarget(list.find((module) => module.id === 'production')!).href).toBe('/app/ordre-de-conditionnement')
+		expect(moduleTarget(list.find((module) => module.id === 'production')!).to).toEqual({ name: 'Ordres' })
 	})
 
 	it('liste toutes les pages, avec leur module, pour « Aller à… »', () => {

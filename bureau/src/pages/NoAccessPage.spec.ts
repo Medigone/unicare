@@ -7,7 +7,7 @@ import { routes } from '@/router'
 import HomePage from './HomePage.vue'
 
 // Une page protégée par son document, comme le seront les pages métier.
-const testRoutes = [{ path: '/ordres', name: 'Ordres', component: HomePage, meta: { doctype: 'Ordre de Conditionnement' } }, ...routes]
+const testRoutes = [{ path: '/essai-garde', name: 'EssaiGarde', component: HomePage, meta: { doctype: 'Ordre de Conditionnement' } }, ...routes]
 
 async function open(path: string) {
 	const router = createRouter({ history: createMemoryHistory(), routes: testRoutes })
@@ -40,15 +40,15 @@ afterEach(() => {
 describe('garde des pages et choix du poste', () => {
 	it("dit qu'une page n'est pas accessible et garde son adresse", async () => {
 		window.droits = { 'Ordre de Conditionnement': { read: false, create: false } }
-		const { wrapper, router } = await open('/ordres?page=2')
+		const { wrapper, router } = await open('/essai-garde?page=2')
 		expect(wrapper.text()).toContain("Cette page n'est pas accessible")
-		expect(router.currentRoute.value.fullPath).toBe('/ordres?page=2')
+		expect(router.currentRoute.value.fullPath).toBe('/essai-garde?page=2')
 		wrapper.unmount()
 	})
 
 	it('ouvre la page quand le rôle lit le document', async () => {
 		window.droits = { 'Ordre de Conditionnement': { read: true, create: false } }
-		const { wrapper } = await open('/ordres')
+		const { wrapper } = await open('/essai-garde')
 		expect(wrapper.text()).not.toContain("Cette page n'est pas accessible")
 		expect(wrapper.text()).toContain('Bonjour Samia')
 		wrapper.unmount()

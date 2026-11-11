@@ -153,6 +153,14 @@ FILTER_LISTS = {
 		"set_warehouse": "Dépôt",
 		"_user_tags": "Tag",
 	},
+	"Ordre de Conditionnement": {
+		"workflow_state": "Étape",
+		"produit_fini": "Produit",
+		"recette": "Recette",
+		"date_prevue": "Prévu pour",
+		"lot_pf": "Lot produit fini",
+		"_user_tags": "Tag",
+	},
 	"Stock Entry": {
 		"stock_entry_type": "Nature",
 		"posting_date": "Date",

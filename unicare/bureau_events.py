@@ -32,6 +32,9 @@ WATCHED = {
 	"Stock Entry",
 	"Stock Reconciliation",
 	"Batch",
+	"Ordre de Conditionnement",
+	"Recette de Conditionnement",
+	"Checklist Ordre Conditionnement",
 }
 
 

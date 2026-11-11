@@ -248,7 +248,7 @@ async function supprimer() {
 										<tr v-for="lot in article.lots" :key="lot.name" :class="{ 'text-ink-gray-6': lot.disabled }">
 											<td><a class="ref-link tabular-nums" :href="deskUrl('Batch', lot.name)" target="_blank" rel="noopener noreferrer">{{ lot.name }}</a></td>
 											<td>
-												<a v-if="lot.ordre" class="ref-link" :href="deskUrl('Ordre de Conditionnement', lot.ordre)" target="_blank" rel="noopener noreferrer">{{ lot.origine || 'Production' }}</a>
+												<RouterLink v-if="lot.ordre" class="ref-link" :to="{ name: 'OrdreFiche', params: { id: lot.ordre } }">{{ lot.origine || 'Production' }}</RouterLink>
 												<template v-else>{{ lot.origine || '—' }}</template>
 											</td>
 											<td class="tabular-nums">{{ lot.lot_fournisseur || '—' }}</td>
@@ -290,7 +290,7 @@ async function supprimer() {
 									<thead><tr><th>Ordre</th><th v-if="group.key === 'matiere'">Produit fini</th><th>Date prévue</th><th>Statut</th><th class="end">Prévu</th><th class="end">Réel</th></tr></thead>
 									<tbody>
 										<tr v-for="row in group.rows" :key="row.name">
-											<td><a class="ref-link" :href="deskUrl('Ordre de Conditionnement', row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td>
+											<td><RouterLink class="ref-link" :to="{ name: 'OrdreFiche', params: { id: row.name } }">{{ row.name }}</RouterLink></td>
 											<td v-if="group.key === 'matiere'"><RouterLink class="ref-link" :to="{ name: 'Article', params: { id: row.produit_fini } }">{{ row.nom_produit || row.produit_fini }}</RouterLink></td>
 											<td class="tabular-nums">{{ formatDay(row.date_prevue) || '—' }}</td>
 											<td><StatusPill :status="ordreStatus(row)" /></td>

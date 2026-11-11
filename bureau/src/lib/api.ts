@@ -11,6 +11,7 @@ import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisR
 import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
 import type { InventaireDetail, InventaireOptions, InventairesResponse, InventaireView } from './inventaires'
+import type { Besoin, OrdreDetail, OrdreOptions, OrdresResponse, OrdreValues, OrdreView } from './ordres'
 import type { MouvementDetail, MouvementOptions, MouvementsResponse, MouvementValues, MouvementView, StockArticleChoice } from './mouvements'
 import type { LotChoice } from './livraisons'
 import type { LotDetail, LotOptions, LotsResponse, LotValues, LotView } from './lots'
@@ -764,3 +765,47 @@ export function inventaireActivity(name: string): ActivityApi {
 /** Tableau de bord d'un module (unicare/api/bureau_tableaux.py). */
 export const getTableau = (module: import('./tableaux').TableauModule, periode: import('./tableaux').PeriodeKey) =>
 	call<import('./tableaux').Tableau>('unicare.api.bureau_tableaux.get_tableau', { module, periode_key: periode })
+
+/** Ordres de conditionnement : liste, aperçu, fiche guidée et étapes (unicare/api/bureau_ordres.py). */
+const ORDRES = 'unicare.api.bureau_ordres'
+
+export const getOrdres = (view: OrdreView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<OrdresResponse>(`${ORDRES}.get_ordres`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getOrdre = (name: string) => call<OrdreDetail>(`${ORDRES}.get_ordre`, { name })
+export const getOrdreOptions = () => call<OrdreOptions>(`${ORDRES}.get_ordre_options`)
+export const getBesoins = (recette: string, quantite: number) => call<{ lignes: Besoin[] }>(`${ORDRES}.get_besoins`, { recette, quantite })
+export const createOrdre = (values: { produit?: string; recette: string; quantite: number; date_prevue?: string; checklist?: string }) =>
+	call<{ name: string }>(`${ORDRES}.create_ordre`, { values }, true)
+const ordreCall = (method: string, ordre: OrdreDetail, args: Record<string, unknown> = {}) =>
+	call<OrdreDetail>(`${ORDRES}.${method}`, { name: ordre.name, modified: ordre.modified, ...args }, true)
+export const updateOrdre = (ordre: OrdreDetail, values: OrdreValues) => ordreCall('update_ordre', ordre, { values })
+export const setControle = (ordre: OrdreDetail, ligne: string, change: { conforme?: boolean; observation?: string }) =>
+	ordreCall('set_controle', ordre, { ligne, conforme: change.conforme === undefined ? undefined : change.conforme ? 1 : 0, observation: change.observation })
+export const genererLot = (ordre: OrdreDetail) => ordreCall('generer_lot', ordre)
+export const runOrdreStep = (ordre: OrdreDetail, step: 'preparer' | 'demarrer' | 'annuler') => ordreCall(step, ordre)
+export const saisirOrdre = (ordre: OrdreDetail, lignes: { name: string; utilise: number }[]) => ordreCall('saisir', ordre, { lignes })
+export const addRebut = (ordre: OrdreDetail, rebut: { article: string; quantite: number; lot?: string }) => ordreCall('add_rebut', ordre, rebut)
+export const removeRebut = (ordre: OrdreDetail, ligne: string) => ordreCall('remove_rebut', ordre, { ligne })
+export const addComplement = (ordre: OrdreDetail, complement: { article: string; quantite: number; depot?: string; lot?: string }) => ordreCall('complement', ordre, complement)
+export const cloturerOrdre = (ordre: OrdreDetail, cloture: { qty_reelle_pf: number; lignes: { name: string; utilise: number }[]; remarque?: string }) => ordreCall('cloturer', ordre, cloture)
+export const deleteOrdre = (ordre: OrdreDetail) => call<{ deleted: string }>(`${ORDRES}.delete_ordre`, { name: ordre.name, modified: ordre.modified }, true)
+export const dupliquerOrdre = (ordre: OrdreDetail) => call<{ name: string }>(`${ORDRES}.dupliquer`, { name: ordre.name }, true)
+export const ordrePrintUrl = (name: string) => `/printview?doctype=Ordre%20de%20Conditionnement&name=${encodeURIComponent(name)}&trigger_print=1`
+
+export function ordreActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${ORDRES}.get_ordre_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${ORDRES}.add_ordre_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${ORDRES}.update_ordre_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${ORDRES}.delete_ordre_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}

@@ -33,6 +33,8 @@ from unicare.api.bureau_factures_achat import bulk_guard as facture_achat_guard
 from unicare.api.bureau_fournisseurs import SUPPLIER, _fournisseur_for_write
 from unicare.api.bureau_inventaires import bulk_guard as inventaire_guard
 from unicare.api.bureau_inventaires import inventaire_for_bulk
+from unicare.api.bureau_ordres import bulk_guard as ordre_guard
+from unicare.api.bureau_ordres import ordre_for_bulk
 from unicare.api.bureau_list import _bulk_apply, _parse, link_search_values, row_tags
 from unicare.api.bureau_livraisons import LIVRAISON, livraison_for_bulk
 from unicare.api.bureau_lots import lot_for_bulk
@@ -154,6 +156,13 @@ BULK_DOCTYPES = {
 		},
 		"setters": {},
 		"guard": facture_achat_guard,
+	},
+	"Ordre de Conditionnement": {
+		"load": ordre_for_bulk,
+		# Un ordre se mène sur sa fiche ; en groupe, tags et suppression des ordres à planifier.
+		"excluded": set(),
+		"setters": {},
+		"guard": ordre_guard,
 	},
 	"Stock Reconciliation": {
 		"load": inventaire_for_bulk,
