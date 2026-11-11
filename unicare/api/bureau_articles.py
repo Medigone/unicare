@@ -255,11 +255,12 @@ def _bins(name):
 	rows = frappe.get_all(
 		"Bin",
 		filters={"item_code": name},
-		fields=["warehouse", "actual_qty", "reserved_qty", "ordered_qty", "projected_qty"],
+		fields=["name", "warehouse", "actual_qty", "reserved_qty", "ordered_qty", "projected_qty"],
 		order_by="actual_qty desc",
 	)
+	# `name` : la ligne de stock (Bin), pour ouvrir son historique dans l'écran État du stock.
 	return [
-		{key: (flt(value, 3) if key != "warehouse" else value) for key, value in row.items()} for row in rows
+		{key: (value if key in ("name", "warehouse") else flt(value, 3)) for key, value in row.items()} for row in rows
 	]
 
 

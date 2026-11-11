@@ -141,6 +141,13 @@ FILTER_LISTS = {
 		"outstanding_amount": "Reste à payer",
 		"_user_tags": "Tag",
 	},
+	"Bin": {
+		"item_code": "Article",
+		"warehouse": "Dépôt",
+		"actual_qty": "Quantité",
+		"projected_qty": "Projeté",
+		"_user_tags": "Tag",
+	},
 	"Warehouse": {
 		"parent_warehouse": "Groupe",
 		"warehouse_type": "Type",

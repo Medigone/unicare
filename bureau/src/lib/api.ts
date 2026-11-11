@@ -10,6 +10,7 @@ import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livra
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
 import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
+import type { EtatStockOptions, EtatStockResponse, EtatStockView, LigneStockDetail } from './etatStock'
 import type { DepotDetail, DepotOptions, DepotsResponse, DepotValues, DepotView } from './depots'
 import type { ReceptionDetail, ReceptionPrepChange, ReceptionsResponse, ReceptionView } from './receptions'
 import type { CommandeAchatDetail, CommandeAchatOptions, CommandesAchatResponse, CommandeAchatView } from './commandesAchat'
@@ -639,3 +640,20 @@ export function depotActivity(name: string): ActivityApi {
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }
+
+/** État du stock : une ligne par article et par dépôt, en lecture seule, et son historique. */
+const ETAT_STOCK = 'unicare.api.bureau_etat_stock'
+
+export const getEtatStock = (view: EtatStockView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<EtatStockResponse>(`${ETAT_STOCK}.get_etat_stock`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getEtatStockOptions = () => call<EtatStockOptions>(`${ETAT_STOCK}.get_etat_stock_options`)
+export const getLigneStock = (name: string) => call<LigneStockDetail>(`${ETAT_STOCK}.get_ligne_stock`, { name })
+export const getLigneStockFiche = (name: string) => call<LigneStockDetail>(`${ETAT_STOCK}.get_ligne_stock`, { name, full: 1 })

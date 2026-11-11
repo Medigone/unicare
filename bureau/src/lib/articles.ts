@@ -42,6 +42,8 @@ export interface ArticlesResponse extends ListResponse {
 }
 
 export interface ArticleBin {
+	/** La ligne de stock (Bin) : son historique s'ouvre dans « État du stock ». */
+	name: string
 	warehouse: string
 	actual_qty: number
 	reserved_qty: number

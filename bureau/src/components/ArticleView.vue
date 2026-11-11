@@ -236,7 +236,7 @@ async function supprimer() {
 								<p v-if="!article.bins.length" class="text-ink-gray-6">Aucun mouvement de stock pour cet article.</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Dépôt</th><th class="end">En stock</th><th class="end">Réservé</th><th class="end">Commandé</th><th class="end">Prévisionnel</th></tr></thead>
-									<tbody><tr v-for="bin in article.bins" :key="bin.warehouse"><td>{{ bin.warehouse }}</td><td class="end tabular-nums" :class="!bin.actual_qty && 'text-ink-gray-6'">{{ formatQty(bin.actual_qty) }}</td><td class="end tabular-nums" :class="!bin.reserved_qty && 'text-ink-gray-6'">{{ formatQty(bin.reserved_qty) }}</td><td class="end tabular-nums" :class="!bin.ordered_qty && 'text-ink-gray-6'">{{ formatQty(bin.ordered_qty) }}</td><td class="end tabular-nums">{{ formatQty(bin.projected_qty) }}</td></tr></tbody>
+									<tbody><tr v-for="bin in article.bins" :key="bin.warehouse"><td><RouterLink class="ref-link" :to="{ name: 'LigneStock', params: { id: bin.name } }" title="Historique de l'article dans ce dépôt">{{ bin.warehouse }}</RouterLink></td><td class="end tabular-nums" :class="!bin.actual_qty && 'text-ink-gray-6'">{{ formatQty(bin.actual_qty) }}</td><td class="end tabular-nums" :class="!bin.reserved_qty && 'text-ink-gray-6'">{{ formatQty(bin.reserved_qty) }}</td><td class="end tabular-nums" :class="!bin.ordered_qty && 'text-ink-gray-6'">{{ formatQty(bin.ordered_qty) }}</td><td class="end tabular-nums">{{ formatQty(bin.projected_qty) }}</td></tr></tbody>
 								</table></div>
 							</section>
 							<section v-if="article.lots" class="card ref-card">
