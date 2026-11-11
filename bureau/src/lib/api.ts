@@ -870,3 +870,7 @@ export const setArticleBarcodes = (article: { name: string; modified: string }, 
 
 /** Lot périmé : prépare (en brouillon) son transfert vers le dépôt des rebuts (unicare/api/bureau_perimes.py). */
 export const preparerMiseAuRebut = (lot: string) => call<{ name: string }>('unicare.api.bureau_perimes.preparer_mise_au_rebut', { lot }, true)
+
+/** Accueil : ma journée (unicare/api/bureau_accueil.py). */
+export const getAccueil = () => call<import('./accueil').Accueil>('unicare.api.bureau_accueil.get_accueil')
+export const marquerNotificationsLues = () => call('unicare.api.bureau_accueil.marquer_lus', {}, true)

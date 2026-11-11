@@ -4,6 +4,7 @@ import { RouterView, useRoute } from 'vue-router'
 import { onSessionExpired } from '@shared/api'
 import BrandMark from '@shared/components/BrandMark.vue'
 import ConfirmHost from '@/components/ConfirmHost.vue'
+import CreateHost from '@/components/CreateHost.vue'
 import LoginLayout from '@/components/LoginLayout.vue'
 import { logout, redirectToLogin } from '@/lib/api'
 import { canRead } from '@/lib/droits'
@@ -23,6 +24,7 @@ const refused = computed(() => Boolean(account) && !canRead(route.meta.doctype a
 	<NoAccessPage v-if="showApp && refused" />
 	<template v-else-if="showApp">
 		<RouterView />
+		<CreateHost />
 		<ConfirmHost />
 	</template>
 	<LoginLayout v-else>

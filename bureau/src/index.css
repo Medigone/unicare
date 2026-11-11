@@ -2254,3 +2254,294 @@
 		}
 	}
 }
+
+/* Accueil : bonjour et bouton Créer, le mois en bref, la liste « À faire » et la colonne « Pour vous » / récents. */
+@layer components {
+	.accueil-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		gap: 0.75rem;
+	}
+	.accueil-resume-retard {
+		color: var(--tone-red-ink);
+		font-weight: 500;
+	}
+	.accueil-mois {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+		gap: 0.625rem;
+	}
+	.accueil-kpi {
+		display: flex;
+		flex-direction: column;
+		gap: 0.1875rem;
+		min-width: 0;
+		padding: 0.75rem 0.875rem;
+		text-decoration: none;
+	}
+	.accueil-kpi:hover {
+		border-color: rgb(var(--accent-rgb) / 0.45);
+	}
+	.accueil-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 360px;
+		gap: 1rem;
+		align-items: start;
+	}
+	.accueil-todo,
+	.accueil-panel {
+		overflow: hidden;
+	}
+	.accueil-todo-head,
+	.accueil-panel-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.875rem 1rem 0.375rem;
+	}
+	.accueil-filtres {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+	}
+	.accueil-filtre {
+		height: 26px;
+		padding: 0 0.625rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: 999px;
+		background-color: var(--surface-cards);
+		font-size: 12px;
+		font-weight: 500;
+		@apply text-ink-gray-8;
+	}
+	.accueil-filtre[aria-pressed='true'] {
+		border-color: var(--ink-gray-9, #171717);
+		background-color: var(--ink-gray-9, #171717);
+		color: var(--surface-cards);
+	}
+	.accueil-groupe {
+		margin: 0;
+		padding: 0.75rem 1rem 0.375rem;
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+	}
+	.accueil-groupe-red {
+		color: var(--tone-red-ink);
+	}
+	.accueil-groupe-amber {
+		color: var(--tone-amber-ink);
+	}
+	.accueil-groupe-gray {
+		@apply text-ink-gray-7;
+	}
+	.accueil-ligne {
+		display: grid;
+		grid-template-columns: 6rem minmax(0, 1fr) auto auto;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.625rem 1rem;
+		border-top: 1px solid var(--line-soft);
+		font-size: 14px;
+	}
+	.accueil-ligne-texte {
+		min-width: 0;
+		text-decoration: none;
+		@apply text-ink-gray-9;
+	}
+	.accueil-ligne-texte small {
+		font-size: 12px;
+		@apply text-ink-gray-6;
+	}
+	.accueil-module {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		height: 22px;
+		padding: 0 0.5rem;
+		border-radius: 6px;
+		background-color: var(--line-soft);
+		font-size: 12px;
+		font-weight: 600;
+		white-space: nowrap;
+		@apply text-ink-gray-8;
+	}
+	.accueil-action {
+		white-space: nowrap;
+	}
+	.accueil-vide {
+		padding: 0.75rem 1rem 1rem;
+		font-size: 14px;
+		@apply text-ink-gray-6;
+	}
+	.accueil-side {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+	.accueil-note {
+		display: flex;
+		gap: 0.625rem;
+		padding: 0.625rem 1rem;
+		border-top: 1px solid var(--line-soft);
+		font-size: 13px;
+		line-height: 1.4;
+		text-decoration: none;
+		@apply text-ink-gray-9;
+	}
+	.accueil-note[data-lu='true'] {
+		@apply text-ink-gray-7;
+	}
+	.accueil-note[data-lu='false'] {
+		background-color: color-mix(in srgb, var(--tone-blue-bg) 35%, transparent);
+	}
+	.accueil-note-icon {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 26px;
+		height: 26px;
+		border-radius: 50%;
+	}
+	.accueil-recent {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.5rem 1rem;
+		border-top: 1px solid var(--line-soft);
+		font-size: 13px;
+		text-decoration: none;
+		@apply text-ink-gray-9;
+	}
+	.accueil-recent .accueil-module {
+		width: 5.5rem;
+	}
+	/* Bouton et menu « Créer ». */
+	.creer-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		height: 40px;
+		padding: 0 1.125rem;
+		border-radius: 999px;
+		background-color: var(--ink-gray-9, #171717);
+		color: var(--surface-cards);
+		font-size: 14px;
+		font-weight: 600;
+	}
+	.creer-menu {
+		position: absolute;
+		top: calc(100% + 8px);
+		right: 0;
+		z-index: 40;
+		width: min(560px, calc(100vw - 32px));
+		padding: 0.5rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: 14px;
+		background-color: var(--surface-cards);
+		box-shadow: 0 20px 50px rgb(0 0 0 / 0.18);
+	}
+	.creer-search {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		height: 36px;
+		margin: 0.125rem 0.25rem 0.375rem;
+		padding: 0 0.625rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: 9px;
+	}
+	.creer-search input {
+		flex: 1;
+		min-width: 0;
+		border: 0;
+		background: transparent;
+		font: inherit;
+		font-size: 13px;
+		outline: none;
+		box-shadow: none;
+	}
+	.creer-group {
+		margin: 0;
+		padding: 0.625rem 0.75rem 0.25rem;
+		font-size: 12px;
+		font-weight: 700;
+		@apply text-ink-gray-6;
+	}
+	.creer-frequents {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 2px;
+	}
+	.creer-groups {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0 0.375rem;
+		margin-top: 0.375rem;
+		padding-top: 0.25rem;
+		border-top: 1px solid var(--line-soft);
+	}
+	.creer-item {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		width: 100%;
+		padding: 0.5625rem 0.75rem;
+		border-radius: 9px;
+		font-size: 14px;
+		@apply text-ink-gray-9;
+	}
+	.creer-item-small {
+		padding-block: 0.4375rem;
+	}
+	.creer-item[data-active='true'] {
+		background-color: var(--selection, #edf3f4);
+	}
+	.creer-keys {
+		display: inline-flex;
+		flex: none;
+		gap: 3px;
+	}
+	.creer-keys kbd {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 20px;
+		height: 20px;
+		padding: 0 5px;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: 5px;
+		background-color: var(--soft-bg, #fafafa);
+		font-family: inherit;
+		font-size: 11px;
+		@apply text-ink-gray-7;
+	}
+	.creer-hint {
+		margin: 0.375rem 0.75rem 0.25rem;
+		font-size: 12px;
+		@apply text-ink-gray-6;
+	}
+	@media (max-width: 1100px) {
+		.accueil-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+	@media (max-width: 640px) {
+		.accueil-ligne {
+			grid-template-columns: minmax(0, 1fr) auto;
+		}
+		.accueil-ligne > .accueil-module,
+		.accueil-ligne > .badge {
+			display: none;
+		}
+		.creer-frequents,
+		.creer-groups {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+}
