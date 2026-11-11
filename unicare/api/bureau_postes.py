@@ -30,11 +30,16 @@ DOCTYPES_INTERFACE = (
 	"Parametres Conditionnement",
 	"Item",
 	"Customer",
+	"Supplier",
 	"Quotation",
 	"Sales Order",
 	"Delivery Note",
 	"Sales Invoice",
 	"Payment Entry",
+	"Supplier Quotation",
+	"Purchase Order",
+	"Purchase Receipt",
+	"Purchase Invoice",
 	# Solde des clients : colonne et vue affichées seulement à qui lit la comptabilité.
 	"GL Entry",
 	# Stock des articles : colonne affichée seulement à qui lit les quantités par dépôt.

@@ -275,9 +275,15 @@ doc_events = {
 	},
 	"Purchase Receipt": {
 		"before_submit": "unicare.conditionnement.purchase_receipt_hooks.before_submit",
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
 	},
 	# Poste de bureau : temps réel des listes (filtré par unicare.bureau_events.WATCHED), aussi sur Item.
 	"Customer": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Supplier": {
 		"on_change": "unicare.bureau_events.on_change",
 		"on_trash": "unicare.bureau_events.on_trash",
 	},
@@ -299,6 +305,18 @@ doc_events = {
 		"on_trash": "unicare.bureau_events.on_trash",
 	},
 	"Payment Entry": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Supplier Quotation": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Purchase Order": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Purchase Invoice": {
 		"on_change": "unicare.bureau_events.on_change",
 		"on_trash": "unicare.bureau_events.on_trash",
 	},

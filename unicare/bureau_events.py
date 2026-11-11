@@ -15,7 +15,20 @@ from unicare.api.bureau_postes import BUREAU_ROLES
 REALTIME_EVENT = "unicare_bureau_update"
 _LOCAL_KEY = "unicare_bureau_realtime"
 
-WATCHED = {"Customer", "Item", "Quotation", "Sales Order", "Delivery Note", "Sales Invoice", "Payment Entry"}
+WATCHED = {
+	"Customer",
+	"Item",
+	"Quotation",
+	"Sales Order",
+	"Delivery Note",
+	"Sales Invoice",
+	"Payment Entry",
+	"Supplier",
+	"Supplier Quotation",
+	"Purchase Order",
+	"Purchase Receipt",
+	"Purchase Invoice",
+}
 
 
 def _muted():

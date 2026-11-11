@@ -49,6 +49,14 @@ FILTER_LISTS = {
 		"customer_name": "Raison sociale",
 		"_user_tags": "Tag",
 	},
+	"Supplier": {
+		"custom_statut": "Statut",
+		"supplier_group": "Catégorie",
+		"custom_wilaya": "Wilaya",
+		"custom_commune": "Commune",
+		"supplier_name": "Raison sociale",
+		"_user_tags": "Tag",
+	},
 	"Item": {
 		"custom_type_conditionnement": "Type",
 		"item_group": "Groupe",

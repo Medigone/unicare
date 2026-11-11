@@ -157,7 +157,7 @@ class TestSocleListes(FrappeTestCase):
 
 	def test_liste_inconnue_refusee(self):
 		with self.assertRaises(frappe.ValidationError):
-			bureau_list.get_saved_filters("Purchase Invoice")
+			bureau_list.get_saved_filters("Journal Entry")
 
 	def test_page_vide_ramene_a_la_derniere(self):
 		self.assertEqual(bureau_list.page_bounds(45, 60, 20), (40, 20))
@@ -175,4 +175,4 @@ class TestSocleListes(FrappeTestCase):
 			{field["fieldname"] for field in bureau_bulk.get_bulk_options("Customer")["fields"]},
 		)
 		with self.assertRaises(frappe.PermissionError):
-			bureau_bulk.get_bulk_options("Purchase Invoice")
+			bureau_bulk.get_bulk_options("Journal Entry")

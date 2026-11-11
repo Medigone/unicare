@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ArticlesPage from './pages/ArticlesPage.vue'
 import ClientsPage from './pages/ClientsPage.vue'
+import FournisseursPage from './pages/FournisseursPage.vue'
 import CommandesPage from './pages/CommandesPage.vue'
 import DevisPage from './pages/DevisPage.vue'
 import FacturesPage from './pages/FacturesPage.vue'
@@ -16,6 +17,8 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/', name: 'Home', component: HomePage },
 	{ path: '/clients', name: 'Clients', component: ClientsPage, meta: { doctype: 'Customer' } },
 	{ path: '/clients/:id', name: 'Client', component: ClientsPage, props: true, meta: { doctype: 'Customer' } },
+	{ path: '/fournisseurs', name: 'Fournisseurs', component: FournisseursPage, meta: { doctype: 'Supplier' } },
+	{ path: '/fournisseurs/:id', name: 'Fournisseur', component: FournisseursPage, props: true, meta: { doctype: 'Supplier' } },
 	{ path: '/articles', name: 'Articles', component: ArticlesPage, meta: { doctype: 'Item' } },
 	{ path: '/articles/:id', name: 'Article', component: ArticlesPage, props: true, meta: { doctype: 'Item' } },
 	{ path: '/devis', name: 'DevisListe', component: DevisPage, meta: { doctype: 'Quotation' } },

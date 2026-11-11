@@ -8,6 +8,7 @@ import type { PaiementDetail, PaiementOptions, PaiementsResponse, PaiementType, 
 import type { FactureDetail, FactureOptions, FacturesResponse, FactureView } from './factures'
 import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livraisons'
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
+import type { FournisseurChoice, FournisseurDetail, FournisseurOptions, FournisseursResponse, FournisseurValues, FournisseurView } from './fournisseurs'
 import type { ClientChoice, ClientDetail, ClientOptions, ClientsResponse, ClientValues, ClientView, CommuneChoice } from './clients'
 import type { Condition, FilterField } from './filters'
 import { conditionsForServer } from './filters'
@@ -142,6 +143,40 @@ export function clientActivity(name: string): ActivityApi {
 		add: (text, mentions) => call<ActivityFeedData>(`${CLIENTS}.add_client_comment`, { name, text, mentions }, true),
 		update: (comment, text, mentions) => call<ActivityFeedData>(`${CLIENTS}.update_client_comment`, { name, comment, text, mentions }, true),
 		remove: (comment) => call<ActivityFeedData>(`${CLIENTS}.delete_client_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}
+
+/** Fournisseurs : liste, aperçu, fiche, création et modification. */
+const FOURNISSEURS = 'unicare.api.bureau_fournisseurs'
+
+export const getFournisseurs = (view: FournisseurView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<FournisseursResponse>(`${FOURNISSEURS}.get_fournisseurs`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getFournisseur = (name: string) => call<FournisseurDetail>(`${FOURNISSEURS}.get_fournisseur`, { name })
+export const getFournisseurFiche = (name: string) => call<FournisseurDetail>(`${FOURNISSEURS}.get_fournisseur`, { name, full: 1 })
+export const getFournisseurOptions = () => call<FournisseurOptions>(`${FOURNISSEURS}.get_fournisseur_options`)
+/** `actifs` : seulement les fournisseurs à qui l'on peut acheter, pour choisir celui d'une pièce. */
+export const searchFournisseurs = (search: string, actifs = false) => call<FournisseurChoice[]>(`${FOURNISSEURS}.search_fournisseurs`, { search: search.trim() || undefined, actifs: actifs ? 1 : undefined })
+export const createFournisseur = (values: FournisseurValues) => call<{ name: string }>(`${FOURNISSEURS}.create_fournisseur`, { values }, true)
+export const updateFournisseur = (fournisseur: FournisseurDetail, values: FournisseurValues) =>
+	call<FournisseurDetail>(`${FOURNISSEURS}.update_fournisseur`, { name: fournisseur.name, modified: fournisseur.modified, values }, true)
+export const setFournisseurPiece = (fournisseur: FournisseurDetail, piece: string, fileUrl: string) =>
+	call<FournisseurDetail>(`${FOURNISSEURS}.set_fournisseur_piece`, { name: fournisseur.name, modified: fournisseur.modified, piece, file_url: fileUrl }, true)
+
+export function fournisseurActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${FOURNISSEURS}.get_fournisseur_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${FOURNISSEURS}.add_fournisseur_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${FOURNISSEURS}.update_fournisseur_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${FOURNISSEURS}.delete_fournisseur_comment`, { name, comment }, true),
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }

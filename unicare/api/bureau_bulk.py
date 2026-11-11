@@ -23,6 +23,7 @@ from unicare.api.bureau_commandes import bulk_guard as commande_guard
 from unicare.api.bureau_devis import DEVIS, bulk_guard, devis_for_bulk
 from unicare.api.bureau_factures import FACTURE, facture_for_bulk
 from unicare.api.bureau_factures import bulk_guard as facture_guard
+from unicare.api.bureau_fournisseurs import SUPPLIER, _fournisseur_for_write
 from unicare.api.bureau_list import _bulk_apply, _parse, link_search_values, row_tags
 from unicare.api.bureau_livraisons import LIVRAISON, livraison_for_bulk
 from unicare.api.bureau_livraisons import bulk_guard as livraison_guard
@@ -47,6 +48,11 @@ BULK_DOCTYPES = {
 	CUSTOMER: {
 		"load": _client_for_write,
 		"excluded": {"customer_name"},  # propre à chaque client
+		"setters": {},
+	},
+	SUPPLIER: {
+		"load": _fournisseur_for_write,
+		"excluded": {"supplier_name"},  # propre à chaque fournisseur
 		"setters": {},
 	},
 	ITEM: {

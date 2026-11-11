@@ -2,6 +2,7 @@
 import { ref, type Component } from 'vue'
 import LucideBuilding2 from '~icons/lucide/building-2'
 import LucideBanknote from '~icons/lucide/banknote'
+import LucideFactory from '~icons/lucide/factory'
 import LucideFileText from '~icons/lucide/file-text'
 import LucideReceipt from '~icons/lucide/receipt'
 import LucideShoppingCart from '~icons/lucide/shopping-cart'
@@ -59,6 +60,7 @@ export const NAV: Record<string, PosteNavGroup[]> = {
 			title: 'Référentiel',
 			items: [
 				{ id: 'clients', label: 'Clients', icon: LucideBuilding2, to: { name: 'Clients' }, doctype: 'Customer' },
+				{ id: 'fournisseurs', label: 'Fournisseurs', icon: LucideFactory, to: { name: 'Fournisseurs' }, doctype: 'Supplier' },
 				{ id: 'articles', label: 'Articles', icon: LucidePackage, to: { name: 'Articles' }, doctype: 'Item' },
 			],
 		},
