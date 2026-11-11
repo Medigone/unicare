@@ -13,7 +13,7 @@ watch(confirmRequest, async (request) => {
 </script>
 
 <template>
-	<FormDialog v-if="confirmRequest" :title="confirmRequest.title" :dirty="false" hint="Ctrl + Entrée pour confirmer" @close="settleConfirm(false)" @submit="settleConfirm(true)">
+	<FormDialog v-if="confirmRequest" class="confirm-dialog" :title="confirmRequest.title" :dirty="false" hint="Ctrl + Entrée pour confirmer" @close="settleConfirm(false)" @submit="settleConfirm(true)">
 		<p class="whitespace-pre-line">{{ confirmRequest.message }}</p>
 		<template #actions>
 			<button ref="confirmButton" type="button" :class="confirmRequest.danger ? 'btn-danger' : 'btn-primary'" @click="settleConfirm(true)">{{ confirmRequest.confirmLabel }}</button>

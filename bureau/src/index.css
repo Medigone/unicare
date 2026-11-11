@@ -1307,3 +1307,8 @@
 		box-shadow: 0 0 0 1px var(--accent);
 	}
 }
+
+/* La confirmation passe au-dessus d'une fenêtre de saisie déjà ouverte (encaissement, paiement). */
+.dialog-scrim.confirm-dialog {
+	z-index: 60;
+}

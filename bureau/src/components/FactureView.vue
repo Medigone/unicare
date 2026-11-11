@@ -132,6 +132,7 @@ async function encaisser() {
 	if (!current) return
 	paiementErrors.value = validateEncaissement(paiement.value, current.reste, modeType.value, today)
 	if (Object.keys(paiementErrors.value).length) return
+	if (!(await confirmAction({ title: 'Confirmer l\'encaissement', message: `Un encaissement de ${formatAmount(parseNumber(paiement.value.montant))} DA en ${paiement.value.mode} du ${formatDay(paiement.value.date)} sera enregistré et validé sur la facture ${current.name} : l'écriture comptable est passée aussitôt.`, confirmLabel: 'Encaisser' }))) return
 	const values = paiement.value
 	let name = ''
 	const done = await perform(async () => {
