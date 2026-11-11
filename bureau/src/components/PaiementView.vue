@@ -42,11 +42,14 @@ defineExpose({ refresh: refreshAll, paiement })
 const can = (action: string) => Boolean(paiement.value?.actions.includes(action as never))
 const receive = computed(() => paiement.value?.sens === 'Receive')
 /** La fiche d'une pièce rapprochée : dans le bureau pour les factures client, sur le Desk sinon. */
+// Les pièces et les tiers qui ont leur fiche dans le bureau ; les autres s'ouvrent sur le Desk.
+const PIECE_FICHES: Record<string, string> = { 'Sales Invoice': 'FactureFiche', 'Purchase Invoice': 'FactureAchatFiche' }
+const TIERS_FICHES: Record<string, string> = { Customer: 'Client', Supplier: 'Fournisseur' }
 function pieceRoute(doctype: string, name: string) {
-	return doctype === 'Sales Invoice' ? { name: 'FactureFiche', params: { id: name } } : null
+	return doctype in PIECE_FICHES ? { name: PIECE_FICHES[doctype], params: { id: name } } : null
 }
 function tiersRoute(current: PaiementDetail) {
-	return current.tiers_type === 'Customer' ? { name: 'Client', params: { id: current.tiers } } : null
+	return current.tiers_type in TIERS_FICHES ? { name: TIERS_FICHES[current.tiers_type], params: { id: current.tiers } } : null
 }
 
 const editing = ref(false)

@@ -46,6 +46,8 @@ const MOUVEMENTS: { key: MouvementKey; title: string; piece: string; doctype: st
 	{ key: 'commandes_vente', title: 'Commandes client', piece: 'Commande client', doctype: 'Sales Order', tiers: 'Client', empty: 'Aucune commande client.' },
 	{ key: 'factures', title: 'Factures', piece: 'Facture', doctype: 'Sales Invoice', tiers: 'Client', empty: 'Aucune facture.' },
 ]
+// Les pièces qui ont leur fiche dans le bureau ; les autres s'ouvrent sur le Desk.
+const FICHES: Record<string, string> = { 'Purchase Order': 'CommandeAchatFiche', 'Purchase Receipt': 'ReceptionFiche', 'Sales Order': 'CommandeFiche', 'Sales Invoice': 'FactureFiche' }
 const shownMouvements = computed(() => MOUVEMENTS.filter((group) => article.value?.mouvements?.[group.key]))
 const mouvementCount = computed(() => shownMouvements.value.reduce((total, group) => total + (article.value?.mouvements?.[group.key]?.length ?? 0), 0))
 const recetteCount = computed(() => (article.value?.recettes ? article.value.recettes.produit.length + article.value.recettes.ingredient.length : 0))
@@ -201,7 +203,7 @@ function onSaved(updated: ArticleDetail) {
 								<p v-if="!lastMouvements.length" class="text-ink-gray-6">Aucun achat ni vente de cet article.</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Pièce</th><th>Numéro</th><th>Date</th><th>Tiers</th><th class="end">Quantité</th></tr></thead>
-									<tbody><tr v-for="row in lastMouvements" :key="`${row.doctype}-${row.name}`"><td>{{ row.piece }}</td><td><a class="ref-link" :href="deskUrl(row.doctype, row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td><td class="tabular-nums">{{ formatDay(row.date) }}</td><td>{{ row.tiers || '—' }}</td><td class="end tabular-nums">{{ formatQty(row.qty) }} {{ row.uom }}</td></tr></tbody>
+									<tbody><tr v-for="row in lastMouvements" :key="`${row.doctype}-${row.name}`"><td>{{ row.piece }}</td><td><RouterLink v-if="row.doctype in FICHES" class="ref-link" :to="{ name: FICHES[row.doctype], params: { id: row.name } }">{{ row.name }}</RouterLink><a v-else class="ref-link" :href="deskUrl(row.doctype, row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td><td class="tabular-nums">{{ formatDay(row.date) }}</td><td>{{ row.tiers || '—' }}</td><td class="end tabular-nums">{{ formatQty(row.qty) }} {{ row.uom }}</td></tr></tbody>
 								</table></div>
 							</section>
 						</div>
@@ -288,7 +290,7 @@ function onSaved(updated: ArticleDetail) {
 									<thead><tr><th>Numéro</th><th>Date</th><th>{{ group.tiers }}</th><th>Statut</th><th class="end">Quantité</th><th class="end">Montant (DA)</th></tr></thead>
 									<tbody>
 										<tr v-for="(row, index) in article.mouvements?.[group.key] ?? []" :key="`${row.name}-${index}`">
-											<td><a class="ref-link" :href="deskUrl(group.doctype, row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td>
+											<td><RouterLink v-if="group.doctype in FICHES" class="ref-link" :to="{ name: FICHES[group.doctype], params: { id: row.name } }">{{ row.name }}</RouterLink><a v-else class="ref-link" :href="deskUrl(group.doctype, row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td>
 											<td class="tabular-nums">{{ formatDay(row.date) }}</td>
 											<td>{{ row.tiers || '—' }}</td>
 											<td><StatusPill :status="row.status" /></td>
