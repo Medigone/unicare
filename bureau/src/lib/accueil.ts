@@ -1,5 +1,22 @@
 /** Accueil du bureau (unicare/api/bureau_accueil.py) : types et petites règles d'affichage. */
 import type { Indicateur } from './tableaux'
+import type { Component } from 'vue'
+import LucideArrowLeftRight from '~icons/lucide/arrow-left-right'
+import LucideBanknote from '~icons/lucide/banknote'
+import LucideBookOpen from '~icons/lucide/book-open'
+import LucideBuilding2 from '~icons/lucide/building-2'
+import LucideClipboardCheck from '~icons/lucide/clipboard-check'
+import LucideClipboardList from '~icons/lucide/clipboard-list'
+import LucideFactory from '~icons/lucide/factory'
+import LucideFileInput from '~icons/lucide/file-input'
+import LucideFileText from '~icons/lucide/file-text'
+import LucideLayers from '~icons/lucide/layers'
+import LucidePackage from '~icons/lucide/package'
+import LucidePackageCheck from '~icons/lucide/package-check'
+import LucideReceipt from '~icons/lucide/receipt'
+import LucideReceiptText from '~icons/lucide/receipt-text'
+import LucideShoppingCart from '~icons/lucide/shopping-cart'
+import LucideTruck from '~icons/lucide/truck'
 
 export type Ton = 'red' | 'amber' | 'blue' | 'gray'
 
@@ -29,6 +46,7 @@ export interface PourVous {
 }
 
 export interface Recent {
+	module: string
 	nature: string
 	fiche: string
 	name: string
@@ -66,4 +84,38 @@ export function quandText(value: string, now = new Date()) {
 	if (days === 1) return 'hier'
 	if (days < 7) return new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(date)
 	return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(date)
+}
+
+/** Icône de chaque pièce, d'après sa fiche, et teinte de son module : on reconnaît la ligne d'un coup d'œil. */
+
+export const FICHE_ICONS: Record<string, Component> = {
+	DevisFiche: LucideFileText,
+	CommandeFiche: LucideShoppingCart,
+	LivraisonFiche: LucideTruck,
+	FactureFiche: LucideReceipt,
+	Client: LucideBuilding2,
+	DevisFournisseurFiche: LucideFileInput,
+	CommandeAchatFiche: LucideClipboardList,
+	ReceptionFiche: LucidePackageCheck,
+	FactureAchatFiche: LucideReceiptText,
+	Fournisseur: LucideTruck,
+	PaiementFiche: LucideBanknote,
+	MouvementFiche: LucideArrowLeftRight,
+	InventaireFiche: LucideClipboardCheck,
+	Lot: LucideLayers,
+	Article: LucidePackage,
+	OrdreFiche: LucideFactory,
+	RecetteFiche: LucideBookOpen,
+}
+
+export const MODULE_TONES: Record<string, string> = {
+	Ventes: 'tone-blue',
+	Achats: 'tone-violet',
+	Trésorerie: 'tone-green',
+	Stock: 'tone-orange',
+	Production: 'tone-amber',
+}
+
+export function ficheIcon(fiche: string) {
+	return FICHE_ICONS[fiche] ?? LucideFileText
 }

@@ -2340,7 +2340,7 @@
 	}
 	.accueil-ligne {
 		display: grid;
-		grid-template-columns: 6rem minmax(0, 1fr) auto auto;
+		grid-template-columns: 2.25rem minmax(0, 1fr) auto auto;
 		align-items: center;
 		gap: 0.75rem;
 		padding: 0.625rem 1rem;
@@ -2418,8 +2418,19 @@
 		text-decoration: none;
 		@apply text-ink-gray-9;
 	}
-	.accueil-recent .accueil-module {
-		width: 5.5rem;
+	.accueil-icone {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border-radius: 10px;
+	}
+	.accueil-icone-small {
+		width: 28px;
+		height: 28px;
+		border-radius: 8px;
 	}
 	/* Bouton et menu « Créer ». */
 	.creer-btn {
@@ -2533,9 +2544,8 @@
 	}
 	@media (max-width: 640px) {
 		.accueil-ligne {
-			grid-template-columns: minmax(0, 1fr) auto;
+			grid-template-columns: 2.25rem minmax(0, 1fr) auto;
 		}
-		.accueil-ligne > .accueil-module,
 		.accueil-ligne > .badge {
 			display: none;
 		}

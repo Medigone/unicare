@@ -6,7 +6,7 @@ import { closeRealtime, connectRealtime, isForeignChange, throttledReload, type 
 import BureauShell from '@/components/BureauShell.vue'
 import CreateMenu from '@/components/CreateMenu.vue'
 import { getAccueil, marquerNotificationsLues } from '@/lib/api'
-import { quandText, resumeJournee, type AFaire, type Accueil } from '@/lib/accueil'
+import { ficheIcon, MODULE_TONES, quandText, resumeJournee, type AFaire, type Accueil } from '@/lib/accueil'
 import { activePoste } from '@/lib/postes'
 import { indicateurValue } from '@/lib/tableaux'
 
@@ -119,7 +119,10 @@ onBeforeUnmount(closeRealtime)
 						<template v-for="groupe in groupes" :key="groupe.key">
 							<p class="accueil-groupe" :class="`accueil-groupe-${groupe.ton}`">{{ groupe.label }} · {{ groupe.total }}</p>
 							<div v-for="item in groupe.items" :key="`${item.fiche}-${item.name}`" class="accueil-ligne">
-								<span class="accueil-module">{{ item.module }}</span>
+								<span class="accueil-icone" :class="MODULE_TONES[item.module] ?? 'tone-gray'" :title="`${item.module} · ${item.nature}`">
+									<component :is="ficheIcon(item.fiche)" class="h-[18px] w-[18px]" aria-hidden="true" />
+									<span class="sr-only">{{ item.module }}, {{ item.nature }} :</span>
+								</span>
 								<RouterLink :to="{ name: item.fiche, params: { id: item.name } }" class="accueil-ligne-texte">
 									<strong class="block truncate">{{ item.titre }}</strong>
 									<small v-if="item.detail" class="block truncate">{{ item.detail }}</small>
@@ -155,8 +158,10 @@ onBeforeUnmount(closeRealtime)
 							<div class="accueil-panel-head"><h2 id="recents" class="text-base font-bold text-ink-gray-9">Repris récemment</h2></div>
 							<p v-if="!accueil.recents.length" class="accueil-vide">Les pièces que vous modifiez apparaîtront ici.</p>
 							<RouterLink v-for="item in accueil.recents" :key="`${item.fiche}-${item.name}`" :to="{ name: item.fiche, params: { id: item.name } }" class="accueil-recent">
-								<span class="accueil-module">{{ item.nature }}</span>
-								<span class="min-w-0 flex-auto truncate"><strong class="tabular-nums">{{ item.name }}</strong><template v-if="item.libelle"> · {{ item.libelle }}</template></span>
+								<span class="accueil-icone accueil-icone-small" :class="MODULE_TONES[item.module] ?? 'tone-gray'" :title="item.nature">
+									<component :is="ficheIcon(item.fiche)" class="h-4 w-4" aria-hidden="true" />
+								</span>
+								<span class="min-w-0 flex-auto truncate"><span class="text-ink-gray-6">{{ item.nature }} </span><strong class="tabular-nums">{{ item.name }}</strong><template v-if="item.libelle"> · {{ item.libelle }}</template></span>
 								<small class="flex-none text-xs text-ink-gray-6">{{ quandText(item.quand) }}</small>
 							</RouterLink>
 						</section>

@@ -257,7 +257,7 @@ def _recents():
 	result = []
 	for modified, doctype, row in rows[:5]:
 		module, fiche, nature = FICHES[doctype]
-		result.append({"nature": nature, "fiche": fiche, "name": row.name, "libelle": row.get("customer_name") or row.get("supplier_name") or row.get("item_name") or None, "quand": str(modified)})
+		result.append({"module": module, "nature": nature, "fiche": fiche, "name": row.name, "libelle": row.get("customer_name") or row.get("supplier_name") or row.get("item_name") or None, "quand": str(modified)})
 	return result
 
 
