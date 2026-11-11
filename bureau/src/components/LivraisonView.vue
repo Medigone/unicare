@@ -290,14 +290,14 @@ async function nouvelleVersion(confirmed = false) {
 												</span>
 											</td>
 											<td>
-												<select v-if="lineOf(entry).stock" v-model="entry.depot" class="field-input" :aria-label="`Dépôt, ligne ${index + 1}`" :aria-invalid="!entry.depot" @change="onDepot(entry)">
+												<select v-search v-if="lineOf(entry).stock" v-model="entry.depot" class="field-input" :aria-label="`Dépôt, ligne ${index + 1}`" :aria-invalid="!entry.depot" @change="onDepot(entry)">
 													<option value="">Choisir…</option>
 													<option v-for="item in depotsFor(lineOf(entry), entry.depot)" :key="item.depot" :value="item.depot">{{ item.depot }} · {{ formatQty(item.qty) }} en stock</option>
 												</select>
 												<span v-else class="text-ink-gray-6">Hors stock</span>
 											</td>
 											<td>
-												<select v-if="lineOf(entry).avec_lot" v-model="entry.lot" class="field-input" :aria-label="`Lot, ligne ${index + 1}`" :aria-invalid="!entry.lot && !livraison.retour" :disabled="!entry.depot">
+												<select v-search v-if="lineOf(entry).avec_lot" v-model="entry.lot" class="field-input" :aria-label="`Lot, ligne ${index + 1}`" :aria-invalid="!entry.lot && !livraison.retour" :disabled="!entry.depot">
 													<option value="">{{ entry.depot ? (lotsFor(lineOf(entry), entry.depot).length ? 'Choisir…' : 'Aucun lot dans ce dépôt') : 'Choisir le dépôt d\'abord' }}</option>
 													<option v-for="lot in lotsFor(lineOf(entry), entry.depot, entry.lot)" :key="lot.lot" :value="lot.lot">{{ lotLabel(lot) }}</option>
 												</select>

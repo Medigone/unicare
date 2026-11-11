@@ -47,7 +47,7 @@ async function submit() {
 		<div class="form-grid">
 			<div class="form-field">
 				<label class="field-label" for="inventaire-depot">Dépôt à compter <span class="req">obligatoire</span></label>
-				<select id="inventaire-depot" v-model="values.depot" class="field-input" :aria-invalid="Boolean(depotError)" @change="depotError = ''">
+				<select v-search id="inventaire-depot" v-model="values.depot" class="field-input" :aria-invalid="Boolean(depotError)" @change="depotError = ''">
 					<option value="">Choisir…</option>
 					<option v-for="item in options?.depots" :key="item" :value="item">{{ item }}</option>
 				</select>
@@ -55,7 +55,7 @@ async function submit() {
 			</div>
 			<div class="form-field">
 				<label class="field-label" for="inventaire-groupe">Groupe d'articles</label>
-				<select id="inventaire-groupe" v-model="values.groupe" class="field-input">
+				<select v-search id="inventaire-groupe" v-model="values.groupe" class="field-input">
 					<option value="">Tous les articles</option>
 					<option v-for="item in options?.groupes" :key="item" :value="item">{{ item }}</option>
 				</select>

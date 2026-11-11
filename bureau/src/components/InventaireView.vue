@@ -253,7 +253,7 @@ async function confirm() {
 								<div class="ref-card-head">
 									<h3>{{ counting ? 'Feuille de comptage' : 'Lignes ajustées' }}</h3>
 									<span class="inline-flex items-center gap-2">
-										<select v-model="filter" class="field-input" aria-label="Lignes affichées">
+										<select v-search v-model="filter" class="field-input" aria-label="Lignes affichées">
 											<option value="toutes">Toutes les lignes</option>
 											<option value="ecarts">Seulement les écarts</option>
 										</select>

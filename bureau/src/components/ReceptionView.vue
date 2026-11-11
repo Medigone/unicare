@@ -260,7 +260,7 @@ async function nouvelleVersion(confirmed = false) {
 								<div class="ref-card-head">
 									<h3>{{ livraison.retour ? 'Quantités rendues' : 'Ce qui est arrivé' }}</h3>
 									<span v-if="missingDepot && livraison.depots.length" class="inline-flex items-center gap-1.5">
-										<select v-model="defaultDepot" class="field-input" aria-label="Dépôt pour toutes les lignes">
+										<select v-search v-model="defaultDepot" class="field-input" aria-label="Dépôt pour toutes les lignes">
 											<option value="">Dépôt pour toutes les lignes…</option>
 											<option v-for="depot in livraison.depots" :key="depot" :value="depot">{{ depot }}</option>
 										</select>
@@ -283,7 +283,7 @@ async function nouvelleVersion(confirmed = false) {
 												</span>
 											</td>
 											<td>
-												<select v-if="lineOf(entry).stock" v-model="entry.depot" class="field-input" :aria-label="`Dépôt, ligne ${index + 1}`" :aria-invalid="!entry.depot">
+												<select v-search v-if="lineOf(entry).stock" v-model="entry.depot" class="field-input" :aria-label="`Dépôt, ligne ${index + 1}`" :aria-invalid="!entry.depot">
 													<option value="">Choisir…</option>
 													<option v-if="entry.depot && !livraison.depots.includes(entry.depot)" :value="entry.depot">{{ entry.depot }}</option>
 													<option v-for="depot in livraison.depots" :key="depot" :value="depot">{{ depot }}</option>

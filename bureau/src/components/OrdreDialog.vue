@@ -97,7 +97,7 @@ async function submit() {
 
 		<div class="form-field">
 			<label class="field-label" for="ordre-produit">Que produit-on ? <span class="req">obligatoire</span></label>
-			<select id="ordre-produit" v-model="values.produit" class="field-input" :aria-invalid="Boolean(errors.produit)">
+			<select v-search id="ordre-produit" v-model="values.produit" class="field-input" :aria-invalid="Boolean(errors.produit)">
 				<option value="">Choisir le produit…</option>
 				<option v-for="item in options?.produits" :key="item.value" :value="item.value">{{ item.label }} ({{ item.value }})</option>
 			</select>
@@ -105,7 +105,7 @@ async function submit() {
 		</div>
 		<div v-if="recettes.length > 1" class="form-field">
 			<label class="field-label" for="ordre-recette">Recette</label>
-			<select id="ordre-recette" v-model="values.recette" class="field-input">
+			<select v-search id="ordre-recette" v-model="values.recette" class="field-input">
 				<option v-for="item in recettes" :key="item.value" :value="item.value">{{ item.label }}</option>
 			</select>
 		</div>
@@ -124,7 +124,7 @@ async function submit() {
 		</div>
 		<div class="form-field">
 			<label class="field-label" for="ordre-checklist">Contrôles avant production</label>
-			<select id="ordre-checklist" v-model="values.checklist" class="field-input">
+			<select v-search id="ordre-checklist" v-model="values.checklist" class="field-input">
 				<option v-for="item in options?.checklists" :key="item" :value="item">{{ item }}</option>
 			</select>
 			<p class="field-note"><span>Les contrôles se cochent à l'atelier, avant d'envoyer les matières.</span></p>

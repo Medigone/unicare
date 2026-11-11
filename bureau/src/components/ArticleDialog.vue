@@ -129,7 +129,7 @@ onBeforeUnmount(() => {
 		<div class="form-grid">
 			<div class="form-field">
 				<label class="field-label" for="article-type">Type <span v-if="!editing" class="req">obligatoire</span></label>
-				<select v-if="!editing" id="article-type" v-model="values.type" class="field-input" :aria-invalid="Boolean(errors.type)">
+				<select v-search v-if="!editing" id="article-type" v-model="values.type" class="field-input" :aria-invalid="Boolean(errors.type)">
 					<option value="">Choisir…</option>
 					<option v-for="item in options?.types" :key="item" :value="item">{{ item }}</option>
 				</select>
@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
 			</div>
 			<div class="form-field">
 				<label class="field-label" for="article-groupe">Groupe <span class="req">obligatoire</span></label>
-				<select id="article-groupe" v-model="values.groupe" class="field-input" :aria-invalid="Boolean(errors.groupe)">
+				<select v-search id="article-groupe" v-model="values.groupe" class="field-input" :aria-invalid="Boolean(errors.groupe)">
 					<option value="">Choisir…</option>
 					<option v-if="values.groupe && options && !options.groupes.includes(values.groupe)" :value="values.groupe">{{ values.groupe }}</option>
 					<option v-for="item in options?.groupes" :key="item" :value="item">{{ item }}</option>
@@ -165,7 +165,7 @@ onBeforeUnmount(() => {
 		<div class="form-grid">
 			<div class="form-field">
 				<label class="field-label" for="article-uom">Unité de stock <span class="req">obligatoire</span></label>
-				<select v-if="!uomSearch && options?.uoms.length && (!values.uom || options.uoms.includes(values.uom))" id="article-uom" v-model="values.uom" class="field-input" :aria-invalid="Boolean(errors.uom)" @change="onUom">
+				<select v-search v-if="!uomSearch && options?.uoms.length && (!values.uom || options.uoms.includes(values.uom))" id="article-uom" v-model="values.uom" class="field-input" :aria-invalid="Boolean(errors.uom)" @change="onUom">
 					<option value="">Choisir…</option>
 					<option v-for="item in options.uoms" :key="item" :value="item">{{ item }}</option>
 					<option :value="OTHER_UOM">Autre unité…</option>

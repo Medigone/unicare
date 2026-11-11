@@ -271,7 +271,7 @@ async function nouvelleVersion(confirmed = false) {
 		<FormDialog v-if="losing && devis" title="Déclarer le devis perdu" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="losing = false" @submit="declareLost">
 			<div class="form-field">
 				<label class="field-label" for="devis-raison">Raison <span class="req">obligatoire</span></label>
-				<select id="devis-raison" v-model="lost.raison" class="field-input" :aria-invalid="Boolean(lostError)" @change="lostError = ''">
+				<select v-search id="devis-raison" v-model="lost.raison" class="field-input" :aria-invalid="Boolean(lostError)" @change="lostError = ''">
 					<option value="">Choisir…</option>
 					<option v-for="item in devis.raisons_perte" :key="item" :value="item">{{ item }}</option>
 				</select>

@@ -25,7 +25,7 @@ function setBound(which: 'start' | 'end', event: Event) {
 		<input class="field-input" type="date" aria-label="Date de début" :value="bounds.start" @input="setBound('start', $event)" />
 		<input class="field-input" type="date" aria-label="Date de fin" :value="bounds.end" @input="setBound('end', $event)" />
 	</template>
-	<select v-else-if="kind === 'select'" class="field-input" aria-label="Valeur" :value="modelValue" @change="emit('update:modelValue', read($event))">
+	<select v-search v-else-if="kind === 'select'" class="field-input" aria-label="Valeur" :value="modelValue" @change="emit('update:modelValue', read($event))">
 		<option value="">Choisir…</option>
 		<option v-for="option in choices" :key="option.value" :value="option.value">{{ option.label }}</option>
 	</select>

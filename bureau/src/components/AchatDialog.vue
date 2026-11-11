@@ -160,7 +160,7 @@ async function submit() {
 			</div>
 			<div class="form-field">
 				<label class="field-label" for="achat-taxes">TVA déductible</label>
-				<select id="achat-taxes" v-model="form.taxes" class="field-input">
+				<select v-search id="achat-taxes" v-model="form.taxes" class="field-input">
 					<option value="">Sans TVA</option>
 					<option v-for="item in options?.taxes" :key="item.value" :value="item.value">{{ item.label }}</option>
 				</select>

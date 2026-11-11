@@ -213,7 +213,7 @@ onBeforeUnmount(closeRealtime)
 					<div class="form-grid">
 						<div v-for="field in DEPOT_FIELDS" :key="field.key" class="form-field">
 							<label class="field-label" :for="`param-${field.key}`">{{ field.label }}</label>
-							<select :id="`param-${field.key}`" v-model="parametres[field.key]" class="field-input" :disabled="!reglages.can_edit_parametres">
+							<select v-search :id="`param-${field.key}`" v-model="parametres[field.key]" class="field-input" :disabled="!reglages.can_edit_parametres">
 								<option value="">—</option>
 								<option v-if="parametres[field.key] && !reglages.depots.includes(parametres[field.key])" :value="parametres[field.key]">{{ parametres[field.key] }}</option>
 								<option v-for="depot in reglages.depots" :key="depot" :value="depot">{{ depot }}</option>

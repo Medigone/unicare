@@ -281,7 +281,7 @@ async function nouvelleVersion(confirmed = false) {
 						<label class="field-label" for="facture-echeance">Échéance</label>
 						<input id="facture-echeance" v-model="echeance" class="field-input tabular-nums" type="date" :min="facture.date ?? undefined" />
 						<label class="field-label mt-1" for="facture-taxes">TVA</label>
-						<select id="facture-taxes" v-model="taxes" class="field-input">
+						<select v-search id="facture-taxes" v-model="taxes" class="field-input">
 							<option value="">Sans TVA</option>
 							<option v-if="taxes && !taxOptions.some((item) => item.value === taxes)" :value="taxes">{{ taxes }}</option>
 							<option v-for="item in taxOptions" :key="item.value" :value="item.value">{{ item.label }}</option>
@@ -372,7 +372,7 @@ async function nouvelleVersion(confirmed = false) {
 				</div>
 				<div class="form-field">
 					<label class="field-label" for="paiement-mode">Mode <span class="req">obligatoire</span></label>
-					<select id="paiement-mode" v-model="paiement.mode" class="field-input" :aria-invalid="Boolean(paiementErrors.mode)">
+					<select v-search id="paiement-mode" v-model="paiement.mode" class="field-input" :aria-invalid="Boolean(paiementErrors.mode)">
 						<option value="">Choisir…</option>
 						<option v-for="item in facture.modes" :key="item.value" :value="item.value">{{ item.value }}</option>
 					</select>

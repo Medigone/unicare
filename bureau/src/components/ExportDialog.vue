@@ -155,7 +155,7 @@ async function submit() {
 				<div v-if="editing" class="export-filters">
 					<label class="flex flex-col gap-1">
 						<span class="field-label mb-0">Afficher</span>
-						<select v-model="view" class="field-input" aria-label="Vue à exporter">
+						<select v-search v-model="view" class="field-input" aria-label="Vue à exporter">
 							<option v-for="item in views" :key="item.key" :value="item.key">{{ item.label }}</option>
 						</select>
 					</label>

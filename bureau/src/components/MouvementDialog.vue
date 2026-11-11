@@ -154,7 +154,7 @@ async function submit() {
 		<div v-if="nature" class="form-grid">
 			<div v-if="nature.source" class="form-field">
 				<label class="field-label" for="mouvement-source">Dépôt de départ <span class="req">obligatoire</span></label>
-				<select id="mouvement-source" v-model="form.source" class="field-input" :aria-invalid="Boolean(errors.source)" @change="delete errors.source">
+				<select v-search id="mouvement-source" v-model="form.source" class="field-input" :aria-invalid="Boolean(errors.source)" @change="delete errors.source">
 					<option value="">Choisir…</option>
 					<option v-for="item in depots" :key="item" :value="item">{{ item }}</option>
 				</select>
@@ -162,7 +162,7 @@ async function submit() {
 			</div>
 			<div v-if="nature.cible" class="form-field">
 				<label class="field-label" for="mouvement-cible">Dépôt d'arrivée <span class="req">obligatoire</span></label>
-				<select id="mouvement-cible" v-model="form.cible" class="field-input" :aria-invalid="Boolean(errors.cible)" @change="delete errors.cible">
+				<select v-search id="mouvement-cible" v-model="form.cible" class="field-input" :aria-invalid="Boolean(errors.cible)" @change="delete errors.cible">
 					<option value="">Choisir…</option>
 					<option v-for="item in depots" :key="item" :value="item" :disabled="nature.source && item === form.source">{{ item }}</option>
 				</select>
@@ -193,7 +193,7 @@ async function submit() {
 						<td>
 							<template v-if="item.avec_lot">
 								<input v-if="form.nature === 'entree'" v-model="item.lot" class="field-input tabular-nums" placeholder="Nº de lot" autocomplete="off" :aria-label="`Lot, ligne ${index + 1}`" />
-								<select v-else v-model="item.lot" class="field-input" :aria-label="`Lot, ligne ${index + 1}`" :disabled="!form.source">
+								<select v-search v-else v-model="item.lot" class="field-input" :aria-label="`Lot, ligne ${index + 1}`" :disabled="!form.source">
 									<option value="">{{ form.source ? (lotsFor(item).length ? 'Choisir…' : 'Aucun lot dans ce dépôt') : 'Choisir le dépôt d\'abord' }}</option>
 									<option v-for="entry in lotsFor(item)" :key="entry.lot" :value="entry.lot">{{ lotLabel(entry) }}</option>
 								</select>

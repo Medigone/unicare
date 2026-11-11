@@ -29,7 +29,7 @@ function onKeydown(event: KeyboardEvent) {
 		if (!confirming.value) emit('submit')
 	} else if (event.key === 'Tab') {
 		// La tabulation reste dans la fenêtre.
-		const focusable = root.value?.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')
+		const focusable = root.value?.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]):not([data-search-select]),textarea:not([disabled]),a[href]')
 		if (!focusable?.length) return
 		const first = focusable[0]
 		const last = focusable[focusable.length - 1]
@@ -44,7 +44,7 @@ function onKeydown(event: KeyboardEvent) {
 }
 onMounted(async () => {
 	await nextTick()
-	body.value?.querySelector<HTMLElement>('input,select,textarea')?.focus()
+	body.value?.querySelector<HTMLElement>('input,select:not([data-search-select]),textarea,.search-select')?.focus()
 })
 </script>
 

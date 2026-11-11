@@ -388,7 +388,7 @@ const horsTolerance = computed(() => (ordre.value ? Math.abs(ordre.value.rendeme
 						<section id="ordre-planning" class="card ordre-plan" aria-label="Planification">
 							<div class="form-field ordre-plan-wide">
 								<label class="field-label" for="plan-recette">Recette</label>
-								<select id="plan-recette" v-model="plan.recette" class="field-input" :disabled="!planning || busy" @change="savePlan('recette')">
+								<select v-search id="plan-recette" v-model="plan.recette" class="field-input" :disabled="!planning || busy" @change="savePlan('recette')">
 									<option v-if="!recettes.some((item) => item.value === plan.recette)" :value="plan.recette">{{ plan.recette }}</option>
 									<option v-for="item in recettes" :key="item.value" :value="item.value">{{ item.label }}</option>
 								</select>
@@ -403,7 +403,7 @@ const horsTolerance = computed(() => (ordre.value ? Math.abs(ordre.value.rendeme
 							</div>
 							<div class="form-field">
 								<label class="field-label" for="plan-checklist">Contrôles</label>
-								<select id="plan-checklist" v-model="plan.checklist" class="field-input" :disabled="!planning || busy" @change="savePlan('checklist')">
+								<select v-search id="plan-checklist" v-model="plan.checklist" class="field-input" :disabled="!planning || busy" @change="savePlan('checklist')">
 									<option v-if="!(options?.checklists ?? []).includes(plan.checklist)" :value="plan.checklist">{{ plan.checklist }}</option>
 									<option v-for="item in options?.checklists" :key="item" :value="item">{{ item }}</option>
 								</select>
@@ -425,13 +425,13 @@ const horsTolerance = computed(() => (ordre.value ? Math.abs(ordre.value.rendeme
 										<td><RouterLink class="ref-link" :to="{ name: 'Article', params: { id: line.article } }">{{ line.designation }}</RouterLink><span class="block text-xs text-ink-gray-6">{{ line.type || line.article }}</span></td>
 										<td class="end"><span class="inline-flex items-center gap-1"><input :value="String(line.prevu).replace('.', ',')" class="field-input w-24 text-right tabular-nums" inputmode="decimal" :disabled="!planning || busy" :aria-label="`Quantité de ${line.designation}`" @change="saveLine(line, { quantite: ($event.target as HTMLInputElement).value })" /><span class="text-xs text-ink-gray-6">{{ line.unite }}</span></span></td>
 										<td>
-											<select :value="line.depot ?? ''" class="field-input" :disabled="!planning || busy" :aria-label="`Dépôt de départ de ${line.designation}`" @change="saveLine(line, { depot: ($event.target as HTMLSelectElement).value })">
+											<select v-search :value="line.depot ?? ''" class="field-input" :disabled="!planning || busy" :aria-label="`Dépôt de départ de ${line.designation}`" @change="saveLine(line, { depot: ($event.target as HTMLSelectElement).value })">
 												<option v-if="line.depot && !(options?.depots ?? []).includes(line.depot)" :value="line.depot">{{ line.depot }}</option>
 												<option v-for="depot in options?.depots" :key="depot" :value="depot">{{ depot }}</option>
 											</select>
 										</td>
 										<td>
-											<select v-if="line.avec_lot" :value="line.lot ?? ''" class="field-input" :disabled="!planning || busy" :aria-label="`Lot de ${line.designation}`" @change="saveLine(line, { lot: ($event.target as HTMLSelectElement).value })">
+											<select v-search v-if="line.avec_lot" :value="line.lot ?? ''" class="field-input" :disabled="!planning || busy" :aria-label="`Lot de ${line.designation}`" @change="saveLine(line, { lot: ($event.target as HTMLSelectElement).value })">
 												<option value="">Choisir un lot…</option>
 												<option v-if="line.lot && !line.lots.some((lot) => lot.lot === line.lot)" :value="line.lot">{{ line.lot }} · plus en stock</option>
 												<option v-for="lot in line.lots" :key="lot.lot" :value="lot.lot">{{ lotLabel(lot) }}</option>
@@ -616,7 +616,7 @@ const horsTolerance = computed(() => (ordre.value ? Math.abs(ordre.value.rendeme
 		<FormDialog v-if="rebut.open && ordre" title="Ajouter un rebut" :dirty="Boolean(rebut.quantite)" :busy="busy" hint="Ctrl + Entrée pour ajouter" @close="rebut.open = false" @submit="submitRebut">
 			<div class="form-field">
 				<label class="field-label" for="ordre-rebut-article">Matière abîmée</label>
-				<select id="ordre-rebut-article" v-model="rebut.article" class="field-input">
+				<select v-search id="ordre-rebut-article" v-model="rebut.article" class="field-input">
 					<option v-for="line in articles" :key="line.article" :value="line.article">{{ line.designation }}{{ line.lot ? ` · lot ${line.lot}` : '' }}</option>
 				</select>
 			</div>
@@ -635,7 +635,7 @@ const horsTolerance = computed(() => (ordre.value ? Math.abs(ordre.value.rendeme
 			<p class="text-sm text-ink-gray-7">Envoie tout de suite une quantité en plus à l'atelier, pour une matière de l'ordre.</p>
 			<div class="form-field">
 				<label class="field-label" for="ordre-complement-article">Matière</label>
-				<select id="ordre-complement-article" v-model="complement.article" class="field-input">
+				<select v-search id="ordre-complement-article" v-model="complement.article" class="field-input">
 					<option v-for="line in articles" :key="line.article" :value="line.article">{{ line.designation }}</option>
 				</select>
 			</div>
@@ -646,14 +646,14 @@ const horsTolerance = computed(() => (ordre.value ? Math.abs(ordre.value.rendeme
 				</div>
 				<div class="form-field">
 					<label class="field-label" for="ordre-complement-depot">Depuis</label>
-					<select id="ordre-complement-depot" v-model="complement.depot" class="field-input">
+					<select v-search id="ordre-complement-depot" v-model="complement.depot" class="field-input">
 						<option v-for="depot in options?.depots" :key="depot" :value="depot">{{ depot }}</option>
 					</select>
 				</div>
 			</div>
 			<div v-if="complementLine?.avec_lot" class="form-field">
 				<label class="field-label" for="ordre-complement-lot">Lot</label>
-				<select id="ordre-complement-lot" v-model="complement.lot" class="field-input">
+				<select v-search id="ordre-complement-lot" v-model="complement.lot" class="field-input">
 					<option value="">{{ complement.lots.length ? 'Choisir un lot…' : 'Aucun lot en stock dans ce dépôt' }}</option>
 					<option v-for="lot in complement.lots" :key="lot.lot" :value="lot.lot">{{ lotLabel(lot) }}</option>
 				</select>

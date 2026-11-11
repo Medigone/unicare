@@ -50,7 +50,7 @@ function add() {
 							</button>
 						</div>
 						<div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] items-start gap-1.5">
-							<select class="field-input" :class="condition.op === 'Between' && 'col-span-full'" aria-label="Condition" :value="condition.op" @change="setOp(condition, $event)">
+							<select v-search class="field-input" :class="condition.op === 'Between' && 'col-span-full'" aria-label="Condition" :value="condition.op" @change="setOp(condition, $event)">
 								<option v-for="op in operatorOptions(fieldOf(condition, fields))" :key="op.value" :value="op.value">{{ op.label }}</option>
 							</select>
 							<FilterValueInput :model-value="condition.value" :op="condition.op" :field="fieldOf(condition, fields)" :list-doctype="doctype" @update:model-value="update(condition.id, { value: $event })" />

@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import { vSearch } from './lib/searchSelect'
 import './index.css'
 
 /**
@@ -18,4 +19,4 @@ async function loadDevBoot() {
 	}
 }
 
-loadDevBoot().then(() => createApp(App).use(router).mount('#app'))
+loadDevBoot().then(() => createApp(App).use(router).directive('search', vSearch).mount('#app'))

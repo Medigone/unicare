@@ -67,14 +67,14 @@ async function submit() {
 		<div class="form-grid">
 			<div class="form-field">
 				<label class="field-label" for="depot-groupe">Groupe</label>
-				<select id="depot-groupe" v-model="values.parent" class="field-input">
+				<select v-search id="depot-groupe" v-model="values.parent" class="field-input">
 					<option value="">Aucun</option>
 					<option v-for="item in options?.groupes" :key="item" :value="item">{{ item }}</option>
 				</select>
 			</div>
 			<div class="form-field">
 				<label class="field-label" for="depot-type">Type</label>
-				<select id="depot-type" v-model="values.type" class="field-input">
+				<select v-search id="depot-type" v-model="values.type" class="field-input">
 					<option value="">Aucun</option>
 					<option v-for="item in options?.types" :key="item" :value="item">{{ item }}</option>
 				</select>

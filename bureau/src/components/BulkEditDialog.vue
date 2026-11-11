@@ -28,7 +28,7 @@ function submit() {
 		<div class="flex flex-col gap-3.5" :class="field?.fieldtype === 'Link' && 'min-h-[21rem]'">
 			<div class="form-field">
 				<label class="field-label" for="bulk-field">Champ</label>
-				<select id="bulk-field" v-model="fieldname" class="field-input">
+				<select v-search id="bulk-field" v-model="fieldname" class="field-input">
 					<option value="">Choisir…</option>
 					<option v-for="item in sorted" :key="item.fieldname" :value="item.fieldname">{{ item.label }}</option>
 				</select>

@@ -94,7 +94,7 @@ async function submit() {
 		<p v-if="loadError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ loadError }}</p>
 		<div class="form-field">
 			<label class="field-label" for="recette-produit">Produit fini <span class="req">obligatoire</span></label>
-			<select id="recette-produit" v-model="produit" class="field-input" @change="onProduit">
+			<select v-search id="recette-produit" v-model="produit" class="field-input" @change="onProduit">
 				<option value="">Choisir le produit…</option>
 				<option v-if="produit && !options?.produits.some((item) => item.value === produit)" :value="produit">{{ produitLabel }}</option>
 				<option v-for="item in options?.produits" :key="item.value" :value="item.value">{{ item.label }} ({{ item.value }})</option>
@@ -105,7 +105,7 @@ async function submit() {
 				<label class="field-label" for="recette-base">Recette donnée pour</label>
 				<span class="flex items-center gap-1.5">
 					<input id="recette-base" v-model="quantiteBase" class="field-input w-24 text-right tabular-nums" inputmode="decimal" @input="dirty = true" />
-					<select v-model="unite" class="field-input" aria-label="Unité de la quantité de base" @change="dirty = true">
+					<select v-search v-model="unite" class="field-input" aria-label="Unité de la quantité de base" @change="dirty = true">
 						<option v-if="unite && !options?.unites.includes(unite)" :value="unite">{{ unite }}</option>
 						<option v-for="item in options?.unites" :key="item" :value="item">{{ item }}</option>
 					</select>
@@ -124,7 +124,7 @@ async function submit() {
 				<tbody>
 					<tr v-for="(row, index) in lignes" :key="row.key">
 						<td>
-							<select v-model="row.article" class="field-input" :aria-label="`Matière ${index + 1}`" @change="onMatiere(row)">
+							<select v-search v-model="row.article" class="field-input" :aria-label="`Matière ${index + 1}`" @change="onMatiere(row)">
 								<option value="">Choisir…</option>
 								<option v-for="item in options?.matieres" :key="item.value" :value="item.value">{{ item.label }}</option>
 							</select>
@@ -132,7 +132,7 @@ async function submit() {
 						<td class="text-ink-gray-7">{{ matiere(row.article)?.type ?? '—' }}</td>
 						<td class="end"><input v-model="row.quantite" class="field-input w-24 text-right tabular-nums" inputmode="decimal" :aria-label="`Quantité, matière ${index + 1}`" @input="dirty = true" /></td>
 						<td>
-							<select v-model="row.unite" class="field-input" :aria-label="`Unité, matière ${index + 1}`" @change="dirty = true">
+							<select v-search v-model="row.unite" class="field-input" :aria-label="`Unité, matière ${index + 1}`" @change="dirty = true">
 								<option v-if="row.unite && !options?.unites.includes(row.unite)" :value="row.unite">{{ row.unite }}</option>
 								<option v-for="item in options?.unites" :key="item" :value="item">{{ item }}</option>
 							</select>

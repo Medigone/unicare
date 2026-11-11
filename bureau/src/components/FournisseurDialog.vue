@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
 		<div class="form-grid">
 			<div v-if="editing" class="form-field">
 				<label class="field-label" for="fournisseur-statut">Statut du fournisseur <span class="req">obligatoire</span></label>
-				<select id="fournisseur-statut" v-model="values.status" class="field-input" :aria-invalid="Boolean(errors.status)">
+				<select v-search id="fournisseur-statut" v-model="values.status" class="field-input" :aria-invalid="Boolean(errors.status)">
 					<option v-if="!values.status" value="">Choisir…</option>
 					<option v-for="item in options?.statuses ?? [values.status]" :key="item" :value="item">{{ item }}</option>
 				</select>
@@ -206,7 +206,7 @@ onBeforeUnmount(() => {
 			</div>
 			<div class="form-field">
 				<label class="field-label" for="fournisseur-categorie">Catégorie <span class="req">obligatoire</span></label>
-				<select id="fournisseur-categorie" v-model="values.categorie" class="field-input" :aria-invalid="Boolean(errors.categorie)">
+				<select v-search id="fournisseur-categorie" v-model="values.categorie" class="field-input" :aria-invalid="Boolean(errors.categorie)">
 					<option value="">Choisir…</option>
 					<option v-if="values.categorie && options && !options.categories.includes(values.categorie)" :value="values.categorie">{{ values.categorie }}</option>
 					<option v-for="item in options?.categories" :key="item" :value="item">{{ item }}</option>

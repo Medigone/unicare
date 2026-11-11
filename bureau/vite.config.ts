@@ -33,6 +33,6 @@ export default defineConfig(async () => {
 			emptyOutDir: true,
 			target: 'es2017',
 		},
-		test: { environment: 'happy-dom' },
+		test: { environment: 'happy-dom', setupFiles: ['src/test-setup.ts'] },
 	}
 })

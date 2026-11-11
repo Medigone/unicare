@@ -10,12 +10,12 @@ const onInput = (event: Event) => emit('update:modelValue', (event.target as HTM
 
 <template>
 	<LinkInput v-if="field.fieldtype === 'Link'" :doctype="doctype" :fieldname="field.fieldname" :model-value="modelValue" :input-id="inputId" @update:model-value="emit('update:modelValue', $event)" />
-	<select v-else-if="field.fieldtype === 'Check'" :id="inputId" class="field-input" :value="modelValue" @change="onInput">
+	<select v-search v-else-if="field.fieldtype === 'Check'" :id="inputId" class="field-input" :value="modelValue" @change="onInput">
 		<option value="">Choisir…</option>
 		<option value="1">Oui</option>
 		<option value="0">Non</option>
 	</select>
-	<select v-else-if="field.fieldtype === 'Select'" :id="inputId" class="field-input" :value="modelValue" @change="onInput">
+	<select v-search v-else-if="field.fieldtype === 'Select'" :id="inputId" class="field-input" :value="modelValue" @change="onInput">
 		<option value="">{{ field.required ? 'Choisir…' : 'Vide' }}</option>
 		<option v-for="option in field.options" :key="option" :value="option">{{ option }}</option>
 	</select>

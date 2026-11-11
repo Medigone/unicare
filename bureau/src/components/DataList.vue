@@ -501,7 +501,7 @@ onBeforeUnmount(() => {
 			<div v-if="filtersOpen" class="bureau-popover" role="group" aria-label="Filtres combinés">
 				<label class="flex flex-col gap-1">
 					<span class="field-label mb-0">Afficher</span>
-					<select v-model="state.view.value" class="field-input" aria-label="Afficher">
+					<select v-search v-model="state.view.value" class="field-input" aria-label="Afficher">
 						<option v-for="view in views" :key="view.key" :value="view.key">{{ viewOption(view) }}</option>
 					</select>
 				</label>

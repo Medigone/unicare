@@ -222,7 +222,7 @@ async function submit() {
 				</div>
 				<div class="form-field">
 					<label class="field-label" for="paiement-mode">Mode <span class="req">obligatoire</span></label>
-					<select id="paiement-mode" v-model="form.mode" class="field-input" :aria-invalid="Boolean(errors.mode)">
+					<select v-search id="paiement-mode" v-model="form.mode" class="field-input" :aria-invalid="Boolean(errors.mode)">
 						<option value="">Choisir…</option>
 						<option v-for="item in options?.modes" :key="item.value" :value="item.value">{{ item.value }}</option>
 					</select>
