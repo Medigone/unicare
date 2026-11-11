@@ -112,3 +112,16 @@ class TestMouvements(FrappeTestCase):
 			M.cancel_mouvement(name, fiche["modified"])
 		result = bureau_bulk.bulk_delete("Stock Entry", json.dumps([{"name": name, "modified": fiche["modified"]}]))
 		self.assertEqual(result["done"], [])
+
+
+class TestRechercheArticlesStock(FrappeTestCase):
+	def test_mots_dans_le_desordre_et_stock_du_depot(self):
+		frappe.set_user("Administrator")
+		try:
+			code = article("Bidon essai recherche stock 20 L", stock=True)
+			found = M.search_stock_articles("20 bidon", "Magasins - U")
+			self.assertEqual([row["name"] for row in found], [code])
+			self.assertEqual(found[0]["stock"], 0)
+			self.assertIsNone(M.search_stock_articles("20 bidon")[0]["stock"])
+		finally:
+			frappe.db.rollback()

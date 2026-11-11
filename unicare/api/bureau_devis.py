@@ -271,19 +271,25 @@ def _prices(item_codes):
 	return prices
 
 
+def _plain(text):
+	import unicodedata
+
+	return "".join(c for c in unicodedata.normalize("NFD", cstr(text).casefold()) if unicodedata.category(c) != "Mn")
+
+
+def filter_words(items, search):
+	"""Les articles dont la désignation ou le code contient chaque mot tapé, sans tenir compte des accents."""
+	wanted = [_plain(word) for word in cstr(search).split()]
+	return [item for item in items if all(word in _plain(f"{item.item_name} {item.name}") for word in wanted)]
+
+
 def article_search(search, flag, prices_of, limit=ARTICLE_SEARCH_LIMIT):
 	"""Articles actifs marqués `flag` (vente ou achat), avec unité, prix (`prices_of`) et stock des dépôts.
 
 	Chaque mot tapé doit se trouver dans la désignation ou le code, dans n'importe quel ordre et sans tenir compte des
 	accents (« 250 bouteille » trouve « Bouteille … 250 Ml »). Le stock n'est envoyé qu'à qui lit les quantités par dépôt.
 	"""
-	import unicodedata
-
 	words = cstr(search).split()
-
-	def plain(text):
-		return "".join(c for c in unicodedata.normalize("NFD", cstr(text).casefold()) if unicodedata.category(c) != "Mn")
-
 	first = words[0] if words else ""
 	items = frappe.get_list(
 		"Item",
@@ -293,8 +299,7 @@ def article_search(search, flag, prices_of, limit=ARTICLE_SEARCH_LIMIT):
 		order_by="item_name asc",
 		limit_page_length=200 if len(words) > 1 else limit,
 	)
-	wanted = [plain(word) for word in words]
-	items = [item for item in items if all(word in plain(f"{item.item_name} {item.name}") for word in wanted)][:limit]
+	items = filter_words(items, search)[:limit]
 	prices = prices_of([item.name for item in items])
 	stock_lisible = bool(frappe.has_permission("Bin", "read"))
 	stocks = {}

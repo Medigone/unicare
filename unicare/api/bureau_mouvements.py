@@ -201,17 +201,24 @@ def get_mouvement_options():
 
 @frappe.whitelist()
 def search_stock_articles(search=None, depot=None):
-	"""Articles stockés actifs, avec leur unité, le suivi par lots et, si un dépôt est donné, le stock qu'il en a."""
+	"""Articles stockés actifs, avec leur unité, le suivi par lots et, si un dépôt est donné, le stock qu'il en a.
+
+	Chaque mot tapé doit se trouver dans la désignation ou le code, dans n'importe quel ordre et sans accents.
+	"""
+	from unicare.api.bureau_devis import filter_words
+
 	require_bureau()
-	value = cstr(search).strip()
+	words = cstr(search).split()
+	first = words[0] if words else ""
 	items = frappe.get_list(
 		"Item",
 		filters={"disabled": 0, "is_stock_item": 1, "has_variants": 0},
-		or_filters=[["item_name", "like", f"%{value}%"], ["name", "like", f"%{value}%"]] if value else None,
-		fields=["name", "item_name", "stock_uom", "has_batch_no"],
+		or_filters=[["item_name", "like", f"%{first}%"], ["name", "like", f"%{first}%"]] if first else None,
+		fields=["name", "item_name", "stock_uom", "has_batch_no", "item_group"],
 		order_by="item_name asc",
-		limit_page_length=ARTICLE_SEARCH_LIMIT,
+		limit_page_length=200 if len(words) > 1 else ARTICLE_SEARCH_LIMIT,
 	)
+	items = filter_words(items, search)[:ARTICLE_SEARCH_LIMIT]
 	stock = {}
 	if depot:
 		for row in frappe.get_all(
@@ -226,7 +233,8 @@ def search_stock_articles(search=None, depot=None):
 			"label": item.item_name or item.name,
 			"uom": item.stock_uom,
 			"avec_lot": cint(item.has_batch_no),
-			"stock": stock.get(item.name) if depot else None,
+			"groupe": item.item_group,
+			"stock": stock.get(item.name, 0) if depot else None,
 		}
 		for item in items
 	]

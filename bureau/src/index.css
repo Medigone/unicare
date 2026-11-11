@@ -2233,3 +2233,18 @@
 		}
 	}
 }
+
+/* Barre de saisie rapide sans colonne de prix (mouvements de stock). */
+@layer components {
+	.quick-add-noprice .quick-add-row {
+		grid-template-columns: minmax(0, 1fr) 9rem 4.5rem;
+	}
+	@media (max-width: 720px) {
+		.quick-add-noprice .quick-add-row {
+			grid-template-columns: minmax(0, 1fr) 7rem;
+		}
+		.quick-add-noprice .quick-add-row > :nth-child(2) {
+			display: block;
+		}
+	}
+}

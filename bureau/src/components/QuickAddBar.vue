@@ -10,7 +10,10 @@ import { parseNumber, type QuickAddChoice } from '@/lib/devis'
  * leur stock ; Entrée ajoute l'article choisi avec la quantité. Tab passe à la quantité, Entrée y ajoute aussi.
  * Tout au clavier : après l'ajout, la barre se vide et garde le focus pour l'article suivant.
  */
-const props = withDefaults(defineProps<{ search: (query: string) => Promise<QuickAddChoice[]>; inputId?: string; invalid?: boolean; priceLabel?: string; noPrice?: string }>(), { priceLabel: 'Prix HT', noPrice: 'pas de prix' })
+const props = withDefaults(
+	defineProps<{ search: (query: string) => Promise<QuickAddChoice[]>; inputId?: string; invalid?: boolean; priceLabel?: string; noPrice?: string; showPrice?: boolean; stockLabel?: string }>(),
+	{ priceLabel: 'Prix HT', noPrice: 'pas de prix', showPrice: true, stockLabel: 'En stock' },
+)
 const emit = defineEmits<{ add: [choice: QuickAddChoice, quantite: number] }>()
 
 const query = ref('')
@@ -131,8 +134,8 @@ defineExpose({ focus: () => input.value?.focus() })
 		<input id="quick-add-qty" v-model="quantite" class="field-input quick-add-qty" inputmode="decimal" :aria-invalid="qtyError" @keydown="onQtyKey" @input="qtyError = false" />
 		<button type="button" class="btn-primary" :disabled="!selected" @mousedown.prevent @click="add()">Ajouter</button>
 
-		<div v-if="open" id="quick-add-results" class="quick-add-menu" role="listbox" aria-label="Articles trouvés">
-			<div v-if="results.length" class="quick-add-row quick-add-head" aria-hidden="true"><span>Article</span><span class="end">{{ priceLabel }}</span><span class="end">En stock</span><span></span></div>
+		<div v-if="open" id="quick-add-results" class="quick-add-menu" :class="!showPrice && 'quick-add-noprice'" role="listbox" aria-label="Articles trouvés">
+			<div v-if="results.length" class="quick-add-row quick-add-head" aria-hidden="true"><span>Article</span><span v-if="showPrice" class="end">{{ priceLabel }}</span><span class="end">{{ stockLabel }}</span><span></span></div>
 			<div
 				v-for="(choice, index) in results"
 				:id="`quick-add-${index}`"
@@ -148,7 +151,7 @@ defineExpose({ focus: () => input.value?.focus() })
 					<strong class="block truncate"><template v-for="(part, key) in parts(choice.label)" :key="key"><mark v-if="part.hit">{{ part.text }}</mark><template v-else>{{ part.text }}</template></template></strong>
 					<small class="block truncate text-ink-gray-6">{{ choice.name }}<template v-if="choice.groupe"> · {{ choice.groupe }}</template><template v-if="choice.uom"> · {{ choice.uom }}</template></small>
 				</span>
-				<span class="end tabular-nums" :class="choice.prix === null && 'text-ink-gray-6'">{{ choice.prix === null ? noPrice : `${formatAmount(choice.prix)} DA` }}</span>
+				<span v-if="showPrice" class="end tabular-nums" :class="choice.prix === null && 'text-ink-gray-6'">{{ choice.prix === null ? noPrice : `${formatAmount(choice.prix)} DA` }}</span>
 				<span class="end"><span v-if="choice.stock !== null && choice.stock !== undefined" class="badge tabular-nums" :class="stockTone(choice)">{{ choice.stock <= 0 ? 'rupture' : `${formatQty(choice.stock)} ${choice.uom ?? ''}` }}</span></span>
 				<span class="end"><kbd v-if="index === cursor" class="goto-kbd">Entrée</kbd></span>
 			</div>
