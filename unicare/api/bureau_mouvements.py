@@ -242,10 +242,11 @@ def search_stock_articles(search=None, depot=None):
 
 @frappe.whitelist()
 def get_lots_article(article, depot):
-	"""Lots d'un article à sortir d'un dépôt, la péremption la plus proche d'abord (lots périmés exclus)."""
+	"""Lots d'un article à sortir d'un dépôt, la péremption la plus proche d'abord ; les lots périmés viennent après,
+	marqués : un mouvement doit pouvoir les sortir vers le rebut."""
 	require_bureau()
 	frappe.get_doc("Item", article).check_permission("read")
-	return lots_disponibles(article, depot).get(depot, [])
+	return lots_disponibles(article, depot, perimes=True).get(depot, [])
 
 
 def _has_batch(item_code):
@@ -302,7 +303,7 @@ def blocked(doc):
 			continue
 		if item.s_warehouse:
 			if item.batch_no:
-				available = flt(lot_disponible(item.item_code, item.s_warehouse, item.batch_no))
+				available = flt(lot_disponible(item.item_code, item.s_warehouse, item.batch_no, perimes=True))
 			else:
 				available = sum(row.actual_qty for row in bins(item_code=item.item_code, warehouse=item.s_warehouse))
 			if flt(item.transfer_qty or item.qty) > available:

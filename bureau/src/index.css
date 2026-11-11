@@ -2124,11 +2124,17 @@
 	.quick-add-invalid {
 		border-color: var(--tone-red-ink);
 	}
-	.quick-add-input {
+	/* Le champ de recherche se fond dans la barre : pas de cadre ni d'anneau propres (la barre porte le focus). */
+	.quick-add .quick-add-input,
+	.quick-add .quick-add-input:focus {
 		flex: 1 1 auto;
 		min-width: 0;
 		height: var(--ctl);
+		padding: 0;
 		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+		appearance: none;
 		background: transparent;
 		font: inherit;
 		font-size: 15px;

@@ -48,6 +48,8 @@ export interface LotChoice {
 	lot: string
 	qty: number
 	peremption: string | null
+	/** Lot périmé : proposé seulement par les mouvements de stock (pour le sortir), après les autres. */
+	perime?: boolean
 }
 
 export interface LivraisonLine {

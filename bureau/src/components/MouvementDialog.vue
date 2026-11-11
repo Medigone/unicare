@@ -67,11 +67,15 @@ watch(
 	},
 	{ immediate: true },
 )
+function lotPerime(item: MouvementDraftLine) {
+	return Boolean(item.lot && lots[item.article]?.find((entry) => entry.lot === item.lot)?.perime)
+}
 function lotsFor(item: MouvementDraftLine) {
 	const available = lots[item.article] ?? []
 	return item.lot && !available.some((entry) => entry.lot === item.lot) ? [{ lot: item.lot, qty: 0, peremption: null }, ...available] : available
 }
 function lotLabel(entry: LotChoice) {
+	if (entry.perime) return `${entry.lot} · ${formatQty(entry.qty)} dispo · PÉRIMÉ depuis le ${formatDay(entry.peremption)}`
 	return `${entry.lot} · ${formatQty(entry.qty)} dispo${entry.peremption ? ` · périme le ${formatDay(entry.peremption)}` : ''}`
 }
 
@@ -101,7 +105,9 @@ function onAdd(choice: QuickAddChoice, quantite: number) {
 		if (avecLot && nature.value?.source) {
 			loadLots(choice.name).then(() => {
 				const pris = new Set(form.lignes.filter((item) => item !== added && item.article === choice.name).map((item) => item.lot))
-				if (!added.lot) added.lot = lots[choice.name]?.find((entry) => !pris.has(entry.lot))?.lot ?? ''
+				// Un lot encore bon d'abord ; s'il n'y a que des lots périmés, le premier (pour les sortir).
+				const libres = (lots[choice.name] ?? []).filter((entry) => !pris.has(entry.lot))
+				if (!added.lot) added.lot = (libres.find((entry) => !entry.perime) ?? libres[0])?.lot ?? ''
 			})
 		}
 	}
@@ -212,6 +218,7 @@ async function submit() {
 									<option value="">{{ form.source ? (lotsFor(item).length ? 'Choisir…' : 'Aucun lot dans ce dépôt') : 'Choisir le dépôt d\'abord' }}</option>
 									<option v-for="entry in lotsFor(item)" :key="entry.lot" :value="entry.lot">{{ lotLabel(entry) }}</option>
 								</select>
+								<p v-if="lotPerime(item)" class="mt-1 text-xs font-medium text-tone-red">Lot périmé : à sortir du stock ou à mettre au rebut.</p>
 							</template>
 							<span v-else class="text-ink-gray-6">—</span>
 						</td>
@@ -224,7 +231,7 @@ async function submit() {
 			</table></div>
 			<p v-if="!form.lignes.length" class="devis-lines-empty">Aucune ligne : cherchez un article dans la barre ci-dessus.</p>
 			<p v-if="errors.lignes" class="field-error" role="alert">{{ errors.lignes }}</p>
-			<p class="field-note"><span>{{ form.nature === 'entree' ? 'Un lot saisi qui n\'existe pas encore est créé, avec sa péremption.' : 'Les lots proposés sont ceux du dépôt de départ, le plus proche de sa péremption d\'abord ; les lots périmés ne sont pas proposés.' }} Un lot manquant ou une quantité au-delà du disponible empêche la validation.</span></p>
+			<p class="field-note"><span>{{ form.nature === 'entree' ? 'Un lot saisi qui n\'existe pas encore est créé, avec sa péremption.' : 'Les lots proposés sont ceux du dépôt de départ, le plus proche de sa péremption d\'abord ; les lots périmés viennent en dernier, marqués, pour pouvoir les sortir ou les mettre au rebut.' }} Un lot manquant ou une quantité au-delà du disponible empêche la validation.</span></p>
 		</template>
 
 		<p v-if="serverError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ serverError }}</p>

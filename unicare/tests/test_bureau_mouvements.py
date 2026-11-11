@@ -57,7 +57,7 @@ class TestMouvements(FrappeTestCase):
 		self.assertEqual(str(frappe.db.get_value("Batch", "LOT-MVT-ESSAI", "expiry_date")), add_days(today(), 200))
 		entree = M.validate_mouvement(entree["name"], entree["modified"])
 		self.assertEqual(_stock(self.item, self.magasin), 20)
-		self.assertIn({"lot": "LOT-MVT-ESSAI", "qty": 20.0, "peremption": add_days(today(), 200)}, bureau_stock.lots_disponibles(self.item, self.magasin)[self.magasin])
+		self.assertIn({"lot": "LOT-MVT-ESSAI", "qty": 20.0, "peremption": add_days(today(), 200), "perime": False}, bureau_stock.lots_disponibles(self.item, self.magasin)[self.magasin])
 
 		# Transfert : au-delà du disponible, il est bloqué ; à 15, il passe.
 		transfert = self._create("transfert", [{"article": self.item, "quantite": 25, "lot": "LOT-MVT-ESSAI"}], source=self.magasin, cible=self.production)
@@ -123,5 +123,27 @@ class TestRechercheArticlesStock(FrappeTestCase):
 			self.assertEqual([row["name"] for row in found], [code])
 			self.assertEqual(found[0]["stock"], 0)
 			self.assertIsNone(M.search_stock_articles("20 bidon")[0]["stock"])
+		finally:
+			frappe.db.rollback()
+
+
+class TestLotPerime(FrappeTestCase):
+	def test_un_lot_perime_se_met_au_rebut(self):
+		frappe.set_user("Administrator")
+		try:
+			code = article("Vrac essai lot périmé", stock=True, lots=True)
+			frappe.db.set_value("Item", code, "valuation_rate", 10)
+			entree = M.create_mouvement(json.dumps({"nature": "entree", "cible": "Magasins - U", "lignes": [{"article": code, "quantite": 12, "lot": "LOT-ESSAI-PERIME", "peremption": add_days(today(), 30)}]}))["name"]
+			M.validate_mouvement(entree, M.get_mouvement(entree)["modified"])
+			frappe.db.set_value("Batch", "LOT-ESSAI-PERIME", "expiry_date", add_days(today(), -5))
+			# Ailleurs (ventes, production), le lot périmé n'est plus proposé ; ici, il l'est, marqué.
+			self.assertEqual(bureau_stock.lots_disponibles(code, "Magasins - U"), {})
+			lots = M.get_lots_article(code, "Magasins - U")
+			self.assertEqual([(lot["lot"], lot["qty"], lot["perime"]) for lot in lots], [("LOT-ESSAI-PERIME", 12.0, True)])
+			transfert = M.create_mouvement(json.dumps({"nature": "transfert", "source": "Magasins - U", "cible": "Rebus - U", "lignes": [{"article": code, "quantite": 12, "lot": "LOT-ESSAI-PERIME"}]}))["name"]
+			fiche = M.get_mouvement(transfert)
+			self.assertEqual(fiche["blocked"], [])
+			M.validate_mouvement(transfert, fiche["modified"])
+			self.assertEqual(_stock(code, "Rebus - U"), 12)
 		finally:
 			frappe.db.rollback()

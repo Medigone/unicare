@@ -85,34 +85,49 @@ def bins(item_code=None, warehouse=None):
 	return rows
 
 
-def lots_disponibles(item_code, warehouse=None):
-	"""Lots en stock d'un article, par dépôt, hors lots désactivés : la péremption la plus proche d'abord (FEFO)."""
+def lots_disponibles(item_code, warehouse=None, perimes=False):
+	"""Lots en stock d'un article, par dépôt, hors lots désactivés : la péremption la plus proche d'abord (FEFO).
+
+	Par défaut, les lots périmés sont écartés (ventes, production). `perimes` les ajoute, marqués `perime` et placés
+	après les autres : un mouvement de stock doit pouvoir les sortir vers le rebut ou les déplacer.
+	"""
 	from erpnext.stock.doctype.batch.batch import get_batch_qty
+	from frappe.utils import getdate, today
 
 	lots = {}
-	for row in get_batch_qty(item_code=item_code, warehouse=warehouse) or []:
+	for row in get_batch_qty(item_code=item_code, warehouse=warehouse, for_stock_levels=bool(perimes)) or []:
 		if flt(row.get("qty")) <= 0:
 			continue
 		lots.setdefault(row.get("warehouse"), []).append(
-			{"lot": row.get("batch_no"), "qty": flt(row.get("qty"), 3), "peremption": _day(row.get("expiry_date"))}
+			{"lot": row.get("batch_no"), "qty": flt(row.get("qty"), 3), "peremption": _day(row.get("expiry_date")), "perime": False}
 		)
-	disabled = set(
-		frappe.get_all(
-			BATCH,
-			filters={"name": ["in", [entry["lot"] for entries in lots.values() for entry in entries] or [""]], "disabled": 1},
-			pluck="name",
-		)
-	)
+	names = [entry["lot"] for entries in lots.values() for entry in entries] or [""]
+	disabled = set(frappe.get_all(BATCH, filters={"name": ["in", names], "disabled": 1}, pluck="name"))
+	expiry = {row.name: row.expiry_date for row in frappe.get_all(BATCH, filters={"name": ["in", names]}, fields=["name", "expiry_date"])}
+	jour = getdate(today())
 	for depot, entries in lots.items():
 		entries[:] = [entry for entry in entries if entry["lot"] not in disabled]
-		entries.sort(key=lambda entry: (entry["peremption"] is None, cstr(entry["peremption"]), entry["lot"]))
+		for entry in entries:
+			date = expiry.get(entry["lot"])
+			entry["peremption"] = entry["peremption"] or _day(date)
+			entry["perime"] = bool(date and getdate(date) < jour)
+		if not perimes:
+			entries[:] = [entry for entry in entries if not entry["perime"]]
+		entries.sort(key=lambda entry: (entry["perime"], entry["peremption"] is None, cstr(entry["peremption"]), entry["lot"]))
 	return lots
 
 
-def lot_disponible(item_code, warehouse, lot):
-	from unicare.conditionnement.stock import get_batch_available_qty
+def lot_disponible(item_code, warehouse, lot, perimes=False):
+	"""Quantité d'un lot dans un dépôt ; `perimes` compte aussi un lot périmé (sinon : 0)."""
+	if not perimes:
+		from unicare.conditionnement.stock import get_batch_available_qty
 
-	return get_batch_available_qty(item_code, warehouse, lot)
+		return get_batch_available_qty(item_code, warehouse, lot)
+	from erpnext.stock.doctype.batch.batch import get_batch_qty
+
+	if not (item_code and warehouse and lot):
+		return 0
+	return flt(get_batch_qty(batch_no=lot, warehouse=warehouse, item_code=item_code, for_stock_levels=True) or 0)
 
 
 def ledger(item_code=None, warehouse=None, lot=None, limit=LEDGER_LIMIT):
