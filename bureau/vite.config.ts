@@ -24,8 +24,9 @@ export default defineConfig(async () => {
 		],
 		resolve: {
 			alias: { '@': path.resolve(__dirname, 'src'), '@shared': path.resolve(__dirname, '../shared') },
-			// Le socle partagé (../shared) n'a pas ses propres node_modules : une seule copie de Vue.
-			dedupe: ['vue'],
+			// Le socle partagé (../shared) n'a pas ses propres node_modules : ses imports se résolvent
+			// depuis bureau/node_modules, sinon Node remonte jusqu'à frappe-bench/node_modules (absent sur Frappe Cloud).
+			dedupe: ['vue', 'socket.io-client'],
 		},
 		server: { host: '0.0.0.0', port: 8086 },
 		build: {
