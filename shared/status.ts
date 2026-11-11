@@ -62,6 +62,14 @@ export const STATUS_TONES: Record<string, string> = {
 	'À recevoir et facturer': 'tone-blue',
 	'À recevoir': 'tone-blue',
 	Livré: 'tone-green',
+	// Factures, réceptions et bons (libellés traduits)
+	Impayée: 'tone-blue',
+	'Partiellement payée': 'tone-amber',
+	Payée: 'tone-green',
+	Avoir: 'tone-gray',
+	'Avoir émis': 'tone-gray',
+	'Avoir reçu': 'tone-gray',
+	'Retour émis': 'tone-gray',
 	// Réclamations et fabrication
 	'En Traitement': 'tone-amber',
 	Traité: 'tone-green',
@@ -104,6 +112,15 @@ const STATUS_LABELS: Record<string, string> = {
 	'To Receive and Bill': 'À recevoir et facturer',
 	'To Receive': 'À recevoir',
 	Delivered: 'Livré',
+	// Factures (client et fournisseur), réceptions et bons de livraison
+	Unpaid: 'Impayée',
+	'Partly Paid': 'Partiellement payée',
+	Paid: 'Payée',
+	Overdue: 'En retard',
+	Return: 'Avoir',
+	'Credit Note Issued': 'Avoir émis',
+	'Debit Note Issued': 'Avoir reçu',
+	'Return Issued': 'Retour émis',
 }
 
 /** Le libellé affiché : un statut ERPNext passe en français, les autres restent tels quels. */
