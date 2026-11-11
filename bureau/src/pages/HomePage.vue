@@ -161,7 +161,10 @@ onBeforeUnmount(closeRealtime)
 								<span class="accueil-icone accueil-icone-small" :class="MODULE_TONES[item.module] ?? 'tone-gray'" :title="item.nature">
 									<component :is="ficheIcon(item.fiche)" class="h-4 w-4" aria-hidden="true" />
 								</span>
-								<span class="min-w-0 flex-auto truncate"><span class="text-ink-gray-6">{{ item.nature }} </span><strong class="tabular-nums">{{ item.name }}</strong><template v-if="item.libelle"> · {{ item.libelle }}</template></span>
+								<span class="min-w-0 flex-auto">
+									<strong class="block truncate tabular-nums">{{ item.name }}</strong>
+									<small class="block truncate text-xs text-ink-gray-6">{{ [item.nature, item.libelle].filter(Boolean).join(' · ') }}</small>
+								</span>
 								<small class="flex-none text-xs text-ink-gray-6">{{ quandText(item.quand) }}</small>
 							</RouterLink>
 						</section>
