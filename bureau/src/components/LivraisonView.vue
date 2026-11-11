@@ -20,6 +20,7 @@ import TagEditor from './TagEditor.vue'
 import { createLivraisonSuivante, deleteLivraison, livraisonActivity, livraisonPdfUrl, livraisonPrintUrl, prepareLivraison, runLivraisonAction } from '@/lib/api'
 import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { changedPrep, lotsFor, prepLines, suggestLots, type LivraisonLine, type PrepLine } from '@/lib/livraisons'
 import { useLivraison } from '@/lib/useLivraison'
@@ -100,10 +101,13 @@ async function savePrep() {
 	return done
 }
 async function valider() {
-	if (prepDirty.value && !(await savePrep())) return
 	const current = livraison.value
-	if (!current || current.blocked.length) return
-	if (await perform(() => runLivraisonAction(current, 'valider'))) notice.value = current.retour ? 'Retour validé : le stock est rentré.' : 'Bon validé : le stock est sorti.'
+	if (!current) return
+	if (!(await confirmAction({ title: current.retour ? 'Valider le retour' : 'Valider la livraison', message: current.retour ? `Le retour ${current.name} sera validé : la marchandise rentre en stock.` : `Le bon ${current.name} sera validé : la marchandise sort du stock et la commande avance.`, confirmLabel: current.retour ? 'Valider le retour' : 'Valider la livraison' }))) return
+	if (prepDirty.value && !(await savePrep())) return
+	const saved = livraison.value
+	if (!saved || saved.blocked.length) return
+	if (await perform(() => runLivraisonAction(saved, 'valider'))) notice.value = saved.retour ? 'Retour validé : le stock est rentré.' : 'Bon validé : le stock est sorti.'
 }
 
 async function copyLink() {
@@ -120,6 +124,8 @@ const created = ref<{ doctype: string; name: string; label: string } | null>(nul
 async function createNext(kind: 'facture' | 'retour') {
 	const current = livraison.value
 	if (!current) return
+	const [title, message] = kind === 'facture' ? ['Créer la facture', `La facture du bon ${current.name} sera créée en brouillon.`] : ['Créer le retour client', `Un bon de retour sera créé en brouillon sur ${current.name} : vous y saisirez les quantités rendues.`]
+	if (!(await confirmAction({ title, message, confirmLabel: title }))) return
 	let result: { doctype: string; name: string } | null = null
 	const done = await perform(async () => {
 		const response = await createLivraisonSuivante(current, kind)

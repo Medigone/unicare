@@ -19,6 +19,7 @@ import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
 import { deletePaiement, paiementActivity, paiementPdfUrl, paiementPrintUrl, runPaiementAction } from '@/lib/api'
 import { formatAmount } from '@/lib/clients'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { PAIEMENT_STATUS, type PaiementDetail } from '@/lib/paiements'
 import { usePaiement } from '@/lib/usePaiement'
@@ -60,6 +61,7 @@ function onSaved(updated: PaiementDetail) {
 }
 async function valider() {
 	const current = paiement.value
+	if (!current || !(await confirmAction({ title: 'Valider le paiement', message: `Le paiement ${current.name} sera validé : l'écriture comptable est passée et les pièces rapprochées sont mises à jour. Il ne se modifie plus ensuite.`, confirmLabel: 'Valider le paiement' }))) return
 	if (current && (await perform(() => runPaiementAction(current, 'valider')))) notice.value = 'Paiement validé : les pièces rapprochées sont à jour.'
 }
 async function copyLink() {

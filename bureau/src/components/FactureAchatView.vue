@@ -22,6 +22,7 @@ import { createAvoirFournisseur, deleteFactureAchat, factureAchatActivity, factu
 import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
 import { dayFromToday, parseNumber } from '@/lib/devis'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { factureAchatStatus as factureStatus, factureAchatTone as factureTone, validatePaiementFournisseur as validateEncaissement, type FactureAchatValues, type PaiementFournisseurValues as EncaissementValues } from '@/lib/facturesAchat'
 import { useFactureAchat } from '@/lib/useFactureAchat'
@@ -111,10 +112,13 @@ async function saveDraft() {
 	return done
 }
 async function valider() {
-	if (draftDirty.value && !(await saveDraft())) return
 	const current = facture.value
-	if (!current || current.blocked.length) return
-	if (await perform(() => runFactureAchatAction(current, 'valider'))) notice.value = current.avoir ? 'Avoir validé.' : 'Facture validée.'
+	if (!current) return
+	if (!(await confirmAction({ title: current.avoir ? "Valider l'avoir" : 'Valider la facture', message: current.avoir ? `L'avoir ${current.name} sera validé : l'écriture comptable est passée et il ne se modifie plus.` : `La facture d'achat ${current.name} sera validée : l'écriture comptable est passée et elle ne se modifie plus.`, confirmLabel: current.avoir ? "Valider l'avoir" : 'Valider la facture' }))) return
+	if (draftDirty.value && !(await saveDraft())) return
+	const saved = facture.value
+	if (!saved || saved.blocked.length) return
+	if (await perform(() => runFactureAchatAction(saved, 'valider'))) notice.value = saved.avoir ? 'Avoir validé.' : 'Facture validée.'
 }
 
 // Paiement au fournisseur : le reste à payer proposé, en espèces par défaut.
@@ -161,6 +165,7 @@ const createdAvoir = ref<string | null>(null)
 async function avoir() {
 	const current = facture.value
 	if (!current) return
+	if (!(await confirmAction({ title: 'Créer un avoir fournisseur', message: `Un avoir sera créé en brouillon sur ${current.name}, avec toutes les quantités : vous réduirez ensuite ce qui n'est pas crédité.`, confirmLabel: 'Créer un avoir fournisseur' }))) return
 	let name = ''
 	const done = await perform(async () => {
 		const result = await createAvoirFournisseur(current)

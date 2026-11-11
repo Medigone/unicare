@@ -19,6 +19,7 @@ import { createDevisCommande, deleteDevis, devisActivity, devisPdfUrl, devisPrin
 import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
 import { dayFromToday, type DevisDetail } from '@/lib/devis'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useDevis } from '@/lib/useDevis'
 
@@ -62,6 +63,7 @@ function onSaved(updated: DevisDetail) {
 // Valider : le serveur refuse s'il reste un blocage, la fiche l'affiche déjà.
 async function valider() {
 	const current = devis.value
+	if (!current || !(await confirmAction({ title: 'Valider le devis', message: `Le devis ${current.name} sera validé : il ne pourra plus être modifié.`, confirmLabel: 'Valider le devis' }))) return
 	if (current && (await perform(() => runDevisAction(current, 'valider')))) notice.value = 'Devis validé.'
 }
 

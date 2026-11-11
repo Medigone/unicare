@@ -23,6 +23,7 @@ import { formatAmount } from '@/lib/clients'
 import { STATUS_ACTIONS } from '@/lib/commandes'
 import { A_RECEVOIR, formatPercent, type CommandeAchatDetail, type StatusAction } from '@/lib/commandesAchat'
 import { dayFromToday } from '@/lib/devis'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useCommandeAchat } from '@/lib/useCommandeAchat'
 
@@ -71,11 +72,13 @@ function onSaved(updated: CommandeAchatDetail) {
 
 async function valider() {
 	const current = commande.value
+	if (!current || !(await confirmAction({ title: 'Valider la commande', message: `La commande d'achat ${current.name} sera validée : elle ne se modifie plus et attend sa réception.`, confirmLabel: 'Valider la commande' }))) return
 	if (current && (await perform(() => runCommandeAchatAction(current, 'valider')))) notice.value = 'Commande validée.'
 }
 async function changeStatus(action: StatusAction) {
 	const current = commande.value
 	const label = STATUS_ACTIONS.find((item) => item.key === action)
+	if (!current || !label || !(await confirmAction({ title: label.label, message: label.confirm(current.name), confirmLabel: label.label, danger: action === 'cloturer' }))) return
 	if (current && (await perform(() => setCommandeAchatStatus(current, action)))) notice.value = label?.done ?? ''
 }
 
@@ -84,6 +87,8 @@ const created = ref<{ doctype: string; name: string; label: string } | null>(nul
 async function createNext(kind: 'reception' | 'facture') {
 	const current = commande.value
 	if (!current) return
+	const [title, message] = kind === 'reception' ? ['Créer la réception', `La réception de la commande ${current.name} sera créée en brouillon, avec les quantités restant à recevoir.`] : ['Créer la facture d\'achat', `La facture d'achat de la commande ${current.name} sera créée en brouillon, avec ce qui reste à facturer.`]
+	if (!(await confirmAction({ title, message, confirmLabel: title }))) return
 	let result: { doctype: string; name: string; note: string | null } | null = null
 	const done = await perform(async () => {
 		const response = await createCommandeAchatSuivante(current, kind)

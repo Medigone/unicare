@@ -23,6 +23,7 @@ import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
 import { formatPercent, STATUS_ACTIONS, type CommandeDetail, type StatusAction } from '@/lib/commandes'
 import { dayFromToday } from '@/lib/devis'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useCommande } from '@/lib/useCommande'
 
@@ -68,11 +69,13 @@ function onSaved(updated: CommandeDetail) {
 
 async function valider() {
 	const current = commande.value
+	if (!current || !(await confirmAction({ title: 'Valider la commande', message: `La commande ${current.name} sera validée : elle réserve le stock et ne se modifie plus.`, confirmLabel: 'Valider la commande' }))) return
 	if (current && (await perform(() => runCommandeAction(current, 'valider')))) notice.value = 'Commande validée.'
 }
 async function changeStatus(action: StatusAction) {
 	const current = commande.value
 	const label = STATUS_ACTIONS.find((item) => item.key === action)
+	if (!current || !label || !(await confirmAction({ title: label.label, message: label.confirm(current.name), confirmLabel: label.label, danger: action === 'cloturer' }))) return
 	if (current && (await perform(() => setCommandeStatus(current, action)))) notice.value = label?.done ?? ''
 }
 
@@ -81,6 +84,8 @@ const created = ref<{ doctype: string; name: string; label: string } | null>(nul
 async function createNext(kind: 'livraison' | 'facture') {
 	const current = commande.value
 	if (!current) return
+	const [title, message] = kind === 'livraison' ? ['Créer le bon de livraison', `Le bon de livraison de la commande ${current.name} sera créé en brouillon, avec les quantités restant à livrer.`] : ['Créer la facture', `La facture de la commande ${current.name} sera créée en brouillon, avec ce qui reste à facturer.`]
+	if (!(await confirmAction({ title, message, confirmLabel: title }))) return
 	let result: { doctype: string; name: string } | null = null
 	const done = await perform(async () => {
 		const response = await createSuivante(current, kind)

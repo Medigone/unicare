@@ -19,6 +19,7 @@ import TagEditor from './TagEditor.vue'
 import { createReceptionSuivante, deleteReception, prepareReception, receptionActivity, receptionPrintUrl, runReceptionAction } from '@/lib/api'
 import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
+import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { changedReceptionPrep, fillDepot, receptionPrepLines, type ReceptionLine, type ReceptionPrep } from '@/lib/receptions'
 import { useReception } from '@/lib/useReception'
@@ -90,10 +91,13 @@ async function savePrep() {
 	return done
 }
 async function valider() {
-	if (prepDirty.value && !(await savePrep())) return
 	const current = livraison.value
-	if (!current || current.blocked.length) return
-	if (await perform(() => runReceptionAction(current, 'valider'))) notice.value = current.retour ? 'Retour validé : le stock est sorti.' : 'Réception validée : le stock est entré.'
+	if (!current) return
+	if (!(await confirmAction({ title: current.retour ? 'Valider le retour' : 'Valider la réception', message: current.retour ? `Le retour ${current.name} sera validé : la marchandise sort du stock.` : `La réception ${current.name} sera validée : la marchandise entre en stock et la commande avance.`, confirmLabel: current.retour ? 'Valider le retour' : 'Valider la réception' }))) return
+	if (prepDirty.value && !(await savePrep())) return
+	const saved = livraison.value
+	if (!saved || saved.blocked.length) return
+	if (await perform(() => runReceptionAction(saved, 'valider'))) notice.value = saved.retour ? 'Retour validé : le stock est sorti.' : 'Réception validée : le stock est entré.'
 }
 
 async function copyLink() {
@@ -110,6 +114,8 @@ const created = ref<{ doctype: string; name: string; label: string } | null>(nul
 async function createNext(kind: 'facture' | 'retour') {
 	const current = livraison.value
 	if (!current) return
+	const [title, message] = kind === 'facture' ? ['Créer la facture d\'achat', `La facture d'achat de la réception ${current.name} sera créée en brouillon.`] : ['Créer le retour fournisseur', `Un retour fournisseur sera créé en brouillon sur ${current.name} : vous y saisirez les quantités rendues.`]
+	if (!(await confirmAction({ title, message, confirmLabel: title }))) return
 	let result: { doctype: string; name: string; note: string | null } | null = null
 	const done = await perform(async () => {
 		const response = await createReceptionSuivante(current, kind)

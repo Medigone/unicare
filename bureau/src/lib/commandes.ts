@@ -118,11 +118,11 @@ export interface CommandeOptions {
 }
 
 /** Libellés des changements de statut, comme les boutons du Desk. */
-export const STATUS_ACTIONS: { key: StatusAction; label: string; done: string }[] = [
-	{ key: 'attente', label: 'Mettre en attente', done: 'Commande mise en attente.' },
-	{ key: 'reprendre', label: 'Reprendre', done: 'Commande reprise.' },
-	{ key: 'cloturer', label: 'Clôturer', done: 'Commande clôturée.' },
-	{ key: 'rouvrir', label: 'Rouvrir', done: 'Commande rouverte.' },
+export const STATUS_ACTIONS: { key: StatusAction; label: string; done: string; confirm: (name: string) => string }[] = [
+	{ key: 'attente', label: 'Mettre en attente', done: 'Commande mise en attente.', confirm: (name) => `La commande ${name} sera mise en attente : plus aucune livraison, réception ni facture tant qu'elle n'est pas reprise.` },
+	{ key: 'reprendre', label: 'Reprendre', done: 'Commande reprise.', confirm: (name) => `La commande ${name} reprend son cours : ses livraisons, réceptions et factures redeviennent possibles.` },
+	{ key: 'cloturer', label: 'Clôturer', done: 'Commande clôturée.', confirm: (name) => `La commande ${name} sera clôturée : ce qui reste à livrer, recevoir ou facturer est abandonné. Elle pourra être rouverte.` },
+	{ key: 'rouvrir', label: 'Rouvrir', done: 'Commande rouverte.', confirm: (name) => `La commande ${name} sera rouverte : ce qui restait à faire redevient à faire.` },
 ]
 
 /** Pourcentage livré ou facturé : « 40 % », sans décimale inutile. */
