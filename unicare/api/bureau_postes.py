@@ -40,6 +40,11 @@ DOCTYPES_INTERFACE = (
 	"Purchase Order",
 	"Purchase Receipt",
 	"Purchase Invoice",
+	"Warehouse",
+	"Stock Entry",
+	"Stock Reconciliation",
+	"Batch",
+	"Stock Ledger Entry",
 	# Solde des clients : colonne et vue affichées seulement à qui lit la comptabilité.
 	"GL Entry",
 	# Stock des articles : colonne affichée seulement à qui lit les quantités par dépôt.

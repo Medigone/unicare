@@ -319,6 +319,21 @@ doc_events = {
 	"Purchase Invoice": {
 		"on_change": "unicare.bureau_events.on_change",
 		"on_trash": "unicare.bureau_events.on_trash",
+	},	"Warehouse": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Stock Entry": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Stock Reconciliation": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
+	"Batch": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
 	},
 }
 

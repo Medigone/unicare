@@ -28,6 +28,10 @@ WATCHED = {
 	"Purchase Order",
 	"Purchase Receipt",
 	"Purchase Invoice",
+	"Warehouse",
+	"Stock Entry",
+	"Stock Reconciliation",
+	"Batch",
 }
 
 

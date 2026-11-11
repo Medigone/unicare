@@ -20,6 +20,7 @@ from unicare.api.bureau_articles import ITEM, TYPE_FIELD, _article_for_write
 from unicare.api.bureau_clients import CUSTOMER, _client_for_write
 from unicare.api.bureau_commandes import COMMANDE, commande_for_bulk
 from unicare.api.bureau_commandes import bulk_guard as commande_guard
+from unicare.api.bureau_depots import depot_for_bulk
 from unicare.api.bureau_devis import DEVIS, bulk_guard, devis_for_bulk
 from unicare.api.bureau_factures import FACTURE, facture_for_bulk
 from unicare.api.bureau_factures import bulk_guard as facture_guard
@@ -148,6 +149,12 @@ BULK_DOCTYPES = {
 		},
 		"setters": {},
 		"guard": facture_achat_guard,
+	},
+	"Warehouse": {
+		"load": depot_for_bulk,
+		# Le nom, la société et la nature (groupe ou non) sont fixés à la création ; le compte se règle sur le Desk.
+		"excluded": {"warehouse_name", "company", "is_group", "account", "lft", "rgt", "old_parent"},
+		"setters": {},
 	},
 	PAIEMENT: {
 		"load": paiement_for_bulk,

@@ -10,6 +10,7 @@ import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livra
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
 import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
+import type { DepotDetail, DepotOptions, DepotsResponse, DepotValues, DepotView } from './depots'
 import type { ReceptionDetail, ReceptionPrepChange, ReceptionsResponse, ReceptionView } from './receptions'
 import type { CommandeAchatDetail, CommandeAchatOptions, CommandesAchatResponse, CommandeAchatView } from './commandesAchat'
 import type { DevisFournisseurDetail, DevisFournisseurOptions, DevisFournisseurResponse, DevisFournisseurView } from './devisFournisseur'
@@ -608,3 +609,33 @@ export const deleteClient = (client: { name: string; modified: string }) => call
 export const deleteFournisseur = (fournisseur: { name: string; modified: string }) =>
 	call<{ deleted: string }>(`${FOURNISSEURS}.delete_fournisseur`, { name: fournisseur.name, modified: fournisseur.modified }, true)
 export const deleteArticle = (article: { name: string; modified: string }) => call<{ deleted: string }>(`${ARTICLES}.delete_article`, { name: article.name, modified: article.modified }, true)
+
+/** Dépôts : liste, aperçu, fiche, création, modification et suppression. */
+const DEPOTS = 'unicare.api.bureau_depots'
+
+export const getDepots = (view: DepotView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<DepotsResponse>(`${DEPOTS}.get_depots`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getDepot = (name: string) => call<DepotDetail>(`${DEPOTS}.get_depot`, { name })
+export const getDepotFiche = (name: string) => call<DepotDetail>(`${DEPOTS}.get_depot`, { name, full: 1 })
+export const getDepotOptions = () => call<DepotOptions>(`${DEPOTS}.get_depot_options`)
+export const createDepot = (values: DepotValues) => call<{ name: string }>(`${DEPOTS}.create_depot`, { values }, true)
+export const updateDepot = (depot: DepotDetail, values: DepotValues) => call<DepotDetail>(`${DEPOTS}.update_depot`, { name: depot.name, modified: depot.modified, values }, true)
+export const deleteDepot = (depot: { name: string; modified: string }) => call<{ deleted: string }>(`${DEPOTS}.delete_depot`, { name: depot.name, modified: depot.modified }, true)
+
+export function depotActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${DEPOTS}.get_depot_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${DEPOTS}.add_depot_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${DEPOTS}.update_depot_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${DEPOTS}.delete_depot_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}

@@ -141,6 +141,13 @@ FILTER_LISTS = {
 		"outstanding_amount": "Reste à payer",
 		"_user_tags": "Tag",
 	},
+	"Warehouse": {
+		"parent_warehouse": "Groupe",
+		"warehouse_type": "Type",
+		"disabled": "Désactivé",
+		"warehouse_name": "Nom",
+		"_user_tags": "Tag",
+	},
 	"Payment Entry": {
 		"payment_type": "Sens",
 		"party_type": "Type de tiers",
