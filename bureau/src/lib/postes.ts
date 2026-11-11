@@ -19,6 +19,7 @@ import LucideTruck from '~icons/lucide/truck'
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard'
 import LucidePackage from '~icons/lucide/package'
 import LucideChartColumn from '~icons/lucide/chart-column'
+import LucideSettings2 from '~icons/lucide/settings-2'
 import { canRead } from './droits'
 
 export interface Poste {
@@ -142,6 +143,10 @@ export const NAV: Record<string, PosteModule[]> = {
 				{
 					title: 'Référentiel',
 					items: [{ id: 'recettes', label: 'Recettes', icon: LucideFileText, to: { name: 'Recettes' }, doctype: 'Recette de Conditionnement' }],
+				},
+				{
+					title: 'Réglages',
+					items: [{ id: 'reglages-production', label: 'Checklists et paramètres', icon: LucideSettings2, to: { name: 'ReglagesProduction' }, doctype: 'Checklist Ordre Conditionnement' }],
 				},
 			],
 		},

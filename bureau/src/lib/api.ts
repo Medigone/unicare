@@ -11,6 +11,7 @@ import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisR
 import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
 import type { InventaireDetail, InventaireOptions, InventairesResponse, InventaireView } from './inventaires'
+import type { ChecklistLigne, ReglagesProduction } from './reglages'
 import type { RecetteDetail, RecetteOptions, RecettesResponse, RecetteValues, RecetteView } from './recettes'
 import type { Besoin, OrdreDetail, OrdreOptions, OrdresResponse, OrdreValues, OrdreView } from './ordres'
 import type { MouvementDetail, MouvementOptions, MouvementsResponse, MouvementValues, MouvementView, StockArticleChoice } from './mouvements'
@@ -841,3 +842,11 @@ export function recetteActivity(name: string): ActivityApi {
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }
+
+/** Réglages de la production : checklists et paramètres. */
+const REGLAGES = 'unicare.api.bureau_reglages_production'
+export const getReglagesProduction = () => call<ReglagesProduction>(`${REGLAGES}.get_reglages`)
+export const saveChecklist = (checklist: { name?: string; modified?: string }, values: { titre?: string; actif: boolean; lignes: ChecklistLigne[] }) =>
+	call<ReglagesProduction>(`${REGLAGES}.save_checklist`, { name: checklist.name, modified: checklist.modified, values }, true)
+export const deleteChecklist = (checklist: { name: string; modified: string }) => call<ReglagesProduction>(`${REGLAGES}.delete_checklist`, { name: checklist.name, modified: checklist.modified }, true)
+export const saveParametresProduction = (modified: string, values: Record<string, unknown>) => call<ReglagesProduction>(`${REGLAGES}.save_parametres`, { modified, values }, true)

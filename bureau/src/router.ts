@@ -8,6 +8,7 @@ import InventairesPage from './pages/InventairesPage.vue'
 import MouvementsPage from './pages/MouvementsPage.vue'
 import OrdresPage from './pages/OrdresPage.vue'
 import RecettesPage from './pages/RecettesPage.vue'
+import ReglagesProductionPage from './pages/ReglagesProductionPage.vue'
 import FournisseursPage from './pages/FournisseursPage.vue'
 import CommandesPage from './pages/CommandesPage.vue'
 import CommandesAchatPage from './pages/CommandesAchatPage.vue'
@@ -68,6 +69,7 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/ordres/:id', name: 'OrdreFiche', component: OrdresPage, props: true, meta: { doctype: 'Ordre de Conditionnement' } },
 	{ path: '/recettes', name: 'Recettes', component: RecettesPage, meta: { doctype: 'Recette de Conditionnement' } },
 	{ path: '/recettes/:id', name: 'RecetteFiche', component: RecettesPage, props: true, meta: { doctype: 'Recette de Conditionnement' } },
+	{ path: '/reglages-production', name: 'ReglagesProduction', component: ReglagesProductionPage, meta: { doctype: 'Checklist Ordre Conditionnement' } },
 	{ path: '/paiements', name: 'Paiements', component: PaiementsPage, meta: { doctype: 'Payment Entry' } },
 	{ path: '/paiements/:id', name: 'PaiementFiche', component: PaiementsPage, props: true, meta: { doctype: 'Payment Entry' } },
 	{ path: '/:pathMatch(.*)*', redirect: '/' },

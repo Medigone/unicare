@@ -1853,3 +1853,56 @@
 		font-size: 13px;
 	}
 }
+
+/* Réglages de la production : deux cartes côte à côte, onglets des checklists et lignes de contrôles. */
+@layer components {
+	.reglages-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.875rem;
+		align-items: start;
+	}
+	.reglages-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		padding: 1rem;
+	}
+	.reglages-tab {
+		height: 30px;
+		padding: 0 0.75rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: 8px;
+		background-color: var(--surface-cards);
+		font-size: 13px;
+		font-weight: 500;
+		@apply text-ink-gray-8;
+	}
+	.reglages-tab[aria-pressed='true'] {
+		border-color: rgb(var(--accent-rgb) / 0.35);
+		background-color: var(--selection, #edf3f4);
+		color: var(--accent-fonce);
+		font-weight: 600;
+	}
+	.reglages-lines {
+		display: flex;
+		flex-direction: column;
+	}
+	.reglages-line {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.375rem 0;
+		border-top: 1px solid var(--line-soft);
+	}
+	.reglages-line-head {
+		font-size: 12px;
+		font-weight: 600;
+		@apply text-ink-gray-7;
+	}
+	@media (max-width: 1100px) {
+		.reglages-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+}
