@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { amount, compactAmount, niceScale, SERIES_COLORS, type Tendance } from '@/lib/tableaux'
+import { compactAmount, niceScale, SERIES_COLORS, valueText, type Tendance } from '@/lib/tableaux'
 
 /**
  * Barres groupées, une couleur par série (ordre fixe), axe unique partant de zéro.
  * Survol ou focus d'une période : bulle avec les valeurs exactes. Un tableau masqué reprend les chiffres pour les lecteurs d'écran.
  */
 const props = defineProps<{ tendance: Tendance }>()
+const amount = (value: number | null | undefined) => valueText(value, props.tendance.unite)
 
 const WIDTH = 600
 const HEIGHT = 232

@@ -6,7 +6,7 @@ import { closeRealtime, connectRealtime, isForeignChange, throttledReload, type 
 import BarChart from '@/components/BarChart.vue'
 import BureauShell from '@/components/BureauShell.vue'
 import { getTableau } from '@/lib/api'
-import { amount, ficheRoute, indicateurValue, lienRoute, MODULE_LABELS, PERIODES, SERIES_COLORS, type PeriodeKey, type Tableau, type TableauModule } from '@/lib/tableaux'
+import { amount, ficheRoute, valueText, indicateurValue, lienRoute, MODULE_LABELS, PERIODES, SERIES_COLORS, type PeriodeKey, type Tableau, type TableauModule } from '@/lib/tableaux'
 
 /**
  * Tableau de bord d'un module : quatre indicateurs (chacun ouvre sa liste filtrée), deux graphiques,
@@ -124,7 +124,7 @@ const percent = (value: number, max: number) => `${Math.max(value > 0 ? 2 : 0, (
 							<li v-for="ligne in tableau.repartition.lignes" :key="ligne.name">
 								<div class="flex justify-between gap-3 text-sm">
 									<RouterLink :to="ficheRoute(ligne.fiche, ligne.name)" class="truncate font-medium text-link">{{ ligne.label }}</RouterLink>
-									<span class="flex-none font-medium tabular-nums text-ink-gray-9">{{ amount(ligne.valeur) }}</span>
+									<span class="flex-none font-medium tabular-nums text-ink-gray-9">{{ valueText(ligne.valeur, tableau.repartition.unite) }}</span>
 								</div>
 								<div class="tdb-track"><div class="tdb-fill" :style="{ width: percent(ligne.valeur, repartitionMax), background: SERIES_COLORS[0] }"></div></div>
 							</li>

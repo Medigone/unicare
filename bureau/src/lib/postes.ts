@@ -135,6 +135,7 @@ export const NAV: Record<string, PosteModule[]> = {
 			id: 'production',
 			label: 'Production',
 			icon: LucideFactory,
+			dashboard: { name: 'TableauProduction' },
 			groups: [
 				{
 					title: 'Pièces',

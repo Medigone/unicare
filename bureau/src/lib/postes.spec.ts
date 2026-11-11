@@ -25,7 +25,7 @@ describe('postes du bureau', () => {
 		expect(pages('conditionnement', 'achats')).toEqual(['tableau-achats', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'fournisseurs'])
 		expect(pages('conditionnement', 'stock')).toEqual(['tableau-stock', 'etat-stock', 'mouvements', 'inventaires', 'lots', 'articles', 'depots'])
 		expect(pages('conditionnement', 'tresorerie')).toEqual(['tableau-tresorerie', 'paiements'])
-		expect(pages('conditionnement', 'production')).toEqual(['ordres', 'recettes', 'reglages-production'])
+		expect(pages('conditionnement', 'production')).toEqual(['tableau-production', 'ordres', 'recettes', 'reglages-production'])
 	})
 
 	it('retire une page non lue, puis le module resté vide', () => {
@@ -45,7 +45,7 @@ describe('postes du bureau', () => {
 		expect(moduleTarget(list.find((module) => module.id === 'stock')!)).toEqual({ to: { name: 'TableauStock' }, href: undefined })
 		expect(moduleOf(list, 'tableau-ventes')?.id).toBe('ventes')
 		expect(moduleTarget(list.find((module) => module.id === 'accueil')!)).toEqual({ to: { name: 'Home' } })
-		expect(moduleTarget(list.find((module) => module.id === 'production')!).to).toEqual({ name: 'Ordres' })
+		expect(moduleTarget(list.find((module) => module.id === 'production')!).to).toEqual({ name: 'TableauProduction' })
 	})
 
 	it('liste toutes les pages, avec leur module, pour « Aller à… »', () => {

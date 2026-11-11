@@ -22,7 +22,7 @@ from frappe.utils import add_days, add_months, cint, cstr, date_diff, flt, get_f
 from unicare.api.bureau_list import MAX_PAGE_LENGTH
 from unicare.api.bureau_postes import require_bureau
 
-MODULES = ("ventes", "achats", "stock", "tresorerie")
+MODULES = ("ventes", "achats", "stock", "tresorerie", "production")
 PERIODES = ("mois", "30j", "trimestre", "annee")
 LIMITE = 5
 
@@ -793,7 +793,173 @@ def _tresorerie(p):
 	return {"indicateurs": indicateurs, "tendance": tendance, "echeancier": echeancier, "listes": listes}
 
 
-BUILDERS = {"ventes": _ventes, "achats": _achats, "stock": _stock, "tresorerie": _tresorerie}
+
+# Production --------------------------------------------------------------------------------------------------------
+
+
+def _production(p):
+	from unicare.api.bureau_ordres import ETAPES, ORDRE, hors_tolerance
+	from unicare.conditionnement.constants import STATUT_BROUILLON, STATUT_EN_PRODUCTION, STATUT_PREPARE, STATUT_TERMINE
+
+	jour = getdate(today())
+	indicateurs, listes, tendance, repartition = [], [], None, None
+	if not _readable(ORDRE):
+		return {"indicateurs": indicateurs, "tendance": tendance, "repartition": repartition, "listes": listes}
+
+	en_cours = frappe.get_list(
+		ORDRE,
+		filters=[["workflow_state", "in", [STATUT_BROUILLON, STATUT_PREPARE, STATUT_EN_PRODUCTION]]],
+		fields=["name", "workflow_state", "nom_produit", "produit_fini", "qty_prevue", "uom", "date_prevue", "date_heure_production"],
+		order_by="date_prevue asc",
+		limit_page_length=0,
+	)
+	retard = [row for row in en_cours if row.date_prevue and getdate(row.date_prevue) < jour]
+	production = [row for row in en_cours if row.workflow_state == STATUT_EN_PRODUCTION]
+	prets = [row for row in en_cours if row.workflow_state == STATUT_PREPARE]
+	retard_prod = [row for row in production if row in retard]
+	indicateurs.append({
+		"key": "en_production",
+		"label": _("En production"),
+		"valeur": len(production),
+		"format": "nombre",
+		"details": [{"texte": _("{0} en retard").format(len(retard_prod)), "ton": "red", "fort": True}] if retard_prod else [{"texte": _("sur la ligne en ce moment")}],
+		"lien": {"page": "Ordres", "vue": "en_production"},
+	})
+	indicateurs.append({
+		"key": "prets",
+		"label": _("Prêts à démarrer"),
+		"valeur": len(prets),
+		"format": "nombre",
+		"details": [{"texte": _("matières déjà à l'atelier")}],
+		"lien": {"page": "Ordres", "vue": "prets"},
+	})
+
+	def termines(debut, fin):
+		return frappe.get_list(
+			ORDRE,
+			filters=[["workflow_state", "=", STATUT_TERMINE], ["date_heure_cloture", ">=", debut], ["date_heure_cloture", "<", add_days(fin, 1)]],
+			fields=["name", "produit_fini", "nom_produit", "qty_prevue", "qty_reelle_pf", "rendement_reel", "recette", "uom", "date_heure_cloture"],
+			limit_page_length=0,
+		)
+
+	faits = termines(p["debut"], p["fin"])
+	avant = termines(p["avant_debut"], p["avant_fin"])
+	produit = flt(sum(flt(row.qty_reelle_pf) for row in faits), 3)
+	variation = _variation(produit, sum(flt(row.qty_reelle_pf) for row in avant), p["avant"])
+	if variation:
+		variation[0]["ton"] = None
+	quand = _("ce mois") if p["key"] == "mois" else p["libelle"].lower()
+	indicateurs.append({
+		"key": "produit",
+		"label": _("Produit ({0})").format(quand),
+		"valeur": produit,
+		"format": "nombre",
+		"details": (variation or []) + [{"texte": _("· {0} ordre(s) terminé(s)").format(len(faits)) if variation else _("{0} ordre(s) terminé(s)").format(len(faits))}],
+		"lien": {"page": "Ordres", "vue": "termines"},
+	})
+	from unicare.conditionnement.stock import get_parametres
+
+	tolerance = flt(get_parametres().rendement_tolerance_pct) or 10
+	moyenne = flt(sum(flt(row.rendement_reel) for row in faits) / len(faits), 1) if faits else 0
+	indicateurs.append({
+		"key": "rendement",
+		"label": _("Rendement moyen"),
+		"valeur": moyenne,
+		"format": "pourcent",
+		"details": [{"texte": _("tolérance ± {0} %").format(_qty(tolerance))}] if faits else [{"texte": _("Aucun ordre terminé sur la période")}],
+		"lien": {"page": "Ordres", "vue": "termines"},
+	})
+
+	mois = _months(jour)
+	debut = getdate(f"{mois[0][0]}-01")
+	totaux = defaultdict(float)
+	for row in termines(debut, jour):
+		day = getdate(row.date_heure_cloture)
+		totaux[f"{day.year}-{day.month:02d}"] += flt(row.qty_reelle_pf)
+	tendance = {
+		"titre": _("Quantité produite par mois"),
+		"unite": "quantite",
+		"series": [{"key": "produit", "label": _("Produit")}],
+		"points": [{"label": label, "titre": titre, "valeurs": [flt(totaux[key], 3)]} for key, label, titre in mois],
+	}
+	par_produit, noms = defaultdict(float), {}
+	for row in faits:
+		par_produit[row.produit_fini] += flt(row.qty_reelle_pf)
+		noms[row.produit_fini] = row.nom_produit or row.produit_fini
+	repartition = {
+		"titre": _("Production par produit"),
+		"sous_titre": _("unités, {0}").format(quand),
+		"unite": "quantite",
+		"lignes": [
+			{"label": noms[key], "valeur": flt(value, 3), "fiche": "Article", "name": key}
+			for key, value in sorted(par_produit.items(), key=lambda item: item[1], reverse=True)[:LIMITE]
+		],
+		"note": _("Un clic ouvre la fiche du produit."),
+		"vide": _("Aucun ordre terminé sur la période."),
+	}
+
+	def ordre_ligne(row, badge=None, detail=None):
+		return _ligne(
+			"OrdreFiche",
+			row.name,
+			detail=detail or f"{row.nom_produit or row.produit_fini} · {_qty(row.qty_prevue)} {row.uom or ''}".strip(),
+			badge=badge,
+		)
+
+	listes.append(_liste(
+		"ordres_retard",
+		_("Ordres en retard"),
+		{"page": "Ordres", "vue": "en_retard"},
+		[ordre_ligne(row, {"texte": ETAPES.get(row.workflow_state, row.workflow_state) + " · " + _("{0} j").format(date_diff(jour, getdate(row.date_prevue))), "ton": "red"}) for row in retard],
+		len(retard),
+		"red",
+	))
+	a_planifier = [row for row in en_cours if row.workflow_state == STATUT_BROUILLON]
+	manquants = {}
+	if a_planifier:
+		for row in frappe.get_all(
+			"Checklist Preparation",
+			filters={"parent": ["in", [o.name for o in a_planifier]], "parenttype": ORDRE, "obligatoire": 1, "conforme": 0},
+			fields=["parent", "controle"],
+			order_by="idx asc",
+		):
+			manquants.setdefault(row.parent, []).append(row.controle)
+	controles = [row for row in a_planifier if row.name in manquants]
+	listes.append(_liste(
+		"controles",
+		_("Contrôles à faire avant préparation"),
+		{"page": "Ordres", "vue": "a_planifier"},
+		[ordre_ligne(row, _jours(row.date_prevue), ", ".join(manquants[row.name])) for row in controles],
+		len(controles),
+		"amber",
+	))
+	listes.append(_liste(
+		"prets",
+		_("Prêts à démarrer"),
+		{"page": "Ordres", "vue": "prets"},
+		[ordre_ligne(row, _jours(row.date_prevue)) for row in prets],
+		len(prets),
+	))
+	hors = []
+	for row in faits:
+		ecart, rendement, _vise, _tol = hors_tolerance(row, row.qty_reelle_pf)
+		if ecart:
+			hors.append((row, rendement))
+	listes.append(_liste(
+		"rendements",
+		_("Rendements hors tolérance"),
+		{"page": "Ordres", "vue": "termines"},
+		[
+			ordre_ligne(row, {"texte": f"{_qty(round(rendement, 1))} %", "ton": "red"}, f"{row.nom_produit or row.produit_fini} · {_qty(row.qty_reelle_pf)} sur {_qty(row.qty_prevue)}")
+			for row, rendement in hors
+		],
+		len(hors),
+		"red",
+	))
+	return {"indicateurs": indicateurs, "tendance": tendance, "repartition": repartition, "listes": listes}
+
+
+BUILDERS = {"ventes": _ventes, "achats": _achats, "stock": _stock, "tresorerie": _tresorerie, "production": _production}
 
 
 @frappe.whitelist()

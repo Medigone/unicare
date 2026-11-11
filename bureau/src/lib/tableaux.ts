@@ -1,10 +1,10 @@
 /** Tableaux de bord des modules (unicare/api/bureau_tableaux.py) : types, périodes et mise en forme des graphiques. */
 
-export type TableauModule = 'ventes' | 'achats' | 'stock' | 'tresorerie'
+export type TableauModule = 'ventes' | 'achats' | 'stock' | 'tresorerie' | 'production'
 export type PeriodeKey = 'mois' | '30j' | 'trimestre' | 'annee'
 export type Ton = 'red' | 'amber' | 'green' | 'blue' | 'gray' | null
 
-export const MODULE_LABELS: Record<TableauModule, string> = { ventes: 'Ventes', achats: 'Achats', stock: 'Stock', tresorerie: 'Trésorerie' }
+export const MODULE_LABELS: Record<TableauModule, string> = { ventes: 'Ventes', achats: 'Achats', stock: 'Stock', tresorerie: 'Trésorerie', production: 'Production' }
 
 export const PERIODES: { key: PeriodeKey; label: string }[] = [
 	{ key: 'mois', label: 'Ce mois' },
@@ -23,7 +23,7 @@ export interface Indicateur {
 	key: string
 	label: string
 	valeur: number
-	format: 'montant' | 'nombre'
+	format: 'montant' | 'nombre' | 'pourcent'
 	ton?: Ton
 	details: { texte: string; ton?: Ton; fort?: boolean }[]
 	lien: TableauLien
@@ -34,8 +34,12 @@ export interface Serie {
 	label: string
 }
 
+/** Unité des valeurs d'un graphique : des dinars (par défaut) ou des quantités. */
+export type Unite = 'montant' | 'quantite'
+
 export interface Tendance {
 	titre: string
+	unite?: Unite
 	note?: string
 	series: Serie[]
 	points: { label: string; titre: string; valeurs: number[] }[]
@@ -43,6 +47,7 @@ export interface Tendance {
 
 export interface Repartition {
 	titre: string
+	unite?: Unite
 	sous_titre?: string
 	note?: string | null
 	vide: string
@@ -117,7 +122,9 @@ export function amount(value?: number | null) {
 }
 
 export function indicateurValue(indicateur: Indicateur) {
-	return indicateur.format === 'montant' ? amount(indicateur.valeur) : new Intl.NumberFormat('fr-FR').format(indicateur.valeur)
+	if (indicateur.format === 'montant') return amount(indicateur.valeur)
+	if (indicateur.format === 'pourcent') return `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(indicateur.valeur)} %`
+	return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 }).format(indicateur.valeur)
 }
 
 /** La liste derrière un lien : sa page, avec la vue demandée. */
@@ -128,4 +135,11 @@ export function lienRoute(lien: TableauLien) {
 /** Les fiches d'un tiers ou d'un dépôt prennent `id`, comme les pièces. */
 export function ficheRoute(fiche: string, name: string) {
 	return { name: fiche, params: { id: name } }
+}
+
+/** Une valeur de graphique selon son unité : « 428 400 DA » ou « 1 476 ». */
+export function valueText(value: number | null | undefined, unite: Unite = 'montant') {
+	if (unite === 'montant') return amount(value)
+	if (value == null) return '—'
+	return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 }).format(value)
 }

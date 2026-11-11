@@ -33,6 +33,7 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/tableau-de-bord/achats', name: 'TableauAchats', component: TableauPage, props: { module: 'achats' } },
 	{ path: '/tableau-de-bord/stock', name: 'TableauStock', component: TableauPage, props: { module: 'stock' } },
 	{ path: '/tableau-de-bord/tresorerie', name: 'TableauTresorerie', component: TableauPage, props: { module: 'tresorerie' } },
+	{ path: '/tableau-de-bord/production', name: 'TableauProduction', component: TableauPage, props: { module: 'production' } },
 	{ path: '/clients', name: 'Clients', component: ClientsPage, meta: { doctype: 'Customer' } },
 	{ path: '/clients/:id', name: 'Client', component: ClientsPage, props: true, meta: { doctype: 'Customer' } },
 	{ path: '/fournisseurs', name: 'Fournisseurs', component: FournisseursPage, meta: { doctype: 'Supplier' } },
