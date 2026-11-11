@@ -1,32 +1,30 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import LucideCopyPlus from '~icons/lucide/copy-plus'
 import StatusPill from '@shared/components/StatusPill.vue'
 import { openVersion, type Versions } from '@/lib/versions'
 
 /**
- * Bandeau des versions d'une pièce : annulée, elle propose sa nouvelle version (ou mène à celle qui existe) ;
- * refaite, elle rappelle la pièce d'origine. `fiche` : la route de la fiche de ce type de pièce.
+ * Bandeau des versions d'une pièce : annulée, il dit comment la corriger (le bouton « Nouvelle version » est dans
+ * l'en-tête de la fiche) ou mène à la version qui la remplace ; refaite, il rappelle la pièce d'origine.
+ * `fiche` : la route de la fiche de ce type de pièce.
  */
-const props = defineProps<{ versions: Versions; docstatus: number; fiche: string; canAmend: boolean; busy?: boolean }>()
-const emit = defineEmits<{ amend: [] }>()
+const props = defineProps<{ versions: Versions; docstatus: number; fiche: string; canAmend: boolean }>()
 
 const remplacante = computed(() => openVersion(props.versions))
 const autres = computed(() => props.versions.suivantes)
 </script>
 
 <template>
-	<div v-if="docstatus === 2" role="status" class="flex flex-wrap items-center gap-2 rounded-control tone-gray px-3.5 py-2.5">
-		<span class="flex-auto">
+	<p v-if="docstatus === 2" role="status" class="rounded-control tone-gray px-3.5 py-2.5">
+		<span>
 			<strong class="font-semibold">Pièce annulée.</strong>
 			<template v-if="remplacante">
 				Remplacée par
 				<RouterLink class="ref-link tabular-nums" :to="{ name: fiche, params: { id: remplacante.name } }">{{ remplacante.name }}</RouterLink>.
 			</template>
-			<template v-else-if="canAmend"> Pour la corriger, créez une nouvelle version : un brouillon avec le même contenu.</template>
+			<template v-else-if="canAmend"> Pour la corriger, créez une nouvelle version (bouton en haut) : un brouillon avec le même contenu.</template>
 		</span>
-		<button v-if="canAmend && !remplacante" type="button" class="btn-secondary" :disabled="busy" @click="emit('amend')"><LucideCopyPlus class="h-3.5 w-3.5" aria-hidden="true" />Nouvelle version</button>
-	</div>
+	</p>
 	<p v-if="versions.origine" class="text-sm text-ink-gray-7">
 		Nouvelle version de
 		<RouterLink class="ref-link tabular-nums" :to="{ name: fiche, params: { id: versions.origine.name } }">{{ versions.origine.name }}</RouterLink>

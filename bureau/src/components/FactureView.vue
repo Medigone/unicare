@@ -300,7 +300,7 @@ async function nouvelleVersion(confirmed = false) {
 					<p v-if="actionError" role="alert" class="flex-none rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
 					<div class="bureau-detail">
 						<div class="bureau-center">
-							<VersionsCard :versions="facture.versions" :docstatus="facture.docstatus" fiche="FactureFiche" :can-amend="can('nouvelle_version')" :busy="busy" @amend="nouvelleVersion()" />
+							<VersionsCard :versions="facture.versions" :docstatus="facture.docstatus" fiche="FactureFiche" :can-amend="can('nouvelle_version')" />
 							<div v-if="can('valider') && facture.blocked.length && !draftDirty" role="status" class="rounded-control tone-amber px-3.5 py-2.5"><strong class="font-semibold">Pas encore validable :</strong> {{ facture.blocked.join(' ') }}</div>
 							<div v-if="late" role="status" class="rounded-control tone-red px-3.5 py-2.5">
 								<strong class="font-semibold">Échéance dépassée</strong> depuis le {{ formatDay(facture.echeance) }} : {{ formatAmount(facture.reste) }} DA restent dus.

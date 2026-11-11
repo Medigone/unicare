@@ -188,7 +188,7 @@ async function nouvelleVersion(confirmed = false) {
 					<p v-if="actionError" role="alert" class="flex-none rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
 					<div class="bureau-detail">
 						<div class="bureau-center">
-							<VersionsCard :versions="paiement.versions" :docstatus="paiement.docstatus" fiche="PaiementFiche" :can-amend="can('nouvelle_version')" :busy="busy" @amend="nouvelleVersion()" />
+							<VersionsCard :versions="paiement.versions" :docstatus="paiement.docstatus" fiche="PaiementFiche" :can-amend="can('nouvelle_version')" />
 							<div v-if="paiement.status === 'Draft'" role="status" class="rounded-control tone-amber px-3.5 py-2.5">
 								<strong class="font-semibold">Brouillon :</strong> relisez le montant et le rapprochement, puis validez pour passer l'écriture.
 							</div>

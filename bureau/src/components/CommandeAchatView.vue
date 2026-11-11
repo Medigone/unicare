@@ -219,7 +219,7 @@ async function nouvelleVersion(confirmed = false) {
 					<p v-if="actionError" role="alert" class="flex-none rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
 					<div class="bureau-detail">
 						<div class="bureau-center">
-							<VersionsCard :versions="commande.versions" :docstatus="commande.docstatus" fiche="CommandeAchatFiche" :can-amend="can('nouvelle_version')" :busy="busy" @amend="nouvelleVersion()" />
+							<VersionsCard :versions="commande.versions" :docstatus="commande.docstatus" fiche="CommandeAchatFiche" :can-amend="can('nouvelle_version')" />
 							<div v-if="commande.blocked.length" role="status" class="rounded-control tone-amber px-3.5 py-2.5">
 								<strong class="font-semibold">Pas encore validable :</strong> {{ commande.blocked.join(' ') }}
 								<button v-if="can('modifier')" type="button" class="font-medium underline" @click="editing = true">Modifier la commande</button>

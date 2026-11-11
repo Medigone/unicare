@@ -262,7 +262,7 @@ async function nouvelleVersion(confirmed = false) {
 					<p v-if="actionError" role="alert" class="flex-none rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
 					<div class="bureau-detail">
 						<div class="bureau-center">
-							<VersionsCard :versions="livraison.versions" :docstatus="livraison.docstatus" fiche="LivraisonFiche" :can-amend="can('nouvelle_version')" :busy="busy" @amend="nouvelleVersion()" />
+							<VersionsCard :versions="livraison.versions" :docstatus="livraison.docstatus" fiche="LivraisonFiche" :can-amend="can('nouvelle_version')" />
 							<div v-if="preparing && livraison.blocked.length && !prepDirty" role="status" class="rounded-control tone-amber px-3.5 py-2.5">
 								<strong class="font-semibold">À préparer :</strong> {{ livraison.blocked.join(' ') }}
 							</div>

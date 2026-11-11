@@ -13,11 +13,11 @@ describe('versions des pièces', () => {
 		expect(openVersion({ origine: null, suivantes: [{ name: 'F-1', docstatus: 2, status: 'Cancelled' }, { name: 'F-2', docstatus: 0, status: 'Draft' }] })?.name).toBe('F-2')
 	})
 
-	it('propose la nouvelle version sur une pièce annulée', async () => {
+	it("explique la nouvelle version sans doubler le bouton de l'en-tête", () => {
 		const wrapper = card({ versions: none, docstatus: 2, canAmend: true })
 		expect(wrapper.text()).toContain('Pièce annulée.')
-		await wrapper.get('button').trigger('click')
-		expect(wrapper.emitted('amend')).toHaveLength(1)
+		expect(wrapper.text()).toContain('nouvelle version')
+		expect(wrapper.find('button').exists()).toBe(false)
 	})
 
 	it('mène à la version existante au lieu d’en proposer une autre', () => {
