@@ -35,6 +35,8 @@ from unicare.api.bureau_inventaires import bulk_guard as inventaire_guard
 from unicare.api.bureau_inventaires import inventaire_for_bulk
 from unicare.api.bureau_ordres import bulk_guard as ordre_guard
 from unicare.api.bureau_ordres import ordre_for_bulk
+from unicare.api.bureau_recettes import bulk_guard as recette_guard
+from unicare.api.bureau_recettes import recette_for_bulk
 from unicare.api.bureau_list import _bulk_apply, _parse, link_search_values, row_tags
 from unicare.api.bureau_livraisons import LIVRAISON, livraison_for_bulk
 from unicare.api.bureau_lots import lot_for_bulk
@@ -156,6 +158,13 @@ BULK_DOCTYPES = {
 		},
 		"setters": {},
 		"guard": facture_achat_guard,
+	},
+	"Recette de Conditionnement": {
+		"load": recette_for_bulk,
+		# Produit, quantité de base et matières se règlent sur la fiche ; en groupe : active, rendement, tags.
+		"excluded": {"produit_fini", "quantite_base", "uom", "nom_produit"},
+		"setters": {},
+		"guard": recette_guard,
 	},
 	"Ordre de Conditionnement": {
 		"load": ordre_for_bulk,

@@ -268,7 +268,7 @@ async function supprimer() {
 								<p v-if="!article.recettes.produit.length" class="text-ink-gray-6">Aucune recette ne produit cet article.</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Recette</th><th>Statut</th><th class="end">Quantité de base</th><th class="end">Rendement théorique</th></tr></thead>
-									<tbody><tr v-for="row in article.recettes.produit" :key="row.name"><td><a class="ref-link" :href="deskUrl('Recette de Conditionnement', row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td><td><StatusPill :status="row.actif ? 'Active' : 'Inactive'" :tone="row.actif ? 'green' : 'gray'" /></td><td class="end tabular-nums">{{ formatQty(row.quantite_base) }} {{ row.uom }}</td><td class="end tabular-nums">{{ row.rendement_theorique ? `${formatQty(row.rendement_theorique)} %` : '—' }}</td></tr></tbody>
+									<tbody><tr v-for="row in article.recettes.produit" :key="row.name"><td><RouterLink class="ref-link" :to="{ name: 'RecetteFiche', params: { id: row.name } }">{{ row.name }}</RouterLink></td><td><StatusPill :status="row.actif ? 'Active' : 'Inactive'" :tone="row.actif ? 'green' : 'gray'" /></td><td class="end tabular-nums">{{ formatQty(row.quantite_base) }} {{ row.uom }}</td><td class="end tabular-nums">{{ row.rendement_theorique ? `${formatQty(row.rendement_theorique)} %` : '—' }}</td></tr></tbody>
 								</table></div>
 							</section>
 							<section v-if="article.type !== 'Produit fini' || article.recettes.ingredient.length" class="card ref-card">
@@ -276,7 +276,7 @@ async function supprimer() {
 								<p v-if="!article.recettes.ingredient.length" class="text-ink-gray-6">Cet article n'entre dans aucune recette.</p>
 								<div v-else class="ref-scroll"><table class="ref-table">
 									<thead><tr><th>Recette</th><th>Produit fini</th><th>Statut</th><th class="end">Quantité</th></tr></thead>
-									<tbody><tr v-for="row in article.recettes.ingredient" :key="row.name"><td><a class="ref-link" :href="deskUrl('Recette de Conditionnement', row.name)" target="_blank" rel="noopener noreferrer">{{ row.name }}</a></td><td><RouterLink class="ref-link" :to="{ name: 'Article', params: { id: row.produit_fini! } }">{{ row.nom_produit || row.produit_fini }}</RouterLink></td><td><StatusPill :status="row.actif ? 'Active' : 'Inactive'" :tone="row.actif ? 'green' : 'gray'" /></td><td class="end tabular-nums">{{ formatQty(row.qty) }} {{ row.uom }}</td></tr></tbody>
+									<tbody><tr v-for="row in article.recettes.ingredient" :key="row.name"><td><RouterLink class="ref-link" :to="{ name: 'RecetteFiche', params: { id: row.name } }">{{ row.name }}</RouterLink></td><td><RouterLink class="ref-link" :to="{ name: 'Article', params: { id: row.produit_fini! } }">{{ row.nom_produit || row.produit_fini }}</RouterLink></td><td><StatusPill :status="row.actif ? 'Active' : 'Inactive'" :tone="row.actif ? 'green' : 'gray'" /></td><td class="end tabular-nums">{{ formatQty(row.qty) }} {{ row.uom }}</td></tr></tbody>
 								</table></div>
 							</section>
 						</div>

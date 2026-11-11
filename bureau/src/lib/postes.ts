@@ -141,7 +141,7 @@ export const NAV: Record<string, PosteModule[]> = {
 				},
 				{
 					title: 'Référentiel',
-					items: [{ id: 'recettes', label: 'Recettes', icon: LucideFileText, href: '/app/recette-de-conditionnement', doctype: 'Recette de Conditionnement' }],
+					items: [{ id: 'recettes', label: 'Recettes', icon: LucideFileText, to: { name: 'Recettes' }, doctype: 'Recette de Conditionnement' }],
 				},
 			],
 		},

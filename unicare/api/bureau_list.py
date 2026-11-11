@@ -153,6 +153,12 @@ FILTER_LISTS = {
 		"set_warehouse": "Dépôt",
 		"_user_tags": "Tag",
 	},
+	"Recette de Conditionnement": {
+		"produit_fini": "Produit",
+		"actif": "Active",
+		"rendement_theorique": "Rendement visé",
+		"_user_tags": "Tag",
+	},
 	"Ordre de Conditionnement": {
 		"workflow_state": "Étape",
 		"produit_fini": "Produit",

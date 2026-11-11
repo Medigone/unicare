@@ -25,6 +25,7 @@ describe('postes du bureau', () => {
 		expect(pages('conditionnement', 'achats')).toEqual(['tableau-achats', 'devis-fournisseurs', 'commandes-achat', 'receptions', 'factures-achat', 'fournisseurs'])
 		expect(pages('conditionnement', 'stock')).toEqual(['tableau-stock', 'etat-stock', 'mouvements', 'inventaires', 'lots', 'articles', 'depots'])
 		expect(pages('conditionnement', 'tresorerie')).toEqual(['tableau-tresorerie', 'paiements'])
+		expect(pages('conditionnement', 'production')).toEqual(['ordres', 'recettes'])
 	})
 
 	it('retire une page non lue, puis le module resté vide', () => {

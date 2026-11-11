@@ -1838,3 +1838,18 @@
 		}
 	}
 }
+
+/* Recettes : en-tête à trois chiffres et calculateur des besoins. */
+@layer components {
+	.recette-kpis {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+	.recette-calc {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.875rem 1rem;
+		font-size: 13px;
+	}
+}

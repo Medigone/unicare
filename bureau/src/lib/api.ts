@@ -11,6 +11,7 @@ import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisR
 import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
 import type { InventaireDetail, InventaireOptions, InventairesResponse, InventaireView } from './inventaires'
+import type { RecetteDetail, RecetteOptions, RecettesResponse, RecetteValues, RecetteView } from './recettes'
 import type { Besoin, OrdreDetail, OrdreOptions, OrdresResponse, OrdreValues, OrdreView } from './ordres'
 import type { MouvementDetail, MouvementOptions, MouvementsResponse, MouvementValues, MouvementView, StockArticleChoice } from './mouvements'
 import type { LotChoice } from './livraisons'
@@ -806,6 +807,37 @@ export function ordreActivity(name: string): ActivityApi {
 		add: (text, mentions) => call<ActivityFeedData>(`${ORDRES}.add_ordre_comment`, { name, text, mentions }, true),
 		update: (comment, text, mentions) => call<ActivityFeedData>(`${ORDRES}.update_ordre_comment`, { name, comment, text, mentions }, true),
 		remove: (comment) => call<ActivityFeedData>(`${ORDRES}.delete_ordre_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}
+
+/** Recettes de conditionnement (unicare/api/bureau_recettes.py). */
+const RECETTES = 'unicare.api.bureau_recettes'
+
+export const getRecettes = (view: RecetteView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<RecettesResponse>(`${RECETTES}.get_recettes`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getRecette = (name: string) => call<RecetteDetail>(`${RECETTES}.get_recette`, { name })
+export const getRecetteOptions = () => call<RecetteOptions>(`${RECETTES}.get_recette_options`)
+export const createRecette = (values: RecetteValues) => call<{ name: string }>(`${RECETTES}.create_recette`, { values }, true)
+export const updateRecette = (recette: RecetteDetail, values: RecetteValues) => call<RecetteDetail>(`${RECETTES}.update_recette`, { name: recette.name, modified: recette.modified, values }, true)
+export const setRecetteActive = (recette: RecetteDetail, actif: boolean) => call<RecetteDetail>(`${RECETTES}.set_actif`, { name: recette.name, modified: recette.modified, actif: actif ? 1 : 0 }, true)
+export const dupliquerRecette = (recette: RecetteDetail) => call<{ name: string }>(`${RECETTES}.dupliquer`, { name: recette.name }, true)
+export const deleteRecette = (recette: RecetteDetail) => call<{ deleted: string }>(`${RECETTES}.delete_recette`, { name: recette.name, modified: recette.modified }, true)
+
+export function recetteActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${RECETTES}.get_recette_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${RECETTES}.add_recette_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${RECETTES}.update_recette_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${RECETTES}.delete_recette_comment`, { name, comment }, true),
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }

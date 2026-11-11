@@ -10,6 +10,7 @@ import { parseQty, type Besoin, type OrdreOptions } from '@/lib/ordres'
  * Nouvel ordre : le produit, la quantité et la date. La recette du produit est proposée d'office ; les matières
  * nécessaires et le stock s'affichent aussitôt. Un manque n'empêche pas de créer l'ordre, seulement de le préparer.
  */
+const props = defineProps<{ produit?: string; recette?: string }>()
 const emit = defineEmits<{ close: []; created: [name: string] }>()
 
 const today = new Date().toISOString().slice(0, 10)
@@ -25,7 +26,8 @@ onMounted(async () => {
 	try {
 		options.value = await getOrdreOptions()
 		values.checklist = options.value.checklists[0] ?? ''
-		if (options.value.produits.length === 1) values.produit = options.value.produits[0].value
+		if (props.produit) values.produit = props.produit
+		else if (options.value.produits.length === 1) values.produit = options.value.produits[0].value
 	} catch (e) {
 		loadError.value = (e as Error).message
 	}
@@ -36,7 +38,7 @@ watch(
 	() => values.produit,
 	() => {
 		errors.produit = ''
-		values.recette = recettes.value[0]?.value ?? ''
+		values.recette = recettes.value.find((item) => item.value === props.recette)?.value ?? recettes.value[0]?.value ?? ''
 	},
 )
 
