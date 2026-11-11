@@ -8,6 +8,7 @@ import DevisPage from './pages/DevisPage.vue'
 import DevisFournisseursPage from './pages/DevisFournisseursPage.vue'
 import FacturesPage from './pages/FacturesPage.vue'
 import LivraisonsPage from './pages/LivraisonsPage.vue'
+import ReceptionsPage from './pages/ReceptionsPage.vue'
 import PaiementsPage from './pages/PaiementsPage.vue'
 import HomePage from './pages/HomePage.vue'
 import LoginPage from './pages/LoginPage.vue'
@@ -35,6 +36,8 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/devis-fournisseurs/:id', name: 'DevisFournisseurFiche', component: DevisFournisseursPage, props: true, meta: { doctype: 'Supplier Quotation' } },
 	{ path: '/commandes-achat', name: 'CommandesAchat', component: CommandesAchatPage, meta: { doctype: 'Purchase Order' } },
 	{ path: '/commandes-achat/:id', name: 'CommandeAchatFiche', component: CommandesAchatPage, props: true, meta: { doctype: 'Purchase Order' } },
+	{ path: '/receptions', name: 'Receptions', component: ReceptionsPage, meta: { doctype: 'Purchase Receipt' } },
+	{ path: '/receptions/:id', name: 'ReceptionFiche', component: ReceptionsPage, props: true, meta: { doctype: 'Purchase Receipt' } },
 	{ path: '/paiements', name: 'Paiements', component: PaiementsPage, meta: { doctype: 'Payment Entry' } },
 	{ path: '/paiements/:id', name: 'PaiementFiche', component: PaiementsPage, props: true, meta: { doctype: 'Payment Entry' } },
 	{ path: '/:pathMatch(.*)*', redirect: '/' },

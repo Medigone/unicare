@@ -9,6 +9,7 @@ import type { FactureDetail, FactureOptions, FacturesResponse, FactureView } fro
 import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livraisons'
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
 import type { AchatArticleChoice, AchatLineValues } from './achats'
+import type { ReceptionDetail, ReceptionPrepChange, ReceptionsResponse, ReceptionView } from './receptions'
 import type { CommandeAchatDetail, CommandeAchatOptions, CommandesAchatResponse, CommandeAchatView } from './commandesAchat'
 import type { DevisFournisseurDetail, DevisFournisseurOptions, DevisFournisseurResponse, DevisFournisseurView } from './devisFournisseur'
 import type { FournisseurChoice, FournisseurDetail, FournisseurOptions, FournisseursResponse, FournisseurValues, FournisseurView } from './fournisseurs'
@@ -523,6 +524,40 @@ export function commandeAchatActivity(name: string): ActivityApi {
 		add: (text, mentions) => call<ActivityFeedData>(`${COMMANDES_ACHAT}.add_commande_achat_comment`, { name, text, mentions }, true),
 		update: (comment, text, mentions) => call<ActivityFeedData>(`${COMMANDES_ACHAT}.update_commande_achat_comment`, { name, comment, text, mentions }, true),
 		remove: (comment) => call<ActivityFeedData>(`${COMMANDES_ACHAT}.delete_commande_achat_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}
+
+/** Réceptions : liste, aperçu, fiche, préparation (quantité, dépôt, lot fournisseur) et cycle. */
+const RECEPTIONS = 'unicare.api.bureau_receptions'
+
+export const getReceptions = (view: ReceptionView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<ReceptionsResponse>(`${RECEPTIONS}.get_receptions`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getReception = (name: string) => call<ReceptionDetail>(`${RECEPTIONS}.get_reception`, { name })
+export const getReceptionOptions = () => call<{ filter_fields?: FilterField[] }>(`${RECEPTIONS}.get_reception_options`)
+export const prepareReception = (reception: ReceptionDetail, lignes: ReceptionPrepChange[], blFournisseur?: string, transport?: string) =>
+	call<ReceptionDetail>(`${RECEPTIONS}.prepare_reception`, { name: reception.name, modified: reception.modified, lignes, bl_fournisseur: blFournisseur, transport }, true)
+export const runReceptionAction = (reception: ReceptionDetail, action: 'valider' | 'annuler') =>
+	call<ReceptionDetail>(`${RECEPTIONS}.${action === 'valider' ? 'validate_reception' : 'cancel_reception'}`, { name: reception.name, modified: reception.modified }, true)
+export const deleteReception = (reception: ReceptionDetail) => call<{ deleted: string }>(`${RECEPTIONS}.delete_reception`, { name: reception.name, modified: reception.modified }, true)
+export const createReceptionSuivante = (reception: ReceptionDetail, kind: 'facture' | 'retour') =>
+	call<{ doctype: string; name: string; reception: ReceptionDetail }>(`${RECEPTIONS}.create_suivante`, { name: reception.name, modified: reception.modified, kind }, true)
+export const receptionPrintUrl = (name: string) => `/printview?doctype=Purchase%20Receipt&name=${encodeURIComponent(name)}&trigger_print=1`
+
+export function receptionActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${RECEPTIONS}.get_reception_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${RECEPTIONS}.add_reception_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${RECEPTIONS}.update_reception_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${RECEPTIONS}.delete_reception_comment`, { name, comment }, true),
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }

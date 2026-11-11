@@ -121,6 +121,15 @@ FILTER_LISTS = {
 		"grand_total": "Total TTC",
 		"_user_tags": "Tag",
 	},
+	"Purchase Receipt": {
+		"status": "Statut",
+		"supplier": "Fournisseur",
+		"posting_date": "Date",
+		"is_return": "Retour",
+		"supplier_delivery_note": "BL fournisseur",
+		"grand_total": "Total TTC",
+		"_user_tags": "Tag",
+	},
 	"Payment Entry": {
 		"payment_type": "Sens",
 		"party_type": "Type de tiers",

@@ -34,6 +34,8 @@ from unicare.api.bureau_livraisons import bulk_guard as livraison_guard
 from unicare.api.bureau_paiements import PAIEMENT, paiement_for_bulk
 from unicare.api.bureau_paiements import bulk_guard as paiement_guard
 from unicare.api.bureau_postes import require_bureau
+from unicare.api.bureau_receptions import RECEPTION, reception_for_bulk
+from unicare.api.bureau_receptions import bulk_guard as reception_guard
 
 TEXT_TYPES = {"Data", "Small Text", "Text", "Long Text"}
 NUMBER_TYPES = {"Float", "Currency", "Percent"}
@@ -121,6 +123,13 @@ BULK_DOCTYPES = {
 		"excluded": {"supplier", "transaction_date", "schedule_date", "taxes_and_charges", "company"},
 		"setters": {},
 		"guard": commande_achat_guard,
+	},
+	RECEPTION: {
+		"load": reception_for_bulk,
+		# Fournisseur, dates, lignes et retours se règlent sur la fiche.
+		"excluded": {"supplier", "posting_date", "posting_time", "is_return", "return_against", "company"},
+		"setters": {},
+		"guard": reception_guard,
 	},
 	PAIEMENT: {
 		"load": paiement_for_bulk,
