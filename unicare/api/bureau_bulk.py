@@ -27,6 +27,8 @@ from unicare.api.bureau_commandes_achat import COMMANDE_ACHAT, commande_achat_fo
 from unicare.api.bureau_commandes_achat import bulk_guard as commande_achat_guard
 from unicare.api.bureau_devis_fournisseur import DEVIS_F, devis_fournisseur_for_bulk
 from unicare.api.bureau_devis_fournisseur import bulk_guard as devis_fournisseur_guard
+from unicare.api.bureau_factures_achat import FACTURE_ACHAT, facture_achat_for_bulk
+from unicare.api.bureau_factures_achat import bulk_guard as facture_achat_guard
 from unicare.api.bureau_fournisseurs import SUPPLIER, _fournisseur_for_write
 from unicare.api.bureau_list import _bulk_apply, _parse, link_search_values, row_tags
 from unicare.api.bureau_livraisons import LIVRAISON, livraison_for_bulk
@@ -130,6 +132,22 @@ BULK_DOCTYPES = {
 		"excluded": {"supplier", "posting_date", "posting_time", "is_return", "return_against", "company"},
 		"setters": {},
 		"guard": reception_guard,
+	},
+	FACTURE_ACHAT: {
+		"load": facture_achat_for_bulk,
+		# Fournisseur, dates, montants et avoirs se règlent sur la fiche.
+		"excluded": {
+			"supplier",
+			"posting_date",
+			"due_date",
+			"bill_no",
+			"is_return",
+			"return_against",
+			"company",
+			"taxes_and_charges",
+		},
+		"setters": {},
+		"guard": facture_achat_guard,
 	},
 	PAIEMENT: {
 		"load": paiement_for_bulk,

@@ -130,6 +130,17 @@ FILTER_LISTS = {
 		"grand_total": "Total TTC",
 		"_user_tags": "Tag",
 	},
+	"Purchase Invoice": {
+		"status": "Statut",
+		"supplier": "Fournisseur",
+		"posting_date": "Date",
+		"due_date": "Échéance",
+		"bill_no": "Nº facture fournisseur",
+		"is_return": "Avoir",
+		"grand_total": "Total TTC",
+		"outstanding_amount": "Reste à payer",
+		"_user_tags": "Tag",
+	},
 	"Payment Entry": {
 		"payment_type": "Sens",
 		"party_type": "Type de tiers",

@@ -9,6 +9,7 @@ import type { FactureDetail, FactureOptions, FacturesResponse, FactureView } fro
 import type { LivraisonDetail, LivraisonsResponse, LivraisonView } from './livraisons'
 import type { DevisAction, DevisArticleChoice, DevisDetail, DevisOptions, DevisResponse, DevisView } from './devis'
 import type { AchatArticleChoice, AchatLineValues } from './achats'
+import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
 import type { ReceptionDetail, ReceptionPrepChange, ReceptionsResponse, ReceptionView } from './receptions'
 import type { CommandeAchatDetail, CommandeAchatOptions, CommandesAchatResponse, CommandeAchatView } from './commandesAchat'
 import type { DevisFournisseurDetail, DevisFournisseurOptions, DevisFournisseurResponse, DevisFournisseurView } from './devisFournisseur'
@@ -558,6 +559,41 @@ export function receptionActivity(name: string): ActivityApi {
 		add: (text, mentions) => call<ActivityFeedData>(`${RECEPTIONS}.add_reception_comment`, { name, text, mentions }, true),
 		update: (comment, text, mentions) => call<ActivityFeedData>(`${RECEPTIONS}.update_reception_comment`, { name, comment, text, mentions }, true),
 		remove: (comment) => call<ActivityFeedData>(`${RECEPTIONS}.delete_reception_comment`, { name, comment }, true),
+		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
+	}
+}
+
+/** Factures d'achat : liste, aperçu, fiche, paiement au fournisseur, avoirs et cycle. */
+const FACTURES_ACHAT = 'unicare.api.bureau_factures_achat'
+
+export const getFacturesAchat = (view: FactureAchatView, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<FacturesAchatResponse>(`${FACTURES_ACHAT}.get_factures_achat`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getFactureAchat = (name: string) => call<FactureAchatDetail>(`${FACTURES_ACHAT}.get_facture_achat`, { name })
+export const getFactureAchatOptions = () => call<FactureAchatOptions>(`${FACTURES_ACHAT}.get_facture_achat_options`)
+export const updateFactureAchat = (facture: FactureAchatDetail, values: FactureAchatValues) =>
+	call<FactureAchatDetail>(`${FACTURES_ACHAT}.update_facture_achat`, { name: facture.name, modified: facture.modified, values }, true)
+export const runFactureAchatAction = (facture: FactureAchatDetail, action: 'valider' | 'annuler') =>
+	call<FactureAchatDetail>(`${FACTURES_ACHAT}.${action === 'valider' ? 'validate_facture_achat' : 'cancel_facture_achat'}`, { name: facture.name, modified: facture.modified }, true)
+export const deleteFactureAchat = (facture: FactureAchatDetail) => call<{ deleted: string }>(`${FACTURES_ACHAT}.delete_facture_achat`, { name: facture.name, modified: facture.modified }, true)
+export const payerFactureAchat = (facture: FactureAchatDetail, values: { montant: number; mode: string; date: string; reference?: string; date_reference?: string }) =>
+	call<{ paiement: string; facture: FactureAchatDetail }>(`${FACTURES_ACHAT}.payer`, { name: facture.name, modified: facture.modified, ...values }, true)
+export const createAvoirFournisseur = (facture: FactureAchatDetail) => call<{ name: string; facture: FactureAchatDetail }>(`${FACTURES_ACHAT}.create_avoir`, { name: facture.name, modified: facture.modified }, true)
+export const factureAchatPrintUrl = (name: string) => `/printview?doctype=Purchase%20Invoice&name=${encodeURIComponent(name)}&trigger_print=1`
+
+export function factureAchatActivity(name: string): ActivityApi {
+	return {
+		load: () => call<ActivityFeedData>(`${FACTURES_ACHAT}.get_facture_achat_activity`, { name }),
+		add: (text, mentions) => call<ActivityFeedData>(`${FACTURES_ACHAT}.add_facture_achat_comment`, { name, text, mentions }, true),
+		update: (comment, text, mentions) => call<ActivityFeedData>(`${FACTURES_ACHAT}.update_facture_achat_comment`, { name, comment, text, mentions }, true),
+		remove: (comment) => call<ActivityFeedData>(`${FACTURES_ACHAT}.delete_facture_achat_comment`, { name, comment }, true),
 		mentionCandidates: () => call<Mention[]>(`${CLIENTS}.get_mention_candidates`),
 	}
 }
