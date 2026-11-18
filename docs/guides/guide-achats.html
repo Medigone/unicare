@@ -1,0 +1,428 @@
+<title>Guide Achats Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #6b3fc2;        /* couleur du module Achats dans le bureau (violet) */
+  --accent-soft: #f0eafb;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #b69af4; --accent-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #b69af4; --accent-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Module Achats</span>
+  <h1>Acheter avec Unicare, du devis fournisseur au paiement</h1>
+  <p class="lead">Ce guide suit un achat dans l'ordre où vous le faites : on demande un prix, on commande, on reçoit la marchandise, on enregistre la facture du fournisseur, on la paie. Chaque étape crée une pièce qui reprend la précédente : vous ne ressaisissez jamais les articles.</p>
+  <div class="where">
+    <span>Où : <b>menu de gauche › Achats</b></span>
+    <span>Pour : acheteurs, magasin, comptabilité</span>
+  </div>
+</header>
+
+<section aria-labelledby="circuit">
+  <div class="section-head">
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h2 id="circuit">Le circuit d'un achat</h2>
+    <p>Cliquez sur une étape pour aller à son explication.</p>
+  </div>
+  <ol class="route">
+    <li class="lane" aria-hidden="true">Acheteur</li>
+    <li><a href="#fournisseur"><span class="dot">0</span><span class="t">Fournisseur <small>une seule fois</small></span><span class="d">La fiche du vendeur, reprise sur toutes ses pièces.</span><span class="effect e-none">Aucun effet</span></a></li>
+    <li class="opt"><a href="#devis"><span class="dot">1</span><span class="t">Devis fournisseur <small>facultatif</small></span><span class="d">Le prix proposé par le fournisseur, pour comparer.</span><span class="effect e-none">Aucun effet</span></a></li>
+    <li><a href="#commande"><span class="dot">2</span><span class="t">Commande d'achat <small class="shortcut">sans devis, commencez ici</small></span><span class="d">Vous passez commande au fournisseur.</span><span class="effect e-stock">Stock attendu</span></a></li>
+    <li class="lane" aria-hidden="true">Magasin</li>
+    <li><a href="#reception"><span class="dot">3</span><span class="t">Réception</span><span class="d">La marchandise arrive et est contrôlée.</span><span class="effect e-stock">Entre en stock</span></a></li>
+    <li class="lane" aria-hidden="true">Comptabilité</li>
+    <li><a href="#facture"><span class="dot">4</span><span class="t">Facture d'achat</span><span class="d">La facture du fournisseur, saisie telle qu'elle est arrivée.</span><span class="effect e-money">Dette fournisseur</span></a></li>
+    <li><a href="#paiement"><span class="dot">5</span><span class="t">Paiement</span><span class="d">Vous réglez le fournisseur, la facture est soldée.</span><span class="effect e-money">Argent versé</span></a></li>
+  </ol>
+  <div class="flow-notes">
+    <p><b>Pas de devis ?</b> Commencez directement par la commande d'achat : c'est le cas courant avec un fournisseur habituel au prix connu.</p>
+    <p><b>L'ordre conseillé</b> est recevoir puis facturer : vous ne payez que ce qui est réellement arrivé. La facture peut aussi être créée depuis la commande, si le fournisseur demande un paiement d'avance.</p>
+  </div>
+</section>
+
+<section aria-labelledby="etats">
+  <div class="section-head">
+    <span class="eyebrow">La règle à retenir</span>
+    <h2 id="etats">Chaque pièce passe par trois états</h2>
+    <p>Devis, commande, réception, facture : tous fonctionnent pareil, comme dans les ventes. Le statut s'affiche en pastille en haut de la fiche et dans les listes.</p>
+  </div>
+  <div class="states">
+    <div class="state"><span class="pill p-grey">Brouillon</span><p>La pièce est en préparation. Vous pouvez tout modifier avec <span class="btn alt">Modifier</span>, ou la supprimer. Elle n'a encore <b>aucun effet</b> : ni stock, ni comptabilité.</p></div>
+    <div class="state"><span class="pill p-blue">Validée</span><p>Vous avez cliqué sur <span class="btn">Valider</span>. La pièce est définitive : elle fait entrer le stock ou passe en comptabilité. Elle <b>ne se modifie plus</b>.</p></div>
+    <div class="state"><span class="pill p-red">Annulée</span><p>Une pièce validée qu'on a annulée. Elle reste visible pour l'historique, mais ses effets sont défaits.</p></div>
+  </div>
+  <p class="fix"><b>Une erreur sur une pièce déjà validée ?</b> Ouvrez le menu de la fiche et choisissez <span class="btn alt">Annuler et créer une nouvelle version</span>. Unicare crée une copie en brouillon (même numéro suivi de <span style="font-family:var(--mono)">-1</span>) que vous corrigez puis validez.</p>
+  <p class="fix" style="background:var(--grey-soft)"><b>Le bouton Valider est grisé ?</b> Un encadré <span class="field">Pas encore validable :</span> sur la fiche dit exactement ce qui manque (une ligne sans prix, un nº de lot, le nº de facture du fournisseur…).</p>
+</section>
+
+<section aria-labelledby="etapes">
+  <div class="section-head">
+    <span class="eyebrow">Pas à pas</span>
+    <h2 id="etapes">Les étapes en détail</h2>
+  </div>
+
+  <!-- 0 · Fournisseur -->
+  <article class="step" id="fournisseur">
+    <div class="step-num" aria-hidden="true">0</div>
+    <div class="step-body">
+      <h2>Créer le fournisseur</h2>
+      <p class="why">À faire une seule fois par fournisseur. Ses coordonnées et ses numéros fiscaux sont ensuite repris sur toutes ses pièces.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Achats<i>›</i>Fournisseurs</span>, ou tapez <kbd>N</kbd> puis <kbd>F</kbd> depuis n'importe quel écran.</li>
+          <li>Saisissez la <span class="field">Raison sociale</span> (seul champ obligatoire), puis la <span class="field">Catégorie</span> et la <span class="field">Commune</span>.</li>
+          <li>Renseignez le <span class="field">Nº RC</span>, le <span class="field">Nº NIF</span>, le <span class="field">Nº NIS</span> et le <span class="field">Nº AI</span>.</li>
+          <li>Ajoutez un contact (nom, fonction, mobile, email) : c'est la personne à appeler pour une commande ou un litige.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Un fournisseur <b>désactivé</b> n'apparaît plus dans les nouvelles pièces, mais son historique reste consultable.</li>
+          <li>La fiche fournisseur montre ses pièces récentes et ce que vous lui devez encore.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 1 · Devis fournisseur -->
+  <article class="step" id="devis">
+    <div class="step-num" aria-hidden="true">1</div>
+    <div class="step-body">
+      <h2>Enregistrer un devis fournisseur <span class="tag-new">facultatif</span></h2>
+      <p class="why">Quand un fournisseur vous envoie une offre de prix, enregistrez-la ici. Vous gardez une trace des prix proposés et vous pouvez comparer plusieurs fournisseurs avant de commander.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Achats<i>›</i>Devis fournisseur</span>, ou tapez <kbd>N</kbd> puis <kbd>U</kbd>.</li>
+          <li>Choisissez le <span class="field">Fournisseur</span> et la date <span class="field">Valable jusqu'au</span> indiquée sur son offre.</li>
+          <li>Ajoutez les articles avec la barre de recherche des <span class="field">Lignes</span>, puis saisissez <b>le prix de l'offre</b> sur chaque ligne.</li>
+          <li>Choisissez la <span class="field">TVA déductible</span> qui s'applique.</li>
+          <li>Cliquez sur <span class="btn">Créer le devis</span> (ou <kbd>Ctrl</kbd> + <kbd>Entrée</kbd>), relisez, puis <span class="btn">Valider</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Et ensuite ?</h3>
+        <ul class="know">
+          <li><b>Vous retenez l'offre :</b> sur le devis, cliquez sur <span class="btn">Créer la commande</span>. La commande d'achat reprend les lignes <b>et les prix</b> du devis, en brouillon.</li>
+          <li>Dans la liste, l'onglet <span class="field">Expirent sous 7 jours</span> montre les offres à saisir avant qu'elles tombent.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : <a href="#commande">la commande d'achat</a></p>
+    </div>
+  </article>
+
+  <!-- 2 · Commande d'achat -->
+  <article class="step" id="commande">
+    <div class="step-num" aria-hidden="true">2</div>
+    <div class="step-body">
+      <h2>Passer la commande d'achat</h2>
+      <p class="why">La commande est votre engagement envers le fournisseur. Une fois validée, elle <b>annonce le stock attendu</b> et sert de référence pour la réception et la facture.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Depuis un devis fournisseur validé : <span class="btn">Créer la commande</span>. Sans devis : <span class="path">Achats<i>›</i>Commandes d'achat</span>, ou <kbd>N</kbd> puis <kbd>A</kbd>.</li>
+          <li>Indiquez la date <span class="field">Réception prévue le</span>. Elle sert à repérer les livraisons fournisseur en retard.</li>
+          <li>Notez dans <span class="field">Référence fournisseur</span> le numéro que le fournisseur donne à votre commande, s'il en a un.</li>
+          <li>Ajoutez ou vérifiez les lignes. Un prix laissé vide reprend le <b>tarif d'achat</b>, sinon le <b>dernier prix payé</b>.</li>
+          <li>Cliquez sur <span class="btn">Créer la commande</span>, puis <span class="btn">Valider</span>. Envoyez-la au fournisseur avec <span class="btn alt">Télécharger le PDF</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>La fiche affiche deux barres : la part <b>Reçu</b> et la part <b>Facturé</b>. Vous voyez d'un coup d'œil ce qui reste à recevoir.</li>
+          <li>Livraison suspendue chez le fournisseur ? Menu <span class="btn alt">Mettre en attente</span>, puis <span class="btn alt">Reprendre</span> quand elle repart.</li>
+          <li>Le fournisseur ne livrera pas le reste ? <span class="btn alt">Clôturer</span> abandonne ce qui n'est pas reçu ou facturé. Une commande clôturée peut être rouverte.</li>
+          <li>Dans la liste, l'onglet <span class="field">Réception en retard</span> sert à relancer les fournisseurs.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : à l'arrivée de la marchandise, <span class="btn">Créer la réception</span></p>
+    </div>
+  </article>
+
+  <!-- 3 · Réception -->
+  <article class="step" id="reception">
+    <div class="step-num" aria-hidden="true">3</div>
+    <div class="step-body">
+      <h2>Réceptionner la marchandise</h2>
+      <p class="why">C'est le document du magasin, fait au moment où le camion arrive. La valider fait <b>entrer la marchandise en stock</b>. Une commande peut être reçue en plusieurs fois : chaque réception reprend ce qui reste à recevoir.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Sur la commande validée, cliquez sur <span class="btn">Créer la réception</span>. Elle est créée en brouillon avec les quantités restant à recevoir, puis cliquez sur <span class="btn alt">Préparer la réception</span>.</li>
+          <li>Notez le <span class="field">BL du fournisseur</span> (le numéro de son bon de livraison) et le <span class="field">Nº de transport</span> si besoin.</li>
+          <li>Comptez ce qui est arrivé et corrigez la <span class="field">Quantité</span> de chaque ligne. Une quantité à <b>0</b> retire la ligne : elle reste à recevoir sur la commande.</li>
+          <li>Choisissez le <span class="field">Dépôt</span> où entre la marchandise. Pour tout mettre au même endroit : <span class="field">Dépôt pour toutes les lignes…</span> puis <span class="btn alt">Appliquer</span>.</li>
+          <li>Pour les articles suivis par lot, recopiez le <span class="field">Lot fournisseur</span> et la date de <span class="field">Péremption</span> inscrits sur l'emballage.</li>
+          <li>Cliquez sur <span class="btn">Valider la réception</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le <b>nº de lot et la péremption</b> sont essentiels : c'est grâce à eux que le magasin sort d'abord les lots qui périment le plus tôt, et que l'on retrouve un lot en cas de rappel.</li>
+          <li>Dans la liste, l'onglet <span class="field">À préparer</span> regroupe les réceptions à traiter par le magasin, <span class="field">À facturer</span> celles qui attendent la facture du fournisseur.</li>
+          <li><b>Marchandise abîmée ou non conforme ?</b> Sur la réception validée, menu <span class="btn alt">Retour fournisseur</span>. Saisissez <b>en négatif</b> ce qui repart (−2 pour deux unités), puis <span class="btn">Valider le retour</span> : la marchandise sort du stock.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : à l'arrivée de la facture du fournisseur, <span class="btn">Créer la facture</span></p>
+    </div>
+  </article>
+
+  <!-- 4 · Facture d'achat -->
+  <article class="step" id="facture">
+    <div class="step-num" aria-hidden="true">4</div>
+    <div class="step-body">
+      <h2>Enregistrer la facture du fournisseur</h2>
+      <p class="why">Vous saisissez la facture papier (ou PDF) reçue du fournisseur. La valider passe <b>l'écriture comptable</b> : vous devez désormais cette somme.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Sur la réception validée, cliquez sur <span class="btn">Créer la facture</span>. Elle reprend les articles reçus, en brouillon. (Possible aussi depuis la commande d'achat.)</li>
+          <li>Recopiez le <span class="field">Nº de la facture du fournisseur</span> et la <span class="field">Date de la facture du fournisseur</span>. Le numéro est obligatoire pour valider.</li>
+          <li>Vérifiez l'<span class="field">Échéance</span> : la date limite de paiement.</li>
+          <li><b>Comparez les totaux HT, TVA et TTC avec la facture papier.</b> En cas d'écart de prix, corrigez la ligne avec <span class="btn alt">Modifier</span>.</li>
+          <li>Cliquez sur <span class="btn">Valider</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Une facture non payée à son échéance passe <span class="pill p-red">En retard</span>. L'onglet <span class="field">À payer</span> de la liste sert à préparer les règlements.</li>
+          <li><b>Le fournisseur vous accorde un avoir ?</b> Sur la facture validée, menu <span class="btn alt">Créer un avoir fournisseur</span>. Réduisez les quantités à ce qui est crédité (en négatif), puis validez. Il diminue le reste à payer.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : <a href="#paiement">payer</a></p>
+    </div>
+  </article>
+
+  <!-- 5 · Paiement -->
+  <article class="step" id="paiement">
+    <div class="step-num" aria-hidden="true">5</div>
+    <div class="step-body">
+      <h2>Payer le fournisseur</h2>
+      <p class="why">Quand vous réglez le fournisseur, enregistrez-le sur sa facture. Le <span class="field">Reste à payer</span> diminue et la facture passe à <span class="pill p-green">Payée</span> quand il atteint zéro.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez la facture d'achat et cliquez sur <span class="btn">Payer</span>.</li>
+          <li>Le <span class="field">Montant</span> est prérempli avec le reste à payer. Changez-le pour un règlement partiel.</li>
+          <li>Choisissez le <span class="field">Mode</span> : espèces, chèque, virement…</li>
+          <li>Pour un chèque ou un virement, saisissez sa <span class="field">Référence</span> et la <span class="field">Date du chèque ou du virement</span>.</li>
+          <li>Confirmez. Le paiement est enregistré et validé aussitôt.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Un paiement partiel laisse le reste sur la facture, qui passe <span class="pill p-amber">Partiellement payée</span>.</li>
+          <li>Vous réglez plusieurs factures d'un coup, ou versez une avance ? Passez par <span class="path">Trésorerie<i>›</i>Paiements</span> (ou <kbd>N</kbd> puis <kbd>P</kbd>) pour répartir le montant.</li>
+          <li>Tous les paiements d'une facture sont listés en bas de sa fiche.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="statuts">
+  <div class="section-head">
+    <span class="eyebrow">Repères</span>
+    <h2 id="statuts">Lire les statuts</h2>
+    <p>Chaque liste a des onglets en haut pour filtrer d'un clic. Voici ce que veulent dire les pastilles.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pièce</th><th>Statuts possibles</th><th>Ce qu'il faut faire</th></tr></thead>
+      <tbody>
+        <tr><td>Devis fournisseur</td><td><span class="pill p-grey">Brouillon</span><span class="pill p-blue">Ouvert</span><span class="pill p-green">Commandé</span><span class="pill p-grey">Expiré</span></td><td>Un devis ouvert est une offre encore valable : commandez avant son expiration.</td></tr>
+        <tr><td>Commande d'achat</td><td><span class="pill p-grey">Brouillon</span><span class="pill p-amber">À recevoir</span><span class="pill p-amber">À facturer</span><span class="pill p-amber">En attente</span><span class="pill p-green">Terminée</span><span class="pill p-grey">Clôturée</span></td><td>« À recevoir » : la marchandise n'est pas encore arrivée. « À facturer » : attendre la facture.</td></tr>
+        <tr><td>Réception</td><td><span class="pill p-grey">À préparer</span><span class="pill p-amber">À facturer</span><span class="pill p-green">Facturée</span><span class="pill p-blue">Retour</span></td><td>« À préparer » est pour le magasin, « À facturer » pour la comptabilité.</td></tr>
+        <tr><td>Facture d'achat</td><td><span class="pill p-grey">Brouillon</span><span class="pill p-amber">Impayée</span><span class="pill p-amber">Partiellement payée</span><span class="pill p-red">En retard</span><span class="pill p-green">Payée</span><span class="pill p-blue">Avoir</span></td><td>« En retard » : régler en priorité. « Payée » : rien à faire.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="messages">
+  <div class="section-head">
+    <span class="eyebrow">En cas de blocage</span>
+    <h2 id="messages">Les messages que vous pouvez voir</h2>
+  </div>
+  <div class="msgs">
+    <details><summary><q>Pas encore validable : 1 ligne(s) sans prix.</q></summary><p>L'article n'a ni tarif d'achat ni prix d'achat précédent. Cliquez sur <span class="btn alt">Modifier</span> et saisissez le prix convenu avec le fournisseur.</p></details>
+    <details><summary><q>La date de réception prévue manque.</q></summary><p>Sur la commande d'achat, indiquez la date <span class="field">Réception prévue le</span> donnée par le fournisseur.</p></details>
+    <details><summary><q>Ligne 2 : saisissez le n° de lot du fournisseur.</q></summary><p>L'article est suivi par lot. Sur la réception, recopiez le numéro de lot et la péremption inscrits sur l'emballage.</p></details>
+    <details><summary><q>Ligne 2 : choisissez le dépôt.</q></summary><p>Indiquez où la marchandise est rangée, ligne par ligne ou avec <span class="field">Dépôt pour toutes les lignes…</span> puis <span class="btn alt">Appliquer</span>.</p></details>
+    <details><summary><q>Saisissez le numéro de la facture du fournisseur.</q></summary><p>Recopiez le numéro imprimé sur la facture reçue. Il évite d'enregistrer deux fois la même facture.</p></details>
+    <details><summary><q>Il ne reste rien à recevoir.</q> ou <q>Il ne reste rien à facturer.</q></summary><p>Tout a déjà été reçu ou facturé. Regardez les pièces liées en bas de la fiche : une réception ou une facture existe peut-être déjà en brouillon.</p></details>
+  </div>
+</section>
+
+<section aria-labelledby="raccourcis">
+  <div class="section-head">
+    <span class="eyebrow">Gagner du temps</span>
+    <h2 id="raccourcis">Raccourcis clavier</h2>
+  </div>
+  <div class="keys">
+    <div class="key">Nouvelle commande d'achat <span><kbd>N</kbd> <kbd>A</kbd></span></div>
+    <div class="key">Nouveau devis fournisseur <span><kbd>N</kbd> <kbd>U</kbd></span></div>
+    <div class="key">Nouveau fournisseur <span><kbd>N</kbd> <kbd>F</kbd></span></div>
+    <div class="key">Nouveau paiement <span><kbd>N</kbd> <kbd>P</kbd></span></div>
+    <div class="key">Enregistrer une saisie <span><kbd>Ctrl</kbd> <kbd>Entrée</kbd></span></div>
+    <div class="key">Partager une fiche <span class="btn alt">Copier le lien</span></div>
+  </div>
+</section>
+
+<footer>Unicare · Guide utilisateur, module Achats · version de travail, novembre 2026</footer>
+</div>

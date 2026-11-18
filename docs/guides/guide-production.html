@@ -1,0 +1,390 @@
+<title>Guide Production Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #8f5f00;        /* couleur du module Production dans le bureau (ambre) */
+  --accent-soft: #f9eed4;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #eec25e; --accent-soft: #33290f;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #eec25e; --accent-soft: #33290f;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg>Module Production</span>
+  <h1>Produire avec Unicare, de la recette au produit fini</h1>
+  <p class="lead">Un ordre de production dit quoi fabriquer, en quelle quantité et pour quand. Il passe par quatre étapes : planifier, préparer, produire, clôturer. Unicare calcule les matières d'après la recette et met le stock à jour au fur et à mesure.</p>
+  <div class="where">
+    <span>Où : <b>menu de gauche › Production</b></span>
+    <span>Pour : responsable de production, chefs de ligne, atelier</span>
+  </div>
+</header>
+
+<section aria-labelledby="circuit">
+  <div class="section-head">
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h2 id="circuit">La vie d'un ordre de production</h2>
+    <p>Les mêmes étapes s'affichent en bandeau en haut de chaque ordre. Cliquez sur une étape pour aller à son explication.</p>
+  </div>
+  <ol class="route">
+    <li class="lane" aria-hidden="true">Responsable de production</li>
+    <li><a href="#recette"><span class="dot">0</span><span class="t">Recette <small>une seule fois par produit</small></span><span class="d">Les matières nécessaires pour fabriquer le produit.</span><span class="effect e-none">Aucun effet</span></a></li>
+    <li><a href="#planifier"><span class="dot">1</span><span class="t">Planifier</span><span class="d">Produit, quantité, date ; lots et contrôles.</span><span class="effect e-none">Aucun effet</span></a></li>
+    <li class="lane" aria-hidden="true">Atelier</li>
+    <li><a href="#preparer"><span class="dot">2</span><span class="t">Préparer</span><span class="d">Les matières partent du magasin vers l'atelier.</span><span class="effect e-stock">Matières → atelier</span></a></li>
+    <li><a href="#produire"><span class="dot">3</span><span class="t">Produire</span><span class="d">La ligne tourne ; on note les rebuts et les compléments.</span><span class="effect e-none">Durée chronométrée</span></a></li>
+    <li><a href="#cloturer"><span class="dot">4</span><span class="t">Clôturer</span><span class="d">On déclare les unités bonnes ; le stock est mis à jour.</span><span class="effect e-money">Produit fini en stock</span></a></li>
+  </ol>
+  <div class="flow-notes">
+    <p><b>Le stock ne bouge qu'à deux moments :</b> à la préparation (les matières vont à l'atelier) et à la clôture (les matières utilisées sont consommées, le produit fini et les rebuts entrent dans leurs dépôts).</p>
+    <p><b>Ces mouvements sont créés tout seuls.</b> Vous les retrouvez en bas de l'ordre, et aussi dans <span class="path">Stock<i>›</i>Mouvements</span>, onglet <span class="field">Issus des ordres</span>.</p>
+  </div>
+</section>
+
+<section aria-labelledby="etapes">
+  <div class="section-head">
+    <span class="eyebrow">Pas à pas</span>
+    <h2 id="etapes">Les étapes en détail</h2>
+  </div>
+
+  <!-- 0 · Recette -->
+  <article class="step" id="recette">
+    <div class="step-num" aria-hidden="true">0</div>
+    <div class="step-body">
+      <h2>Créer la recette</h2>
+      <p class="why">La recette dit ce qu'il faut pour fabriquer un produit : par exemple, pour 1 000 flacons de lotion, tant de litres de vrac, 1 000 flacons vides, 1 000 bouchons et 1 000 étiquettes. Sans recette active, on ne peut pas créer d'ordre pour ce produit.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Production<i>›</i>Recettes</span>, ou tapez <kbd>N</kbd> puis <kbd>E</kbd>.</li>
+          <li>Choisissez le <span class="field">Produit fini</span> et la quantité de référence dans <span class="field">Recette donnée pour</span> (par exemple 1 000 unités).</li>
+          <li>Pour chaque composant, cliquez sur <span class="btn alt">Ajouter une matière</span>, puis indiquez la <span class="field">Matière</span> et sa <span class="field">Quantité</span> pour la quantité de référence.</li>
+          <li>Indiquez le <span class="field">Rendement visé (%)</span> : la part d'unités bonnes que vous attendez.</li>
+          <li>Cliquez sur <span class="btn">Créer la recette</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>La fiche recette répond à <b>« Combien faut-il pour… ? »</b> : saisissez une quantité, elle calcule chaque matière.</li>
+          <li>Elle affiche aussi le <span class="field">Rendement réel moyen</span> des ordres terminés, à comparer au rendement visé.</li>
+          <li>Modifier une recette ne change pas les ordres déjà créés : ils gardent leurs quantités. Pour une variante, utilisez <span class="btn alt">Dupliquer</span> ; pour une recette qui ne sert plus, <span class="btn alt">Rendre inactive</span>.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 1 · Planifier -->
+  <article class="step" id="planifier">
+    <div class="step-num" aria-hidden="true">1</div>
+    <div class="step-body">
+      <h2>Planifier l'ordre</h2>
+      <p class="why">Vous décidez quoi produire, combien et pour quand. Unicare calcule les matières nécessaires et vérifie qu'elles sont en stock. Rien ne bouge encore.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Production<i>›</i>Ordres de production</span>, ou tapez <kbd>N</kbd> puis <kbd>O</kbd>. Depuis une recette : <span class="btn alt">Nouvel ordre</span>.</li>
+          <li>Répondez à <span class="field">Que produit-on ?</span>, <span class="field">Combien ?</span> et <span class="field">Pour quand ?</span>. Les matières se calculent d'après la recette, avec pour chacune <b>Il faut</b>, <b>En stock</b> et un <b>lot proposé</b>.</li>
+          <li>Choisissez la checklist des <span class="field">Contrôles avant production</span> adaptée à la ligne.</li>
+          <li>Créez l'ordre. Sur sa fiche, vérifiez pour chaque matière le <span class="field">Dépôt</span> de départ et le <span class="field">Lot</span>.</li>
+          <li>Générez le lot du produit fini avec <span class="btn alt">Générer</span> (sinon il est créé tout seul à la clôture).</li>
+          <li>Imprimez la fiche avec <span class="btn alt">Imprimer la fiche</span> pour l'atelier.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Les lots sont proposés <b>du plus proche de la péremption au plus lointain</b>. Un lot périmé n'est jamais proposé.</li>
+          <li>L'encadré <span class="field">Ce qui manque pour préparer</span> liste ce qu'il reste à régler : un dépôt, un lot, du stock insuffisant, des contrôles non cochés. Le bouton de préparation s'active quand la liste est vide et que <b>Tout est prêt</b> s'affiche.</li>
+          <li>Un ordre encore à planifier peut être supprimé. Pour refaire le même ordre plus tard : <span class="btn alt">Refaire cet ordre</span>.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 2 · Préparer -->
+  <article class="step" id="preparer">
+    <div class="step-num" aria-hidden="true">2</div>
+    <div class="step-body">
+      <h2>Préparer : envoyer les matières à l'atelier</h2>
+      <p class="why">À l'atelier, on coche les contrôles de la ligne, puis le magasin envoie les matières. Elles quittent le magasin et restent réservées à cet ordre jusqu'à la clôture.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Sur l'ordre, cochez un à un les <span class="field">Contrôles avant production</span> (nettoyage de la ligne, réglages, vide de ligne…). Les contrôles obligatoires doivent tous être cochés.</li>
+          <li>Vérifiez que <b>Tout est prêt</b> s'affiche.</li>
+          <li>Cliquez sur <span class="btn">Préparer : envoyer les matières à l'atelier</span>. Unicare récapitule les matières et leurs lots : confirmez.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le message <q>… en stock pour … nécessaires</q> veut dire qu'une matière manque dans le dépôt choisi : changez de dépôt ou de lot, ou réduisez la quantité à produire.</li>
+          <li>Les contrôles se cochent <b>à l'atelier, avant d'envoyer les matières</b>. Ils sont gardés sur l'ordre pour la traçabilité.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 3 · Produire -->
+  <article class="step" id="produire">
+    <div class="step-num" aria-hidden="true">3</div>
+    <div class="step-body">
+      <h2>Produire</h2>
+      <p class="why">Pendant que la ligne tourne, l'ordre sert de feuille de suivi : on y note ce qui a été jeté et ce qu'il a fallu ajouter.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Quand la ligne démarre, cliquez sur <span class="btn">Démarrer la production</span>. L'heure est notée pour calculer la durée.</li>
+          <li>Matière abîmée en cours de route (flacons cassés, étiquettes mal posées) ? <span class="btn alt">Ajouter un rebut</span> avec la matière, la quantité et le lot.</li>
+          <li>Il manque une matière à l'atelier ? <span class="btn alt">Ajouter un complément</span> : choisissez la quantité et le dépôt de départ, puis <span class="btn">Envoyer à l'atelier</span>. Elle part tout de suite.</li>
+          <li>Notez les incidents avec <span class="btn alt">Ajouter une remarque</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Les rebuts et les compléments peuvent aussi être saisis à la fin, au moment de la clôture.</li>
+          <li>Les ordres en cours se retrouvent dans l'onglet <span class="field">En production</span> de la liste.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : quand la production est finie, <span class="btn">Clôturer l'ordre…</span></p>
+    </div>
+  </article>
+
+  <!-- 4 · Clôturer -->
+  <article class="step" id="cloturer">
+    <div class="step-num" aria-hidden="true">4</div>
+    <div class="step-body">
+      <h2>Clôturer l'ordre</h2>
+      <p class="why">Vous déclarez combien d'unités bonnes sont sorties de la ligne. Unicare met tout le stock à jour d'un coup et calcule le rendement.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Cliquez sur <span class="btn">Clôturer l'ordre…</span>.</li>
+          <li>Saisissez <span class="field">Combien d'unités bonnes ?</span> : seulement les unités conformes, prêtes à vendre.</li>
+          <li>Vérifiez les matières : <b>À l'atelier</b>, <b>Utilisé</b> et <b>Rebut</b> pour chacune.</li>
+          <li>Si le rendement est <span class="pill p-red">hors tolérance</span>, expliquez l'écart dans <span class="field">Pourquoi cet écart ?</span> (par exemple « bourrage de la remplisseuse, 40 flacons écartés »).</li>
+          <li>Lisez l'encadré <span class="field">Ce qui va se passer dans le stock</span>, puis cliquez sur <span class="btn">Clôturer et mettre à jour le stock</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>À la clôture, les produits finis entrent dans leur dépôt avec leur lot, et les rebuts partent au dépôt des rebuts.</li>
+          <li>Les matières envoyées mais non utilisées <b>ne sont pas perdues</b> : elles restent au dépôt de l'atelier, pour un autre ordre ou un retour au magasin.</li>
+          <li>Une explication d'écart est envoyée aux responsables de la production, et l'ordre apparaît dans « Rendements hors tolérance » du tableau de bord.</li>
+          <li>Un ordre annulé défait tous ses mouvements : les matières reviennent à leur dépôt.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="reglages">
+  <div class="section-head">
+    <span class="eyebrow">Pour le responsable</span>
+    <h2 id="reglages">Checklists et paramètres</h2>
+    <p>Dans <span class="path">Production<i>›</i>Checklists et paramètres</span>. Seul le Responsable Conditionnement peut les modifier ; les autres les voient en lecture seule.</p>
+  </div>
+  <div class="states">
+    <div class="state"><span class="pill p-blue">Checklists</span><p>Les contrôles à cocher avant d'envoyer les matières. Créez-en une par ligne (par exemple « Ligne flacons 250 ml ») et marquez les contrôles obligatoires. Chaque ordre en reçoit une copie à sa création.</p></div>
+    <div class="state"><span class="pill p-amber">Écart toléré</span><p>L'écart de rendement accepté. Au-delà, la clôture demande une explication et l'ordre est signalé au tableau de bord.</p></div>
+    <div class="state"><span class="pill p-grey">Dépôts par défaut</span><p>Matières premières, conditionnement, atelier, produits finis, rebuts. Ils sont repris à chaque nouvel ordre et restent modifiables ordre par ordre.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="statuts">
+  <div class="section-head">
+    <span class="eyebrow">Repères</span>
+    <h2 id="statuts">Les onglets de la liste des ordres</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Onglet</th><th>Ce qu'il contient</th><th>Ce qu'il faut faire</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill p-grey">À planifier</span></td><td>Ordres créés, pas encore prêts.</td><td>Régler les dépôts, les lots et les contrôles.</td></tr>
+        <tr><td><span class="pill p-blue">Prêts à démarrer</span></td><td>Matières envoyées à l'atelier.</td><td>Démarrer la production quand la ligne est libre.</td></tr>
+        <tr><td><span class="pill p-amber">En production</span></td><td>La ligne tourne.</td><td>Noter les rebuts, puis clôturer.</td></tr>
+        <tr><td><span class="pill p-red">En retard</span></td><td>Date prévue dépassée, ordre non terminé.</td><td>Replanifier ou relancer l'atelier.</td></tr>
+        <tr><td><span class="pill p-green">Terminés</span></td><td>Ordres clôturés, avec leur rendement.</td><td>Rien, sauf les rendements hors tolérance à analyser.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="messages">
+  <div class="section-head">
+    <span class="eyebrow">En cas de blocage</span>
+    <h2 id="messages">Les messages que vous pouvez voir</h2>
+  </div>
+  <div class="msgs">
+    <details><summary><q>Aucun produit n'a de recette active : créez d'abord une recette.</q></summary><p>Un ordre part toujours d'une recette. Créez-la dans <span class="path">Production<i>›</i>Recettes</span>, ou réactivez l'ancienne.</p></details>
+    <details><summary><q>Flacon 250 ml : choisissez le lot.</q></summary><p>La matière est suivie par lot. Sur l'ordre, choisissez le lot dans la ligne de la matière ; le lot proposé est celui qui périme le plus tôt.</p></details>
+    <details><summary><q>… en stock pour … nécessaires</q></summary><p>Le dépôt choisi n'a pas assez de cette matière. Consultez l'état du stock, changez de dépôt ou de lot, ou réduisez la quantité à produire.</p></details>
+    <details><summary><q>2 contrôle(s) obligatoire(s) à cocher : …</q></summary><p>Les contrôles nommés n'ont pas été faits. Cochez-les à l'atelier après vérification de la ligne.</p></details>
+    <details><summary><q>Les dépôts de l'atelier et des produits finis ne sont pas réglés.</q></summary><p>Le responsable doit renseigner les dépôts par défaut dans <span class="path">Production<i>›</i>Checklists et paramètres</span>.</p></details>
+  </div>
+</section>
+
+<section aria-labelledby="raccourcis">
+  <div class="section-head">
+    <span class="eyebrow">Gagner du temps</span>
+    <h2 id="raccourcis">Raccourcis clavier</h2>
+  </div>
+  <div class="keys">
+    <div class="key">Nouvel ordre de production <span><kbd>N</kbd> <kbd>O</kbd></span></div>
+    <div class="key">Nouvelle recette <span><kbd>N</kbd> <kbd>E</kbd></span></div>
+    <div class="key">Enregistrer une saisie <span><kbd>Ctrl</kbd> <kbd>Entrée</kbd></span></div>
+    <div class="key">Partager une fiche <span class="btn alt">Copier le lien</span></div>
+  </div>
+</section>
+
+<footer>Unicare · Guide utilisateur, module Production · version de travail, novembre 2026</footer>
+</div>

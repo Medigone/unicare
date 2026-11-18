@@ -1,0 +1,443 @@
+<title>Guide Stock Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #b8500f;        /* couleur du module Stock dans le bureau (orange) */
+  --accent-soft: #fcede2;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #f4a06b; --accent-soft: #3a2416;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #f4a06b; --accent-soft: #3a2416;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<style>
+/* Schéma du stock : ce qui entre à gauche, les dépôts au centre, ce qui sort à droite. */
+.flux { display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1.1fr) 28px minmax(0, 1fr); align-items: center; gap: 0; }
+.flux-col { display: grid; gap: 8px; }
+.flux-col h3 { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.flux-item { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font-size: .9rem; line-height: 1.35; display: grid; gap: 2px; }
+.flux-item b { font-weight: 600; }
+.flux-item span { font-size: .78rem; color: var(--ink-3); }
+.flux-arrow { text-align: center; font-size: 1.3rem; color: var(--accent); font-weight: 700; }
+.flux-core { background: var(--accent-soft); border: 1.5px solid var(--accent); border-radius: 16px; padding: 18px; display: grid; gap: 12px; text-align: center; }
+.flux-core .t { font-family: var(--display); font-weight: 700; font-size: 1.3rem; color: var(--ink); }
+.flux-core .depots { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
+.flux-core .depot { background: var(--paper); border-radius: 8px; padding: 6px 10px; font-size: .82rem; font-weight: 600; }
+.flux-core .swap { color: var(--accent); font-weight: 700; }
+.flux-core p { font-size: .85rem; color: var(--ink-2); }
+.calc { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .95rem; }
+.calc .term { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; display: grid; gap: 0; line-height: 1.3; }
+.calc .term b { font-family: var(--display); font-size: 1rem; }
+.calc .term span { font-size: .78rem; color: var(--ink-3); }
+.calc .op { font-family: var(--mono); color: var(--accent); font-size: 1.1rem; }
+.calc .term.res { background: var(--accent-soft); border-color: var(--accent); }
+@media (max-width: 760px) {
+  .flux { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .flux-arrow { transform: rotate(90deg); }
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></svg>Module Stock</span>
+  <h1>Suivre son stock avec Unicare</h1>
+  <p class="lead">Le stock bouge surtout tout seul : une réception le fait monter, une livraison le fait descendre. Ce guide explique comment le consulter, le déplacer entre dépôts, le compter et surveiller les lots qui approchent de leur péremption.</p>
+  <div class="where">
+    <span>Où : <b>menu de gauche › Stock</b></span>
+    <span>Pour : magasiniers, responsable de stock</span>
+  </div>
+</header>
+
+<section aria-labelledby="schema">
+  <div class="section-head">
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h2 id="schema">D'où vient et où va le stock</h2>
+    <p>Chaque flèche correspond à une pièce validée. Tant qu'une pièce est en brouillon, rien ne bouge.</p>
+  </div>
+  <div class="flux">
+    <div class="flux-col">
+      <h3>Ce qui entre</h3>
+      <div class="flux-item"><b>Réception fournisseur</b><span>module Achats</span></div>
+      <div class="flux-item"><b>Retour client</b><span>module Ventes</span></div>
+      <div class="flux-item"><b>Produit fini</b><span>module Production</span></div>
+      <div class="flux-item"><b>Entrée</b><span>mouvement de stock, ici</span></div>
+    </div>
+    <div class="flux-arrow" aria-hidden="true">→</div>
+    <div class="flux-core">
+      <span class="t">Vos dépôts</span>
+      <div class="depots"><span class="depot">Dépôt A</span><span class="swap" aria-label="transfert">⇄</span><span class="depot">Dépôt B</span></div>
+      <p><b>Transfert</b> : déplacer d'un dépôt à l'autre.<br><b>Inventaire</b> : remettre le stock au compté.</p>
+    </div>
+    <div class="flux-arrow" aria-hidden="true">→</div>
+    <div class="flux-col">
+      <h3>Ce qui sort</h3>
+      <div class="flux-item"><b>Livraison client</b><span>module Ventes</span></div>
+      <div class="flux-item"><b>Retour fournisseur</b><span>module Achats</span></div>
+      <div class="flux-item"><b>Matière consommée</b><span>module Production</span></div>
+      <div class="flux-item"><b>Sortie</b><span>casse, consommation, rebut, ici</span></div>
+    </div>
+  </div>
+  <div class="flow-notes">
+    <p><b>Dans ce module, vous saisissez seulement ce qui ne vient pas d'une autre pièce :</b> transferts, entrées et sorties exceptionnelles, inventaires.</p>
+    <p><b>Les mouvements créés par les ordres de production</b> apparaissent ici en lecture seule, dans l'onglet <span class="field">Issus des ordres</span>.</p>
+  </div>
+</section>
+
+<section aria-labelledby="etapes">
+  <div class="section-head">
+    <span class="eyebrow">Pas à pas</span>
+    <h2 id="etapes">Les tâches du stock</h2>
+  </div>
+
+  <!-- 0 · Articles et dépôts -->
+  <article class="step" id="referentiel">
+    <div class="step-num" aria-hidden="true">0</div>
+    <div class="step-body">
+      <h2>Créer les articles et les dépôts</h2>
+      <p class="why">À faire une seule fois, avant le premier mouvement. Un article décrit ce que vous stockez ; un dépôt, l'endroit où il est rangé.</p>
+      <div class="card">
+        <h3>Un article</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Stock<i>›</i>Articles</span>, ou tapez <kbd>N</kbd> puis <kbd>R</kbd>.</li>
+          <li>Choisissez le <span class="field">Type</span> (fût, conditionnement, produit fini, autre). Le type fixe le code de l'article, qui ne change plus ensuite.</li>
+          <li>Saisissez la <span class="field">Désignation</span>, le <span class="field">Groupe</span> et l'<span class="field">Unité de stock</span>.</li>
+          <li>Cochez <span class="field">Géré par lots</span> pour suivre les numéros de lot, et indiquez la <span class="field">Durée de conservation (jours)</span> : elle calcule la péremption des lots.</li>
+          <li>Cochez ce qui s'applique : <span class="field">Acheté</span>, <span class="field">Vendu</span>, <span class="field">Article de stock</span>. Ajoutez le <span class="field">Code-barres</span> s'il existe.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>Un dépôt</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Stock<i>›</i>Dépôts</span> et créez un dépôt.</li>
+          <li>Donnez son <span class="field">Nom du dépôt</span> (par exemple « Magasin matières premières »), son <span class="field">Groupe</span> et son <span class="field">Type</span>.</li>
+          <li>Cliquez sur <span class="btn">Créer le dépôt</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Un article ou un dépôt <b>désactivé</b> n'est plus proposé dans les pièces. Un dépôt doit être vide pour être désactivé.</li>
+          <li>Choisissez bien « Géré par lots » dès la création : ce réglage décide si les réceptions et les livraisons demanderont un numéro de lot.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 1 · Consulter -->
+  <article class="step" id="consulter">
+    <div class="step-num" aria-hidden="true">1</div>
+    <div class="step-body">
+      <h2>Consulter l'état du stock</h2>
+      <p class="why">Une ligne par article et par dépôt. C'est l'écran à ouvrir pour répondre à « en a-t-on assez ? » avant de promettre une livraison ou de passer une commande.</p>
+      <div class="card">
+        <h3>Lire une ligne</h3>
+        <div class="calc">
+          <span class="term"><b>En stock</b><span>dans le dépôt</span></span>
+          <span class="op">−</span>
+          <span class="term"><b>Réservé</b><span>commandes client</span></span>
+          <span class="op">+</span>
+          <span class="term"><b>Commandé</b><span>achats en cours</span></span>
+          <span class="op">=</span>
+          <span class="term res"><b>Projeté</b><span>ce qu'il vous restera</span></span>
+        </div>
+        <p style="font-size:.85rem;color:var(--ink-3)">Calcul simplifié : le projeté tient aussi compte des besoins de la production en cours.</p>
+        <ol class="do">
+          <li>Allez dans <span class="path">Stock<i>›</i>État du stock</span>.</li>
+          <li>Cherchez par article, code, dépôt ou groupe dans la barre de recherche.</li>
+          <li>Ouvrez une ligne pour voir les <span class="field">Lots dans ce dépôt</span> avec leur péremption, et l'<span class="field">Historique</span> des mouvements.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Les onglets utiles</h3>
+        <ul class="know">
+          <li><span class="field">Sous le seuil</span> : articles passés sous leur seuil de réapprovisionnement. C'est la liste des achats à prévoir.</li>
+          <li><span class="field">En rupture</span> : plus rien dans le dépôt.</li>
+          <li><span class="field">Stock négatif</span> : une anomalie à corriger, souvent par un inventaire.</li>
+          <li><span class="field">Avec réservations</span> : stock déjà promis à des clients.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 2 · Mouvement -->
+  <article class="step" id="mouvement">
+    <div class="step-num" aria-hidden="true">2</div>
+    <div class="step-body">
+      <h2>Faire un mouvement de stock</h2>
+      <p class="why">Pour tout ce qui bouge sans pièce d'achat ni de vente : déplacer de la marchandise entre deux dépôts, saisir un stock de départ, sortir de la casse.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Stock<i>›</i>Mouvements</span>, ou tapez <kbd>N</kbd> puis <kbd>M</kbd>.</li>
+          <li>Choisissez la <span class="field">Nature</span> :
+            <ul class="know" style="margin-top:6px">
+              <li><b>Transfert</b> : d'un dépôt à un autre. Indiquez le <span class="field">Dépôt de départ</span> et le <span class="field">Dépôt d'arrivée</span>.</li>
+              <li><b>Entrée</b> : du stock qui arrive sans réception (stock initial, retour interne). Indiquez le dépôt d'arrivée.</li>
+              <li><b>Sortie</b> : consommation, casse, rebut. Indiquez le dépôt de départ.</li>
+            </ul>
+          </li>
+          <li>Ajoutez les articles et leurs quantités. Pour un article géré par lots, choisissez le <span class="field">Lot</span> : Unicare propose d'abord celui qui périme le plus tôt.</li>
+          <li>Écrivez le motif dans <span class="field">Remarque</span> (« casse au chargement », « stock initial »…).</li>
+          <li>Cliquez sur <span class="btn">Créer le mouvement</span>, relisez, puis <span class="btn">Valider</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le mouvement suit la même règle que les autres pièces : <span class="pill p-grey">Brouillon</span> puis <span class="pill p-blue">Validé</span>. Une erreur se corrige avec <span class="btn alt">Annuler et créer une nouvelle version</span>.</li>
+          <li>Pour une <b>entrée</b> d'un article géré par lots, saisissez le nº de lot et sa péremption.</li>
+          <li>Un lot affiché <q>Lot périmé : à sortir du stock ou à mettre au rebut</q> ne doit pas être transféré vers la vente.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 3 · Inventaire -->
+  <article class="step" id="inventaire">
+    <div class="step-num" aria-hidden="true">3</div>
+    <div class="step-body">
+      <h2>Faire un inventaire</h2>
+      <p class="why">On compte ce qu'il y a réellement dans un dépôt, et Unicare corrige le stock pour qu'il corresponde au comptage. Rien ne bouge avant la validation : vous pouvez compter en plusieurs fois.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Stock<i>›</i>Inventaires</span>, ou tapez <kbd>N</kbd> puis <kbd>I</kbd>.</li>
+          <li>Choisissez le <span class="field">Dépôt à compter</span> et, si vous ne comptez qu'une partie, le <span class="field">Groupe d'articles</span>.</li>
+          <li>Cliquez sur <span class="btn">Préparer la feuille de comptage</span>. Elle liste chaque article (et chaque lot) avec la quantité en stock aujourd'hui.</li>
+          <li><span class="btn alt">Imprimer la feuille</span> et comptez dans le dépôt.</li>
+          <li>Saisissez la <span class="field">Quantité comptée</span> de chaque ligne, puis <span class="btn alt">Enregistrer le comptage</span>. Un article trouvé mais absent de la feuille : <span class="btn alt">Ajouter une ligne</span>.</li>
+          <li>Cliquez sur <span class="btn alt">Seulement les écarts</span> pour relire les <b>Surplus</b> et les <b>Manquants</b>, et recompter les écarts surprenants.</li>
+          <li>Cliquez sur <span class="btn">Valider l'inventaire</span>. Le stock est ajusté au comptage.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Avant de valider, Unicare résume les écarts : nombre de lignes, quantités en surplus et manquantes, et leur <b>valeur en DA</b>.</li>
+          <li>Les lignes sans écart ne sont pas gardées : seul ce qui change est enregistré.</li>
+          <li>Évitez de livrer ou de réceptionner dans le dépôt pendant le comptage : la feuille montrerait un stock qui a déjà changé.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 4 · Lots -->
+  <article class="step" id="lots">
+    <div class="step-num" aria-hidden="true">4</div>
+    <div class="step-body">
+      <h2>Surveiller les lots et les péremptions</h2>
+      <p class="why">Chaque lot garde son origine (fournisseur ou ordre de production), sa date de péremption et tous ses mouvements. C'est ce qui permet de sortir les produits dans le bon ordre et de retrouver un lot en cas de réclamation.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Stock<i>›</i>Lots</span>. Cherchez par nº de lot, article ou lot fournisseur.</li>
+          <li>Ouvrez l'onglet <span class="field">Périment sous 30 jours</span> chaque semaine : ce sont les lots à vendre ou à utiliser en priorité.</li>
+          <li>Ouvrez l'onglet <span class="field">Périmés en stock</span> : ces lots ne doivent plus partir chez un client.</li>
+          <li>Sur la fiche d'un lot périmé, cliquez sur <span class="btn alt">Préparer le transfert au rebut</span>. Un transfert vers le dépôt des rebuts est préparé en brouillon : vérifiez-le, puis validez-le.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>La fiche d'un lot montre son <span class="field">Stock par dépôt</span>, ses <span class="field">Mouvements du lot</span> et, pour un lot fabriqué, les <b>lots matière</b> utilisés et les <b>lots produits</b> obtenus.</li>
+          <li>Un lot encore bon malgré la date ? Corrigez sa <span class="field">Péremption</span> avec <span class="btn alt">Modifier</span>.</li>
+          <li>Un lot <b>désactivé</b> n'est plus proposé dans les pièces.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="statuts">
+  <div class="section-head">
+    <span class="eyebrow">Repères</span>
+    <h2 id="statuts">Les onglets de chaque liste</h2>
+    <p>En haut de chaque liste, un clic filtre ce qui demande votre attention.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Écran</th><th>Onglets</th><th>À regarder en priorité</th></tr></thead>
+      <tbody>
+        <tr><td>État du stock</td><td><span class="pill p-green">En stock</span><span class="pill p-red">En rupture</span><span class="pill p-amber">Sous le seuil</span><span class="pill p-red">Stock négatif</span><span class="pill p-blue">Avec réservations</span></td><td>« Sous le seuil » pour les achats, « Stock négatif » pour les anomalies.</td></tr>
+        <tr><td>Mouvements</td><td><span class="pill p-grey">Brouillons</span><span class="pill p-blue">Transferts</span><span class="pill p-green">Entrées</span><span class="pill p-amber">Sorties</span><span class="pill p-grey">Issus des ordres</span></td><td>« Brouillons » : des mouvements oubliés, pas encore validés.</td></tr>
+        <tr><td>Inventaires</td><td><span class="pill p-amber">En cours de comptage</span><span class="pill p-green">Validés</span><span class="pill p-red">Annulés</span></td><td>« En cours de comptage » : à terminer et valider.</td></tr>
+        <tr><td>Lots</td><td><span class="pill p-green">En stock</span><span class="pill p-amber">Périment sous 30 jours</span><span class="pill p-red">Périmés en stock</span><span class="pill p-grey">Épuisés</span></td><td>« Périmés en stock » : à mettre au rebut.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="messages">
+  <div class="section-head">
+    <span class="eyebrow">En cas de blocage</span>
+    <h2 id="messages">Les messages que vous pouvez voir</h2>
+  </div>
+  <div class="msgs">
+    <details><summary><q>Choisissez le dépôt de départ.</q> ou <q>Choisissez le dépôt d'arrivée.</q></summary><p>La nature choisie demande ce dépôt. Un transfert demande les deux ; une entrée, seulement l'arrivée ; une sortie, seulement le départ.</p></details>
+    <details><summary><q>Le dépôt d'arrivée doit être différent du départ.</q></summary><p>Un transfert déplace d'un dépôt à un autre. Pour corriger une quantité dans un même dépôt, faites un inventaire.</p></details>
+    <details><summary><q>Aucun lot dans ce dépôt</q></summary><p>L'article n'a aucun lot en stock dans le dépôt de départ. Vérifiez le dépôt dans l'état du stock : la marchandise est peut-être rangée ailleurs.</p></details>
+    <details><summary><q>Aucun écart : il n'y a rien à ajuster.</q></summary><p>Le comptage correspond exactement au stock : l'inventaire n'a rien à corriger. Vous pouvez supprimer le brouillon.</p></details>
+  </div>
+</section>
+
+<section aria-labelledby="raccourcis">
+  <div class="section-head">
+    <span class="eyebrow">Gagner du temps</span>
+    <h2 id="raccourcis">Raccourcis clavier</h2>
+  </div>
+  <div class="keys">
+    <div class="key">Nouveau mouvement <span><kbd>N</kbd> <kbd>M</kbd></span></div>
+    <div class="key">Nouvel inventaire <span><kbd>N</kbd> <kbd>I</kbd></span></div>
+    <div class="key">Nouvel article <span><kbd>N</kbd> <kbd>R</kbd></span></div>
+    <div class="key">Enregistrer une saisie <span><kbd>Ctrl</kbd> <kbd>Entrée</kbd></span></div>
+    <div class="key">Partager une fiche <span class="btn alt">Copier le lien</span></div>
+  </div>
+</section>
+
+<footer>Unicare · Guide utilisateur, module Stock · version de travail, novembre 2026</footer>
+</div>

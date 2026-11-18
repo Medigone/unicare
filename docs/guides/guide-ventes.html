@@ -1,0 +1,430 @@
+<title>Guide Ventes Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #2557c7;        /* couleur du module Ventes dans le bureau */
+  --accent-soft: #e8eefb;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #7ea2f5; --accent-soft: #1d2740;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #7ea2f5; --accent-soft: #1d2740;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>Module Ventes</span>
+  <h1>Vendre avec Unicare, du devis à l'encaissement</h1>
+  <p class="lead">Ce guide suit une vente dans l'ordre où vous la faites : on propose un prix, le client commande, on livre, on facture, on encaisse. Chaque étape crée une pièce qui reprend la précédente : vous ne ressaisissez jamais les articles.</p>
+  <div class="where">
+    <span>Où : <b>menu de gauche › Ventes</b></span>
+    <span>Pour : commerciaux, ADV, magasin, comptabilité</span>
+  </div>
+</header>
+
+<section aria-labelledby="circuit">
+  <div class="section-head">
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h2 id="circuit">Le circuit d'une vente</h2>
+    <p>Cliquez sur une étape pour aller à son explication.</p>
+  </div>
+  <ol class="route">
+    <li class="lane" aria-hidden="true">Commercial</li>
+    <li><a href="#client"><span class="dot">0</span><span class="t">Client <small>une seule fois</small></span><span class="d">La fiche de l'acheteur, reprise sur toutes ses pièces.</span><span class="effect e-none">Aucun effet</span></a></li>
+    <li class="opt"><a href="#devis"><span class="dot">1</span><span class="t">Devis <small>facultatif</small></span><span class="d">L'offre de prix envoyée au client.</span><span class="effect e-none">Aucun effet</span></a></li>
+    <li><a href="#commande"><span class="dot">2</span><span class="t">Commande <small class="shortcut">sans devis, commencez ici</small></span><span class="d">Le client a dit oui.</span><span class="effect e-stock">Réserve le stock</span></a></li>
+    <li class="lane" aria-hidden="true">Magasin</li>
+    <li><a href="#livraison"><span class="dot">3</span><span class="t">Bon de livraison</span><span class="d">La marchandise part chez le client.</span><span class="effect e-stock">Sort du stock</span></a></li>
+    <li class="lane" aria-hidden="true">Comptabilité</li>
+    <li><a href="#facture"><span class="dot">4</span><span class="t">Facture</span><span class="d">Ce que le client doit payer, et quand.</span><span class="effect e-money">Créance client</span></a></li>
+    <li><a href="#encaissement"><span class="dot">5</span><span class="t">Encaissement</span><span class="d">L'argent est reçu, la facture est soldée.</span><span class="effect e-money">Argent reçu</span></a></li>
+  </ol>
+  <div class="flow-notes">
+    <p><b>Pas de devis ?</b> Commencez directement par la commande : c'est le cas courant pour un client habitué qui passe commande par téléphone.</p>
+    <p><b>L'ordre conseillé</b> est livrer puis facturer. Une commande peut aussi être facturée avant la livraison, si le client paie d'avance.</p>
+  </div>
+</section>
+
+<section aria-labelledby="etats">
+  <div class="section-head">
+    <span class="eyebrow">La règle à retenir</span>
+    <h2 id="etats">Chaque pièce passe par trois états</h2>
+    <p>Devis, commande, bon, facture : tous fonctionnent pareil. Le statut s'affiche en pastille en haut de la fiche et dans les listes.</p>
+  </div>
+  <div class="states">
+    <div class="state"><span class="pill p-grey">Brouillon</span><p>La pièce est en préparation. Vous pouvez tout modifier avec <span class="btn alt">Modifier</span>, ou la supprimer. Elle n'a encore <b>aucun effet</b> : ni stock, ni comptabilité.</p></div>
+    <div class="state"><span class="pill p-blue">Validée</span><p>Vous avez cliqué sur <span class="btn">Valider</span>. La pièce est définitive : elle réserve ou sort le stock, ou passe en comptabilité. Elle <b>ne se modifie plus</b>.</p></div>
+    <div class="state"><span class="pill p-red">Annulée</span><p>Une pièce validée qu'on a annulée. Elle reste visible pour l'historique, mais ses effets sont défaits.</p></div>
+  </div>
+  <p class="fix"><b>Une erreur sur une pièce déjà validée ?</b> Ouvrez le menu de la fiche et choisissez <span class="btn alt">Annuler et créer une nouvelle version</span>. Unicare crée une copie en brouillon (même numéro suivi de <span style="font-family:var(--mono)">-1</span>) que vous corrigez puis validez.</p>
+  <p class="fix" style="background:var(--grey-soft)"><b>Le bouton Valider est grisé ?</b> Un encadré <span class="field">Pas encore validable :</span> sur la fiche dit exactement ce qui manque (une ligne sans prix, un lot non choisi…).</p>
+</section>
+
+<section aria-labelledby="etapes">
+  <div class="section-head">
+    <span class="eyebrow">Pas à pas</span>
+    <h2 id="etapes">Les étapes en détail</h2>
+  </div>
+
+  <!-- 0 · Client -->
+  <article class="step" id="client">
+    <div class="step-num" aria-hidden="true">0</div>
+    <div class="step-body">
+      <h2>Créer le client</h2>
+      <p class="why">À faire une seule fois par client. Ses coordonnées et ses numéros fiscaux sont ensuite repris sur tous ses devis, bons et factures.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Ventes<i>›</i>Clients</span>, ou tapez <kbd>N</kbd> puis <kbd>L</kbd> depuis n'importe quel écran.</li>
+          <li>Saisissez la <span class="field">Raison sociale</span> (seul champ obligatoire), puis la <span class="field">Catégorie</span>, la <span class="field">Commune</span> et le téléphone.</li>
+          <li>Renseignez le <span class="field">Nº RC</span>, le <span class="field">Nº NIF</span>, le <span class="field">Nº NIS</span> et le <span class="field">Nº AI</span> : ils sont imprimés sur les factures.</li>
+          <li>Ajoutez un contact (nom, fonction, mobile, email) si vous en avez un.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Un client <b>désactivé</b> n'apparaît plus dans les nouvelles pièces : c'est le moyen de le mettre de côté sans perdre son historique.</li>
+          <li>La fiche client montre ses pièces récentes et ce qu'il doit encore.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 1 · Devis -->
+  <article class="step" id="devis">
+    <div class="step-num" aria-hidden="true">1</div>
+    <div class="step-body">
+      <h2>Faire un devis <span class="tag-new">facultatif</span></h2>
+      <p class="why">Le devis est votre proposition de prix. Il n'engage ni le stock ni la comptabilité : vous pouvez en faire autant que nécessaire.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Allez dans <span class="path">Ventes<i>›</i>Devis</span> et créez un devis, ou tapez <kbd>N</kbd> puis <kbd>D</kbd>.</li>
+          <li>Choisissez le <span class="field">Client</span> en tapant sa raison sociale ou son code.</li>
+          <li>Vérifiez la date <span class="field">Valable jusqu'au</span> (proposée automatiquement) et la <span class="field">TVA</span>.</li>
+          <li>Ajoutez les articles avec la barre de recherche des <span class="field">Lignes</span> : tapez le nom, la quantité, puis Entrée. Le stock disponible s'affiche sous chaque article.</li>
+          <li>Laissez le prix vide pour reprendre le <b>prix du tarif</b>, ou saisissez un prix négocié.</li>
+          <li>Cliquez sur <span class="btn">Créer le devis</span> (ou <kbd>Ctrl</kbd> + <kbd>Entrée</kbd>). Il est créé en brouillon.</li>
+          <li>Relisez, puis cliquez sur <span class="btn">Valider</span>. Envoyez-le au client avec <span class="btn alt">Télécharger le PDF</span> ou <span class="btn alt">Imprimer</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Et ensuite ?</h3>
+        <ul class="know">
+          <li><b>Le client accepte :</b> sur le devis, cliquez sur <span class="btn">Créer la commande</span>. La commande reprend toutes les lignes, en brouillon.</li>
+          <li><b>Le client refuse :</b> cliquez sur <span class="btn alt">Déclarer perdu</span> et choisissez la raison (prix, délai…). Cela alimente le suivi commercial.</li>
+          <li>Dans la liste, l'onglet <span class="field">Expirent sous 7 jours</span> montre les devis à relancer.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : <a href="#commande">la commande</a></p>
+    </div>
+  </article>
+
+  <!-- 2 · Commande -->
+  <article class="step" id="commande">
+    <div class="step-num" aria-hidden="true">2</div>
+    <div class="step-body">
+      <h2>Enregistrer la commande</h2>
+      <p class="why">La commande est l'engagement du client. Une fois validée, elle <b>réserve le stock</b> et sert de référence pour tout ce qui suit : livraisons et factures.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Depuis un devis validé : <span class="btn">Créer la commande</span>. Sans devis : <span class="path">Ventes<i>›</i>Commandes</span>, ou <kbd>N</kbd> puis <kbd>C</kbd>.</li>
+          <li>Indiquez la date <span class="field">Livraison prévue le</span>. Elle sert à repérer les commandes en retard.</li>
+          <li>Notez dans <span class="field">Référence client</span> le numéro du bon de commande du client : il apparaîtra sur la facture.</li>
+          <li>Ajoutez ou vérifiez les lignes, puis <span class="btn">Créer la commande</span>.</li>
+          <li>Cliquez sur <span class="btn">Valider</span>. La commande réserve le stock.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>La fiche affiche deux barres : la part <b>Livré</b> et la part <b>Facturé</b>. Vous voyez d'un coup d'œil ce qui reste à faire.</li>
+          <li>Le client demande d'attendre ? Menu <span class="btn alt">Mettre en attente</span> : plus de livraison ni de facture tant que vous ne cliquez pas sur <span class="btn alt">Reprendre</span>.</li>
+          <li>Le client renonce au reste ? <span class="btn alt">Clôturer</span> abandonne ce qui n'est pas livré ou facturé. Une commande clôturée peut être rouverte.</li>
+          <li>Les lignes venues d'un devis ne se modifient pas ici, pour garder le lien avec le devis.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : sur la commande validée, <span class="btn">Créer la livraison</span></p>
+    </div>
+  </article>
+
+  <!-- 3 · Livraison -->
+  <article class="step" id="livraison">
+    <div class="step-num" aria-hidden="true">3</div>
+    <div class="step-body">
+      <h2>Préparer et valider le bon de livraison</h2>
+      <p class="why">C'est le document du magasin. Le valider fait <b>sortir la marchandise du stock</b>. Une commande peut être livrée en plusieurs fois : chaque bon reprend ce qui reste à livrer.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Sur la commande validée, cliquez sur <span class="btn">Créer la livraison</span>. Un bon est créé en brouillon avec les quantités restant à livrer, puis cliquez sur <span class="btn alt">Préparer le bon</span>.</li>
+          <li>Pour chaque ligne, choisissez le <span class="field">Dépôt</span> d'où part la marchandise.</li>
+          <li>Pour les articles suivis par lot, cliquez sur <span class="btn alt">Proposer les lots</span> : Unicare remplit les lots disponibles. Vous pouvez en changer.</li>
+          <li>Ajustez la <span class="field">Quantité</span> si vous ne livrez qu'une partie.</li>
+          <li>Renseignez le <span class="field">Véhicule</span> et le <span class="field">Nº de transport</span> si besoin.</li>
+          <li>Cliquez sur <span class="btn">Valider la livraison</span>. Imprimez le bon pour le chauffeur.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le message <q>2 disponible(s) seulement</q> veut dire que le stock du dépôt ou du lot choisi est insuffisant : changez de lot, de dépôt, ou réduisez la quantité.</li>
+          <li>Dans la liste, l'onglet <span class="field">À préparer</span> regroupe les bons à traiter par le magasin, <span class="field">À facturer</span> ceux qui attendent leur facture.</li>
+          <li><b>Le client rend de la marchandise ?</b> Sur le bon validé, menu <span class="btn alt">Retour client</span>. Saisissez les quantités rendues <b>en négatif</b> (−2 pour deux unités) et le dépôt où elles rentrent, puis <span class="btn">Valider le retour</span>.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : sur le bon validé, <span class="btn">Créer la facture</span></p>
+    </div>
+  </article>
+
+  <!-- 4 · Facture -->
+  <article class="step" id="facture">
+    <div class="step-num" aria-hidden="true">4</div>
+    <div class="step-body">
+      <h2>Facturer</h2>
+      <p class="why">La facture dit ce que le client doit payer et à quelle date. La valider passe <b>l'écriture comptable</b>.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Sur le bon de livraison validé, cliquez sur <span class="btn">Créer la facture</span>. Elle reprend les articles livrés, en brouillon. (Possible aussi depuis la commande.)</li>
+          <li>Vérifiez l'<span class="field">Échéance</span> : la date limite de paiement.</li>
+          <li>Vérifiez les totaux HT, TVA et TTC.</li>
+          <li>Cliquez sur <span class="btn">Valider</span>, puis envoyez la facture avec <span class="btn alt">Télécharger le PDF</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Une fois l'échéance passée sans paiement complet, la facture passe <span class="pill p-red">En retard</span>. L'onglet <span class="field">En retard</span> de la liste sert à relancer.</li>
+          <li><b>Erreur de prix ou geste commercial ?</b> Sur la facture validée, menu <span class="btn alt">Créer un avoir</span>. L'avoir reprend toutes les quantités : réduisez-les à ce que vous créditez (en négatif), puis validez. Il diminue le reste dû.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : <a href="#encaissement">encaisser</a></p>
+    </div>
+  </article>
+
+  <!-- 5 · Encaissement -->
+  <article class="step" id="encaissement">
+    <div class="step-num" aria-hidden="true">5</div>
+    <div class="step-body">
+      <h2>Encaisser le paiement</h2>
+      <p class="why">Quand le client paie, on l'enregistre sur sa facture. Le <span class="field">Reste dû</span> diminue et la facture passe à <span class="pill p-green">Payée</span> quand il atteint zéro.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez la facture et cliquez sur <span class="btn">Encaisser</span>.</li>
+          <li>Le <span class="field">Montant</span> est prérempli avec le reste dû. Changez-le si le client paie une partie.</li>
+          <li>Choisissez le <span class="field">Mode</span> : espèces, chèque, virement…</li>
+          <li>Pour un chèque ou un virement, saisissez sa <span class="field">Référence</span> et la <span class="field">Date du chèque ou du virement</span>.</li>
+          <li>Confirmez. L'encaissement est enregistré et validé aussitôt.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Un paiement partiel laisse le reste dû sur la facture, qui passe <span class="pill p-amber">Partiellement payée</span>.</li>
+          <li>Un client paie plusieurs factures d'un coup, ou verse une avance ? Passez par <span class="path">Trésorerie<i>›</i>Paiements</span> (ou <kbd>N</kbd> puis <kbd>P</kbd>) pour répartir le montant.</li>
+          <li>Tous les encaissements d'une facture sont listés en bas de sa fiche.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="statuts">
+  <div class="section-head">
+    <span class="eyebrow">Repères</span>
+    <h2 id="statuts">Lire les statuts</h2>
+    <p>Chaque liste a des onglets en haut pour filtrer d'un clic. Voici ce que veulent dire les pastilles.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pièce</th><th>Statuts possibles</th><th>Ce qu'il faut faire</th></tr></thead>
+      <tbody>
+        <tr><td>Devis</td><td><span class="pill p-grey">Brouillon</span><span class="pill p-blue">Ouvert</span><span class="pill p-green">Commandé</span><span class="pill p-red">Perdu</span><span class="pill p-grey">Expiré</span></td><td>Un devis ouvert attend la réponse du client : relancez-le avant son expiration.</td></tr>
+        <tr><td>Commande</td><td><span class="pill p-grey">Brouillon</span><span class="pill p-amber">À livrer</span><span class="pill p-amber">À facturer</span><span class="pill p-amber">En attente</span><span class="pill p-green">Terminée</span><span class="pill p-grey">Clôturée</span></td><td>« À livrer » : préparer un bon. « À facturer » : créer la facture.</td></tr>
+        <tr><td>Bon de livraison</td><td><span class="pill p-grey">À préparer</span><span class="pill p-amber">À facturer</span><span class="pill p-green">Facturé</span><span class="pill p-blue">Retour</span></td><td>« À préparer » est pour le magasin, « À facturer » pour la comptabilité.</td></tr>
+        <tr><td>Facture</td><td><span class="pill p-grey">Brouillon</span><span class="pill p-amber">Impayée</span><span class="pill p-amber">Partiellement payée</span><span class="pill p-red">En retard</span><span class="pill p-green">Payée</span><span class="pill p-blue">Avoir</span></td><td>« En retard » : relancer le client. « Payée » : rien à faire.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="messages">
+  <div class="section-head">
+    <span class="eyebrow">En cas de blocage</span>
+    <h2 id="messages">Les messages que vous pouvez voir</h2>
+  </div>
+  <div class="msgs">
+    <details><summary><q>Pas encore validable : 1 ligne(s) sans prix.</q></summary><p>Un article n'a pas de prix dans le tarif et vous n'en avez pas saisi. Cliquez sur <span class="btn alt">Modifier</span> et indiquez le prix de la ligne.</p></details>
+    <details><summary><q>Ligne 2 : choisissez le lot.</q></summary><p>L'article est suivi par lot. Sur le bon de livraison, cliquez sur <span class="btn alt">Proposer les lots</span> ou choisissez le lot à la main.</p></details>
+    <details><summary><q>… disponible(s) seulement.</q></summary><p>Il n'y a pas assez de stock dans le dépôt ou le lot choisi. Vérifiez l'état du stock, changez de lot ou de dépôt, ou livrez une quantité plus petite.</p></details>
+    <details><summary><q>Il ne reste rien à livrer.</q> ou <q>Il ne reste rien à facturer.</q></summary><p>Tout a déjà été livré ou facturé. Regardez les pièces liées en bas de la fiche : un bon ou une facture existe peut-être déjà en brouillon.</p></details>
+    <details><summary><q>Ce bon vient d'être modifié par ailleurs.</q></summary><p>Un collègue a changé la pièce pendant que vous l'aviez ouverte. Elle a été rechargée : vérifiez-la, puis refaites votre action.</p></details>
+    <details><summary><q>Commande en attente : ni livraison ni facture…</q></summary><p>La commande a été mise en attente. Cliquez sur <span class="btn alt">Reprendre</span> dans l'encadré pour pouvoir livrer ou facturer.</p></details>
+  </div>
+</section>
+
+<section aria-labelledby="raccourcis">
+  <div class="section-head">
+    <span class="eyebrow">Gagner du temps</span>
+    <h2 id="raccourcis">Raccourcis clavier</h2>
+  </div>
+  <div class="keys">
+    <div class="key">Nouveau devis <span><kbd>N</kbd> <kbd>D</kbd></span></div>
+    <div class="key">Nouvelle commande <span><kbd>N</kbd> <kbd>C</kbd></span></div>
+    <div class="key">Nouveau client <span><kbd>N</kbd> <kbd>L</kbd></span></div>
+    <div class="key">Nouveau paiement <span><kbd>N</kbd> <kbd>P</kbd></span></div>
+    <div class="key">Enregistrer une saisie <span><kbd>Ctrl</kbd> <kbd>Entrée</kbd></span></div>
+    <div class="key">Partager une fiche <span class="btn alt">Copier le lien</span></div>
+  </div>
+</section>
+
+<footer>Unicare · Guide utilisateur, module Ventes · version de travail, novembre 2026</footer>
+</div>

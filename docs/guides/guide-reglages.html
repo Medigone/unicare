@@ -1,0 +1,413 @@
+<title>Réglages Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #2c6870;        /* réglages : bleu-vert neutre, hors couleurs de module */
+  --accent-soft: #e2f0f1;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<style>
+/* Guide des réglages : une liste de mise en route numérotée, puis une fiche par module. */
+.places { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.place { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.place h3 { font-family: var(--display); font-size: 1.15rem; }
+.place p { font-size: .92rem; color: var(--ink-2); }
+.place code, .doctype { font-family: var(--mono); font-size: .78rem; color: var(--ink-3); }
+.setting { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 4px 20px; padding: 14px 0; border-top: 1px solid var(--line); }
+.setting:first-of-type { border-top: 0; padding-top: 4px; }
+.setting h3 { font-size: 1rem; }
+.setting .where-to { font-size: .85rem; color: var(--ink-2); display: grid; gap: 2px; }
+.setting .effect-text { font-size: .92rem; color: var(--ink-2); }
+.setting .effect-text b { color: var(--ink); }
+.who { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; background: var(--grey-soft); color: var(--ink-2); width: fit-content; }
+.who.bureau { background: var(--accent-soft); color: var(--accent); }
+.mod-head { display: flex; align-items: center; gap: 10px; }
+.mod-dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.c-ventes { background: #2557c7; } .c-achats { background: #6b3fc2; } .c-stock { background: #b8500f; } .c-tresor { background: #17794a; } .c-prod { background: #8f5f00; } .c-users { background: var(--ink-3); }
+ol.setup { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: s; }
+ol.setup li { counter-increment: s; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+ol.setup li::before { content: counter(s); font-family: var(--mono); font-size: .85rem; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+ol.setup b { display: block; }
+ol.setup span { font-size: .9rem; color: var(--ink-2); }
+@media (max-width: 760px) {
+  .places { grid-template-columns: minmax(0, 1fr); }
+  .setting { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>Réglages</span>
+  <h1>Régler Unicare avant de s'en servir</h1>
+  <p class="lead">Les écrans de vente, d'achat, de stock et de production s'appuient sur quelques réglages : les taux de TVA, les tarifs, les modes de paiement, les dépôts. Ce guide dit où se trouve chaque réglage, ce qu'il change à l'écran, et dans quel ordre les faire à la mise en route.</p>
+  <div class="where">
+    <span>Pour : administrateur, responsable de production, comptable</span>
+  </div>
+</header>
+
+<section aria-labelledby="ou">
+  <div class="section-head">
+    <span class="eyebrow">Deux endroits</span>
+    <h2 id="ou">Où se font les réglages</h2>
+  </div>
+  <div class="places">
+    <div class="place">
+      <span class="who bureau">Dans le bureau</span>
+      <h3>Le module Réglages, et Production › Checklists et paramètres</h3>
+      <p>Le module <b>Réglages</b> du menu de gauche regroupe les réglages repris du Desk, pour l'instant les <b>tarifs et les prix</b>, les <b>listes de choix</b> (raisons de perte, catégories, groupes, unités), le <b>stock</b> (paramètres et seuils), les <b>utilisateurs</b> et la <b>comptabilité et la trésorerie</b> (TVA, comptes, modes de paiement, exercices). Les réglages de la production restent dans leur module : checklists, dépôts de production, tolérance de rendement.</p>
+    </div>
+    <div class="place">
+      <span class="who">Sur le Desk</span>
+      <h3>L'interface d'administration</h3>
+      <p>Ce qui n'est pas encore dans le bureau se règle sur le Desk, réservé à l'<b>administrateur</b>. Ces réglages seront repris un à un dans le module Réglages. Depuis une fiche du bureau, le menu <span class="btn alt">Ouvrir sur le Desk</span> y mène. Sur le Desk, tapez le nom du réglage dans la barre de recherche en haut : le nom technique est indiqué en gris sous chaque réglage de ce guide.</p>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="demarrage">
+  <div class="section-head">
+    <span class="eyebrow">Mise en route</span>
+    <h2 id="demarrage">L'ordre à suivre la première fois</h2>
+    <p>Chaque réglage s'appuie sur le précédent. Une fois ces sept points faits, les quatre modules sont utilisables.</p>
+  </div>
+  <ol class="setup">
+    <li><div><b>La comptabilité</b><span>Dans <span class="path">Réglages<i>›</i>Comptabilité et trésorerie</span>, le <b>bilan</b> en tête de page dit ce qui manque : exercice, comptes par défaut, TVA par défaut (19 %, 9 %, 0 %). Tout doit être vert.</span></div></li>
+    <li><div><b>Les modes de paiement et leur compte</b><span>Même page : espèces, chèque, virement, chacun relié à son compte de caisse ou de banque. Sans compte propre, c'est la banque ou la caisse par défaut de la société qui reçoit l'argent.</span></div></li>
+    <li><div><b>Les dépôts</b><span>Dans le bureau, <span class="path">Stock<i>›</i>Dépôts</span> : magasins, atelier, produits finis, rebuts.</span></div></li>
+    <li><div><b>Les articles et leurs prix</b><span>Les articles, puis leur prix dans <span class="path">Réglages<i>›</i>Tarifs et prix</span> : onglet <span class="field">Sans prix</span> pour ne rien oublier.</span></div></li>
+    <li><div><b>Les paramètres de production</b><span>Dans le bureau : les dépôts de production et la tolérance de rendement.</span></div></li>
+    <li><div><b>Les checklists de ligne</b><span>Au moins une, sinon aucun ordre de production ne peut être préparé.</span></div></li>
+    <li><div><b>Les utilisateurs et leurs rôles</b><span>Dans <span class="path">Réglages<i>›</i>Utilisateurs</span> : qui entre dans le bureau, et ce que chacun peut voir et modifier.</span></div></li>
+  </ol>
+</section>
+
+<!-- Ventes -->
+<section aria-labelledby="r-ventes">
+  <div class="section-head">
+    <div class="mod-head"><span class="mod-dot c-ventes" aria-hidden="true"></span><h2 id="r-ventes">Ventes</h2></div>
+  </div>
+  <div class="card">
+    <div class="setting">
+      <div><h3>Tarif de vente par défaut</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Tarifs et prix › Utiliser par défaut pour les ventes</span>
+        <p class="effect-text">C'est le prix proposé quand on laisse le <b>prix vide</b> sur un devis ou une commande. Le nom du tarif s'affiche sous les lignes : « Un prix laissé vide reprend celui du tarif … ».</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Prix des articles</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Tarifs et prix : choisissez le tarif, saisissez le prix dans sa case, puis Entrée</span>
+        <p class="effect-text">Un article sans prix dans le tarif donne une ligne <b>« Sans prix »</b> qui bloque la validation, jusqu'à ce que le vendeur saisisse un prix. L'onglet <span class="field">Sans prix</span> liste ces articles. La fiche article affiche aussi ses prix dans une carte <b>Prix</b>, avec un lien vers le tarif.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Taux de TVA des ventes</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Comptabilité et trésorerie › TVA</span>
+        <p class="effect-text">Ce sont les choix de la liste <b>TVA</b> des pièces de vente. Le taux marqué <b>par défaut</b> est présélectionné sur chaque nouveau devis et chaque commande ; le bouton <span class="btn alt">Par défaut</span> en change. Un taux désactivé disparaît de la liste. <span class="btn alt">Nouveau taux</span> en ajoute un, sur le compte de TVA collectée.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Raisons de perte d'un devis</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Listes de choix › Raisons de perte</span>
+        <p class="effect-text">Les choix proposés par <span class="btn alt">Déclarer perdu</span> (prix trop élevé, délai, concurrent…). Sans aucune raison créée, le bureau affiche « Aucune raison n'est définie ». Une raison déjà utilisée ne se renomme pas : créez-en une nouvelle.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Catégories de clients</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Listes de choix › Catégories de clients</span>
+        <p class="effect-text">Les choix du champ <span class="field">Catégorie</span> de la fiche client (pharmacie, grossiste…). La catégorie est obligatoire à la création d'un client.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Achats -->
+<section aria-labelledby="r-achats">
+  <div class="section-head">
+    <div class="mod-head"><span class="mod-dot c-achats" aria-hidden="true"></span><h2 id="r-achats">Achats</h2></div>
+  </div>
+  <div class="card">
+    <div class="setting">
+      <div><h3>Tarif d'achat et prix d'achat</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Tarifs et prix › Utiliser par défaut pour les achats</span>
+        <p class="effect-text">Le prix proposé quand on laisse le prix vide sur un devis fournisseur ou une commande d'achat. Sans prix dans ce tarif, Unicare reprend le <b>dernier prix payé</b>, affiché à côté de chaque article.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Taux de TVA des achats</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Comptabilité et trésorerie › TVA</span>
+        <p class="effect-text">Les choix de la liste <b>TVA déductible</b> des pièces d'achat. Le taux par défaut est présélectionné.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Catégories de fournisseurs</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Listes de choix › Catégories de fournisseurs</span>
+        <p class="effect-text">Les choix du champ <span class="field">Catégorie</span> de la fiche fournisseur.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Stock -->
+<section aria-labelledby="r-stock">
+  <div class="section-head">
+    <div class="mod-head"><span class="mod-dot c-stock" aria-hidden="true"></span><h2 id="r-stock">Stock</h2></div>
+  </div>
+  <div class="card">
+    <div class="setting">
+      <div><h3>Les dépôts</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Stock › Dépôts</span>
+        <p class="effect-text">Chaque endroit où l'on range de la marchandise. Prévoyez au minimum : magasin matières, magasin conditionnement, atelier, produits finis, rebuts. Un dépôt doit être vide pour être désactivé.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Paramètres de stock</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Stock et seuils › Paramètres</span>
+        <p class="effect-text">Le <b>dépôt de réception par défaut</b>, proposé sur chaque nouvelle commande d'achat, et l'<b>unité des nouveaux articles</b>. La case <span class="field">Demandes d'achat automatiques</span> fait créer chaque nuit, par ERPNext, une demande d'achat pour les articles sous leur seuil ; ces demandes ne se voient que sur le Desk. Laissez <span class="field">Autoriser le stock négatif</span> décochée.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Seuil de réapprovisionnement</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Stock et seuils : choisissez le dépôt, saisissez le seuil (et la quantité à commander), puis Entrée</span>
+        <p class="effect-text">Quand le stock d'un dépôt passe sous ce seuil, l'article apparaît dans l'onglet <span class="field">Sous le seuil</span> de l'état du stock et sur le tableau de bord. Sans seuil, l'onglet reste vide pour cet article. Videz la case pour retirer le seuil.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Groupes d'articles et unités</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Listes de choix › Groupes d'articles · Unités</span>
+        <p class="effect-text">Les choix des champs <span class="field">Groupe</span> et <span class="field">Unité de stock</span> d'un article. Le groupe sert aussi à faire un inventaire partiel. Le bouton <span class="btn alt">Retirer les unités inutilisées</span> raccourcit la liste des unités en ne gardant que celles déjà utilisées ; les autres restent réactivables une à une.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Trésorerie -->
+<section aria-labelledby="r-tresor">
+  <div class="section-head">
+    <div class="mod-head"><span class="mod-dot c-tresor" aria-hidden="true"></span><h2 id="r-tresor">Trésorerie</h2></div>
+  </div>
+  <div class="card">
+    <div class="setting">
+      <div><h3>Modes de paiement</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Comptabilité et trésorerie › Modes de paiement</span>
+        <p class="effect-text">Les choix du champ <span class="field">Mode</span> quand on encaisse ou qu'on paie. Choisissez pour chaque mode <b>son compte</b> (caisse, banque) : sans compte propre, l'argent va sur la banque ou la caisse par défaut. Décochez <span class="field">Proposé</span> pour retirer un mode de la liste. Le mode de type espèces est présélectionné.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Comptes par défaut</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Comptabilité et trésorerie › Comptes par défaut</span>
+        <p class="effect-text">Les comptes que les pièces reprennent quand l'article, le client ou le fournisseur n'en précise pas : clients, fournisseurs, banque, caisse, ventes, stock… Ils sont posés à l'installation ; ne les changez qu'avec votre comptable.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Exercice comptable</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Comptabilité et trésorerie › Exercices</span>
+        <p class="effect-text">Une pièce ne peut être validée que si sa date tombe dans un exercice. Chaque fin d'année, cliquez sur <span class="btn alt">Créer l'exercice …</span> : le bilan le rappelle deux mois avant l'échéance.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Droit de timbre</h3><span class="who">Équipe technique</span></div>
+      <div class="where-to"><span>Barème intégré à Unicare, affiché dans Réglages › Comptabilité et trésorerie</span>
+        <p class="effect-text">Sur une facture de vente payée en espèces (case <b>« Paiement en espèces »</b> de la facture, sur le Desk), Unicare ajoute tout seul le droit de timbre : 1 % jusqu'à 30 000 DA, 1,5 % jusqu'à 100 000 DA, 2 % au-delà, 5 DA minimum. Ce barème ne se change pas à l'écran : si la loi de finances change, demandez à l'équipe technique de le mettre à jour.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Production -->
+<section aria-labelledby="r-prod">
+  <div class="section-head">
+    <div class="mod-head"><span class="mod-dot c-prod" aria-hidden="true"></span><h2 id="r-prod">Production</h2></div>
+    <p>Dans le bureau, <span class="path">Production<i>›</i>Checklists et paramètres</span>. Seul le rôle <b>Responsable Conditionnement</b> peut les modifier ; les autres les voient sans pouvoir les changer.</p>
+  </div>
+  <div class="card">
+    <div class="setting">
+      <div><h3>Dépôts utilisés par défaut</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages de la production</span>
+        <p class="effect-text">Cinq dépôts : <b>Magasin fût / matières</b>, <b>Magasin articles de conditionnement</b>, <b>Atelier conditionnement</b>, <b>Magasin produits finis</b>, <b>Magasin rebuts / pertes</b>. Ils sont repris à chaque nouvel ordre et restent modifiables ordre par ordre. Sans atelier ni produits finis, aucun ordre ne peut être préparé.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Écart toléré sur le rendement</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages de la production › Rendement</span>
+        <p class="effect-text">L'écart accepté entre le rendement visé de la recette et le rendement réel. Au-delà, la clôture d'un ordre demande une explication et l'ordre apparaît dans « Rendements hors tolérance » du tableau de bord.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Checklists avant production</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Checklists avant production › Nouvelle checklist</span>
+        <p class="effect-text">Une checklist par ligne (par exemple « Ligne flacons 250 ml »), avec ses contrôles. Marquez <b>Obligatoire</b> ceux sans lesquels on ne doit pas démarrer. Seules les checklists <b>actives</b> sont proposées aux nouveaux ordres. Chaque ordre en garde sa copie : modifier une checklist ne change pas les ordres déjà créés.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Utilisateurs -->
+<section aria-labelledby="r-users">
+  <div class="section-head">
+    <div class="mod-head"><span class="mod-dot c-users" aria-hidden="true"></span><h2 id="r-users">Utilisateurs et droits</h2></div>
+  </div>
+  <div class="card">
+    <div class="setting">
+      <div><h3>Comptes, rôles et mots de passe</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Utilisateurs</span>
+        <p class="effect-text"><span class="btn alt">Nouvel utilisateur</span> crée un compte : son adresse e-mail sert d'identifiant, et vous choisissez son mot de passe, à lui communiquer. Cochez ce que la personne peut faire, domaine par domaine (Production, Ventes, Achats, Stock, Comptabilité, Administration). Pour entrer dans le bureau, il faut un rôle de la partie <b>Production</b> (Opérateur, Magasinier, Responsable production) ou <b>Administrateur</b> ; sinon la page le signale. <span class="btn alt">Mot de passe</span> en pose un nouveau ; décochez <span class="field">Compte actif</span> pour qu'une personne partie ne puisse plus se connecter. Réservé aux administrateurs.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Ce que chacun voit</h3><span class="who">Desk</span></div>
+      <div class="where-to"><span>Gestionnaire des autorisations de rôles</span><span class="doctype">Role Permission Manager</span>
+        <p class="effect-text">Le menu du bureau suit les droits : un écran n'apparaît que si le rôle peut lire ses documents, et le bouton <span class="btn alt">Créer</span> que s'il peut les créer. Pour ouvrir les ventes à un magasinier, donnez-lui le droit de lecture sur les devis, commandes, bons et factures.</p></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="fixe">
+  <div class="section-head">
+    <span class="eyebrow">À savoir</span>
+    <h2 id="fixe">Ce qui n'est pas réglable</h2>
+    <p>Ces valeurs sont fixées dans Unicare. Pour les changer, adressez-vous à l'équipe technique.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Valeur</th><th>Aujourd'hui</th><th>Où on la voit</th></tr></thead>
+      <tbody>
+        <tr><td>Validité d'un devis</td><td>30 jours</td><td>Date « Valable jusqu'au » proposée sur un nouveau devis, client ou fournisseur. Modifiable devis par devis.</td></tr>
+        <tr><td>Date de livraison d'une commande</td><td>7 jours</td><td>Date « Livraison prévue le » proposée sur une nouvelle commande. Modifiable commande par commande.</td></tr>
+        <tr><td>Code d'un article</td><td>FU-, CO-, PF-, AU-</td><td>Le préfixe suit le type choisi à la création (fût, conditionnement, produit fini, autre) et ne change plus.</td></tr>
+        <tr><td>Barème du droit de timbre</td><td>1 % · 1,5 % · 2 %</td><td>Ligne « Droit de timbre » des factures payées en espèces.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>Unicare · Guide des réglages · version de travail, novembre 2026</footer>
+</div>
