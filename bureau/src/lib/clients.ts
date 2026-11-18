@@ -97,7 +97,7 @@ export interface ClientDetail {
 	pieces: { key: string; label: string; numero: string | null; fichier: string | null }[]
 	contacts: ClientContact[]
 	can_edit: boolean
-	/** Droit de supprimer la fiche ; Frappe refuse encore si une pièce y est liée. */
+	/** Droit de supprimer la fiche ; L'ERP refuse encore si une pièce y est liée. */
 	can_delete: boolean
 	/** Fiche seulement. Une nature à `null` : la personne ne lit pas ce document. */
 	ventes?: Record<VenteKey, ClientVente[] | null>

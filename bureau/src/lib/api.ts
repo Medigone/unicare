@@ -617,7 +617,7 @@ export function factureAchatActivity(name: string): ActivityApi {
 export const createPieceVersion = (module: VersionModule, piece: { name: string; modified: string }) =>
 	call<{ name: string; note: string | null }>(`unicare.api.bureau_${module}.create_version`, { name: piece.name, modified: piece.modified }, true)
 
-/** Suppression d'une fiche non validable : Frappe refuse tant qu'une pièce y est liée. */
+/** Suppression d'une fiche non validable : L'ERP refuse tant qu'une pièce y est liée. */
 export const deleteClient = (client: { name: string; modified: string }) => call<{ deleted: string }>(`${CLIENTS}.delete_client`, { name: client.name, modified: client.modified }, true)
 export const deleteFournisseur = (fournisseur: { name: string; modified: string }) =>
 	call<{ deleted: string }>(`${FOURNISSEURS}.delete_fournisseur`, { name: fournisseur.name, modified: fournisseur.modified }, true)

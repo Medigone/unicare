@@ -299,7 +299,7 @@ async function nouvelleVersion(confirmed = false) {
 		</FormDialog>
 
 		<FormDialog v-if="confirming && devis" :title="confirming !== 'supprimer' ? 'Annuler le devis' : devis.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming !== 'supprimer' ? `Le devis ${devis.name} sera annulé : il reste lisible mais ne peut plus être commandé.` : devis.docstatus === 2 ? `La pièce annulée ${devis.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${devis.name} sera supprimé définitivement.` }}</p>
+			<p>{{ confirming !== 'supprimer' ? `Le devis ${devis.name} sera annulé : il reste lisible mais ne peut plus être commandé.` : devis.docstatus === 2 ? `La pièce annulée ${devis.name} sera supprimée définitivement. L'ERP refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${devis.name} sera supprimé définitivement.` }}</p>
 			<template #actions>
 				<button v-if="confirming === 'annuler' && canCreate('Quotation')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
 				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler le devis' : 'Supprimer' }}</button>

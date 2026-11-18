@@ -19,7 +19,7 @@ export const FACTURE_VIEWS: { key: FactureView; label: string }[] = [
 	{ key: 'clos', label: 'Annulées ou créditées' },
 ]
 
-/** Statuts de facture ERPNext absents de la règle commune, en français. */
+/** Statuts de facture ERP absents de la règle commune, en français. */
 const FACTURE_STATUS: Record<string, string> = {
 	Unpaid: 'Impayée',
 	'Partly Paid': 'Partiellement payée',

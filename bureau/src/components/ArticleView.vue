@@ -148,7 +148,7 @@ function onSaved(updated: ArticleDetail) {
 	notice.value = 'Article enregistré.'
 	emit('changed')
 }
-// Suppression de la fiche : Frappe refuse tant qu'une pièce ou un autre document y est lié, et le message le dit.
+// Suppression de la fiche : L'ERP refuse tant qu'une pièce ou un autre document y est lié, et le message le dit.
 async function supprimer() {
 	const current = article.value
 	if (!current) return

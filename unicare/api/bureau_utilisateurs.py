@@ -33,21 +33,21 @@ ROLES = (
 		"Ventes",
 		(
 			("Sales User", "Commercial", "Devis, commandes, livraisons et clients."),
-			("Sales Manager", "Responsable ventes", "Comme le commercial, avec les droits de responsable d'ERPNext."),
+			("Sales Manager", "Responsable ventes", "Comme le commercial, avec les droits de responsable de l'ERP."),
 		),
 	),
 	(
 		"Achats",
 		(
 			("Purchase User", "Acheteur", "Devis fournisseur, commandes d'achat, réceptions et fournisseurs."),
-			("Purchase Manager", "Responsable achats", "Comme l'acheteur, avec les droits de responsable d'ERPNext."),
+			("Purchase Manager", "Responsable achats", "Comme l'acheteur, avec les droits de responsable de l'ERP."),
 		),
 	),
 	(
 		"Stock",
 		(
 			("Stock User", "Magasinier stock", "Mouvements, inventaires, lots et état du stock."),
-			("Stock Manager", "Responsable stock", "Comme le magasinier, avec les droits de responsable d'ERPNext."),
+			("Stock Manager", "Responsable stock", "Comme le magasinier, avec les droits de responsable de l'ERP."),
 			("Item Manager", "Gestion des articles", "Créer et modifier les fiches articles."),
 		),
 	),

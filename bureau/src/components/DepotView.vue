@@ -69,7 +69,7 @@ async function copyLink() {
 	}
 }
 
-// Suppression : Frappe refuse tant que le dépôt a du stock ou des écritures, et le message le dit.
+// Suppression : L'ERP refuse tant que le dépôt a du stock ou des écritures, et le message le dit.
 async function supprimer() {
 	const current = depot.value
 	if (!current) return

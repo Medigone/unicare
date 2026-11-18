@@ -29,7 +29,7 @@ export interface ExportColumnOption {
 	key: string
 	label: string
 	group: string
-	/** Vrai pour ce qui vient de l'application, faux pour les rubriques standard d'ERPNext. */
+	/** Vrai pour ce qui vient de l'application, faux pour les rubriques standard de l'ERP. */
 	own: boolean
 	field?: FilterField
 }

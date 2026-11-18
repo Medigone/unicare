@@ -233,7 +233,7 @@ async function nouvelleVersion(confirmed = false) {
 		<PaiementAssistant v-if="editing && paiement" :paiement="paiement" @close="editing = false" @saved="onSaved" />
 
 		<FormDialog v-if="confirming && paiement" :title="confirming !== 'supprimer' ? 'Annuler le paiement' : paiement.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming !== 'supprimer' ? `Le paiement ${paiement.name} sera annulé : l'écriture est contrepassée et les pièces rapprochées retrouvent leur reste dû.` : paiement.docstatus === 2 ? `La pièce annulée ${paiement.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${paiement.name} sera supprimé.` }}</p>
+			<p>{{ confirming !== 'supprimer' ? `Le paiement ${paiement.name} sera annulé : l'écriture est contrepassée et les pièces rapprochées retrouvent leur reste dû.` : paiement.docstatus === 2 ? `La pièce annulée ${paiement.name} sera supprimée définitivement. L'ERP refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${paiement.name} sera supprimé.` }}</p>
 			<template #actions>
 				<button v-if="confirming === 'annuler' && canCreate('Payment Entry')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
 				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler le paiement' : 'Supprimer' }}</button>

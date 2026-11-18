@@ -43,7 +43,7 @@ export interface InventaireLine {
 	depot: string
 	lot: string | null
 	unite: string | null
-	/** Brouillon : le stock d'aujourd'hui ; validé : celui qu'ERPNext a figé à la validation. */
+	/** Brouillon : le stock d'aujourd'hui ; validé : celui qu'ERP a figé à la validation. */
 	theorique: number
 	compte: number
 	ecart: number

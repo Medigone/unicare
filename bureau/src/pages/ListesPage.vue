@@ -12,7 +12,7 @@ import { filtrerValeurs, usagesLabel, type ListeCode, type ListeResume, type Lis
 /**
  * Réglages › Listes de choix : les valeurs proposées par les listes déroulantes du bureau (raisons de perte,
  * catégories de clients et de fournisseurs, groupes d'articles, unités). Ajouter, renommer, supprimer une valeur
- * inutilisée ; pour les unités, les retirer des listes. Selon les droits ERPNext du rôle.
+ * inutilisée ; pour les unités, les retirer des listes. Selon les droits ERP du rôle.
  */
 const props = defineProps<{ code?: string }>()
 const router = useRouter()

@@ -219,7 +219,7 @@ async function confirm() {
 		<MouvementDialog v-if="editing && mouvement" :mouvement="mouvement" @close="editing = false" @saved="onSaved" />
 
 		<FormDialog v-if="confirming && mouvement" :title="confirming !== 'supprimer' ? 'Annuler le mouvement' : mouvement.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming !== 'supprimer' ? `Le mouvement ${mouvement.name} sera annulé : le stock revient comme avant. ERPNext refuse si ce stock a déjà été consommé ou déplacé depuis.` : `Le brouillon ${mouvement.name} sera supprimé définitivement.` }}</p>
+			<p>{{ confirming !== 'supprimer' ? `Le mouvement ${mouvement.name} sera annulé : le stock revient comme avant. L'ERP refuse si ce stock a déjà été consommé ou déplacé depuis.` : `Le brouillon ${mouvement.name} sera supprimé définitivement.` }}</p>
 			<template #actions>
 				<button v-if="confirming === 'annuler' && canCreate('Stock Entry')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
 				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler le mouvement' : 'Supprimer' }}</button>

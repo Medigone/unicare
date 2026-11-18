@@ -200,7 +200,7 @@ onMounted(load)
 				</div>
 				<label class="flex items-start gap-2 text-sm">
 					<input v-model="parametres.auto_indent" type="checkbox" class="mt-0.5" :disabled="!reglages.droits.parametres" />
-					<span><b>Demandes d'achat automatiques</b> — chaque nuit, ERPNext crée une demande d'achat pour les articles passés sous leur seuil. Ces demandes ne s'affichent que sur le Desk ; dans le bureau, suivez plutôt la vue « Sous le seuil » de l'état du stock.</span>
+					<span><b>Demandes d'achat automatiques</b> — chaque nuit, l'ERP crée une demande d'achat pour les articles passés sous leur seuil. Ces demandes ne s'affichent que sur le Desk ; dans le bureau, suivez plutôt la vue « Sous le seuil » de l'état du stock.</span>
 				</label>
 				<label class="flex items-start gap-2 text-sm">
 					<input v-model="parametres.allow_negative_stock" type="checkbox" class="mt-0.5" :disabled="!reglages.droits.parametres" />

@@ -94,7 +94,7 @@ export const STATUS_TONES: Record<string, string> = {
 	Terminée: 'tone-green',
 }
 
-/** Statuts ERPNext (Devis, Commande) affichés en français. */
+/** Statuts ERP (Devis, Commande) affichés en français. */
 const STATUS_LABELS: Record<string, string> = {
 	Draft: 'Brouillon',
 	Open: 'Ouvert',
@@ -127,7 +127,7 @@ const STATUS_LABELS: Record<string, string> = {
 	'Return Issued': 'Retour émis',
 }
 
-/** Le libellé affiché : un statut ERPNext passe en français, les autres restent tels quels. */
+/** Le libellé affiché : un statut ERP passe en français, les autres restent tels quels. */
 export function statusDisplay(status?: string | null) {
 	return STATUS_LABELS[status || ''] || status || ''
 }

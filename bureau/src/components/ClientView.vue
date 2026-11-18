@@ -120,7 +120,7 @@ function onPieceUploaded(file: UploadedFile) {
 	const current = client.value
 	if (current && pendingPiece) perform(() => setClientPiece(current, pendingPiece, file.file_url))
 }
-// Suppression de la fiche : Frappe refuse tant qu'une pièce ou un autre document y est lié, et le message le dit.
+// Suppression de la fiche : L'ERP refuse tant qu'une pièce ou un autre document y est lié, et le message le dit.
 async function supprimer() {
 	const current = client.value
 	if (!current) return

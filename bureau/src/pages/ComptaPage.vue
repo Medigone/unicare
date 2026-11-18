@@ -14,7 +14,7 @@ import { ETAT_LABELS, formatDate, formatTaux, libelleCompte, MODE_TYPES, TVA_SEN
 /**
  * Réglages › Comptabilité et trésorerie : un bilan de la configuration en tête, puis les comptes par défaut de la
  * société, les taux de TVA, les modes de paiement, les exercices et le droit de timbre. Chaque partie est modifiable
- * selon les droits ERPNext du rôle ; sinon elle s'affiche en lecture seule.
+ * selon les droits ERP du rôle ; sinon elle s'affiche en lecture seule.
  */
 const compta = ref<ReglagesCompta | null>(null)
 const error = ref('')

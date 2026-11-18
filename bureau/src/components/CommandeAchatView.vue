@@ -279,7 +279,7 @@ async function nouvelleVersion(confirmed = false) {
 		<AchatDialog v-if="editing && commande" kind="commande" :piece="commande" @close="editing = false" @saved="(piece) => onSaved(piece as CommandeAchatDetail)" />
 
 		<FormDialog v-if="confirming && commande" :title="confirming !== 'supprimer' ? 'Annuler la commande' : commande.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming !== 'supprimer' ? `La commande d'achat ${commande.name} sera annulée. ERPNext refuse si une réception ou une facture validée en dépend.` : commande.docstatus === 2 ? `La pièce annulée ${commande.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${commande.name} sera supprimé définitivement.` }}</p>
+			<p>{{ confirming !== 'supprimer' ? `La commande d'achat ${commande.name} sera annulée. L'ERP refuse si une réception ou une facture validée en dépend.` : commande.docstatus === 2 ? `La pièce annulée ${commande.name} sera supprimée définitivement. L'ERP refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${commande.name} sera supprimé définitivement.` }}</p>
 			<template #actions>
 				<button v-if="confirming === 'annuler' && canCreate('Purchase Order')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
 				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler la commande' : 'Supprimer' }}</button>

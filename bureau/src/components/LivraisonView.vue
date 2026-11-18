@@ -318,7 +318,7 @@ async function nouvelleVersion(confirmed = false) {
 											<td><RouterLink class="ref-link" :to="{ name: 'Article', params: { id: line.article } }">{{ line.designation }}</RouterLink><span class="ml-1 text-xs tabular-nums text-ink-gray-6">{{ line.article }}</span></td>
 											<td class="end tabular-nums">{{ formatQty(line.quantite) }} {{ line.unite }}</td>
 											<td>{{ line.depot || '—' }}</td>
-											<td class="tabular-nums">{{ line.lot ? line.lot : line.avec_lot ? 'Choisi par ERPNext' : '—' }}</td>
+											<td class="tabular-nums">{{ line.lot ? line.lot : line.avec_lot ? 'Choisi par l\'ERP' : '—' }}</td>
 											<td class="end tabular-nums">{{ formatAmount(line.montant) }}</td>
 										</tr>
 									</tbody>
@@ -359,7 +359,7 @@ async function nouvelleVersion(confirmed = false) {
 		</template>
 
 		<FormDialog v-if="confirming && livraison" :title="confirming !== 'supprimer' ? 'Annuler le bon de livraison' : livraison.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming !== 'supprimer' ? `Le bon ${livraison.name} sera annulé : le stock revient et la commande redevient à livrer. ERPNext refuse si une facture ou un retour validé en dépend.` : livraison.docstatus === 2 ? `La pièce annulée ${livraison.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${livraison.name} sera supprimé ; ses quantités redeviennent à livrer sur la commande.` }}</p>
+			<p>{{ confirming !== 'supprimer' ? `Le bon ${livraison.name} sera annulé : le stock revient et la commande redevient à livrer. L'ERP refuse si une facture ou un retour validé en dépend.` : livraison.docstatus === 2 ? `La pièce annulée ${livraison.name} sera supprimée définitivement. L'ERP refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${livraison.name} sera supprimé ; ses quantités redeviennent à livrer sur la commande.` }}</p>
 			<template #actions>
 				<button v-if="confirming === 'annuler' && canCreate('Delivery Note')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
 				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler le bon' : 'Supprimer' }}</button>

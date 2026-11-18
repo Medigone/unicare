@@ -415,7 +415,7 @@ async function nouvelleVersion(confirmed = false) {
 		</FormDialog>
 
 		<FormDialog v-if="confirming && facture" :title="confirming !== 'supprimer' ? (facture.avoir ? 'Annuler l\'avoir' : 'Annuler la facture') : facture.docstatus === 2 ? 'Supprimer la pièce annulée' : 'Supprimer le brouillon'" :dirty="false" :busy="busy" hint="Ctrl + Entrée pour confirmer" @close="confirming = null" @submit="confirm">
-			<p>{{ confirming !== 'supprimer' ? `${facture.name} sera annulée : l'écriture comptable est contrepassée. ERPNext refuse si un paiement ou un avoir validé en dépend.` : facture.docstatus === 2 ? `La pièce annulée ${facture.name} sera supprimée définitivement. Frappe refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${facture.name} sera supprimé ; ses quantités redeviennent à facturer.` }}</p>
+			<p>{{ confirming !== 'supprimer' ? `${facture.name} sera annulée : l'écriture comptable est contrepassée. L'ERP refuse si un paiement ou un avoir validé en dépend.` : facture.docstatus === 2 ? `La pièce annulée ${facture.name} sera supprimée définitivement. L'ERP refuse si une pièce non annulée la cite encore, par exemple sa nouvelle version.` : `Le brouillon ${facture.name} sera supprimé ; ses quantités redeviennent à facturer.` }}</p>
 			<template #actions>
 				<button v-if="confirming === 'annuler' && canCreate('Purchase Invoice')" type="button" class="btn-secondary" :disabled="busy" @click="(confirming = 'annuler_version'), confirm()">Annuler et créer une nouvelle version</button>
 				<button type="button" class="btn-primary" :disabled="busy" @click="confirm">{{ confirming !== 'supprimer' ? 'Annuler' : 'Supprimer' }}</button>
