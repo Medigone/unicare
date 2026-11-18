@@ -352,6 +352,10 @@ doc_events = {
 		"on_change": "unicare.bureau_events.on_change",
 		"on_trash": "unicare.bureau_events.on_trash",
 	},
+	"Item Price": {
+		"on_change": "unicare.bureau_events.on_change",
+		"on_trash": "unicare.bureau_events.on_trash",
+	},
 }
 
 fixture_auto_order = True

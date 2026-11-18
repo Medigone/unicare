@@ -12,6 +12,11 @@ import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
 import type { InventaireDetail, InventaireOptions, InventairesResponse, InventaireView } from './inventaires'
 import type { ChecklistLigne, ReglagesProduction } from './reglages'
+import type { PrixLigne, PrixResponse, PrixVue, TarifSens, TarifsReglages } from './tarifs'
+import type { ModePaiement, ModeType, ReglagesCompta, TauxTva, TvaSens } from './compta'
+import type { ListeCode, ListeResume, ListeValeur } from './listes'
+import type { ParametresStock, ReglagesStock, SeuilLigne, SeuilsResponse, SeuilVue } from './reglagesStock'
+import type { ReglagesUtilisateurs, Utilisateur, UtilisateurForm } from './utilisateurs'
 import type { RecetteDetail, RecetteOptions, RecettesResponse, RecetteValues, RecetteView } from './recettes'
 import type { Besoin, OrdreDetail, OrdreOptions, OrdresResponse, OrdreValues, OrdreView } from './ordres'
 import type { MouvementDetail, MouvementOptions, MouvementsResponse, MouvementValues, MouvementView, StockArticleChoice } from './mouvements'
@@ -874,3 +879,46 @@ export const preparerMiseAuRebut = (lot: string) => call<{ name: string }>('unic
 /** Accueil : ma journée (unicare/api/bureau_accueil.py). */
 export const getAccueil = () => call<import('./accueil').Accueil>('unicare.api.bureau_accueil.get_accueil')
 export const marquerNotificationsLues = () => call('unicare.api.bureau_accueil.marquer_lus', {}, true)
+
+const TARIFS = 'unicare.api.bureau_tarifs'
+export const getTarifs = () => call<TarifsReglages>(`${TARIFS}.get_tarifs`)
+export const getPrix = (liste: string, params: { search?: string; vue?: PrixVue; start?: number }) => call<PrixResponse>(`${TARIFS}.get_prix`, { liste, ...params })
+export const setPrix = (liste: string, ligne: Pick<PrixLigne, 'article' | 'modified'>, prix: string) =>
+	call<PrixLigne>(`${TARIFS}.set_prix`, { liste, article: ligne.article, prix, modified: ligne.modified ?? '' }, true)
+export const createTarif = (nom: string, sens: TarifSens) => call<TarifsReglages>(`${TARIFS}.create_tarif`, { nom, sens }, true)
+export const setTarifDefaut = (sens: TarifSens, liste: string) => call<TarifsReglages>(`${TARIFS}.set_tarif_defaut`, { sens, liste }, true)
+
+const COMPTA = 'unicare.api.bureau_compta'
+export const getCompta = () => call<ReglagesCompta>(`${COMPTA}.get_compta`)
+export const saveComptes = (modified: string, values: Record<string, string>) => call<ReglagesCompta>(`${COMPTA}.save_comptes`, { modified, values }, true)
+export const setTva = (sens: TvaSens, taux: Pick<TauxTva, 'name' | 'modified'>, action: 'defaut' | 'activer' | 'desactiver') =>
+	call<ReglagesCompta>(`${COMPTA}.set_tva`, { sens, name: taux.name, modified: taux.modified, action }, true)
+export const createTva = (sens: TvaSens, taux: string) => call<ReglagesCompta>(`${COMPTA}.create_tva`, { sens, taux }, true)
+export const saveMode = (mode: Pick<ModePaiement, 'name' | 'modified'> | null, values: { nom?: string; type: ModeType; compte: string; actif: boolean }) =>
+	call<ReglagesCompta>(`${COMPTA}.save_mode`, { name: mode?.name, modified: mode?.modified, values }, true)
+export const createExercice = () => call<ReglagesCompta>(`${COMPTA}.create_exercice`, {}, true)
+
+const LISTES = 'unicare.api.bureau_listes'
+export const getListes = () => call<ListeResume[]>(`${LISTES}.get_listes`)
+export const getValeurs = (code: ListeCode) => call<ListeValeur[]>(`${LISTES}.get_valeurs`, { code })
+export const createValeur = (code: ListeCode, nom: string) => call<ListeValeur[]>(`${LISTES}.create_valeur`, { code, nom }, true)
+export const renameValeur = (code: ListeCode, valeur: Pick<ListeValeur, 'name' | 'modified'>, nom: string) =>
+	call<ListeValeur[]>(`${LISTES}.rename_valeur`, { code, name: valeur.name, modified: valeur.modified, nom }, true)
+export const deleteValeur = (code: ListeCode, valeur: Pick<ListeValeur, 'name' | 'modified'>) => call<ListeValeur[]>(`${LISTES}.delete_valeur`, { code, name: valeur.name, modified: valeur.modified }, true)
+export const setUnite = (valeur: Pick<ListeValeur, 'name' | 'modified'>, changes: { actif?: boolean; entier?: boolean }) =>
+	call<ListeValeur[]>(`${LISTES}.set_unite`, { name: valeur.name, modified: valeur.modified, actif: changes.actif === undefined ? undefined : Number(changes.actif), entier: changes.entier === undefined ? undefined : Number(changes.entier) }, true)
+export const desactiverUnitesInutilisees = () => call<{ desactivees: number; valeurs: ListeValeur[] }>(`${LISTES}.desactiver_unites_inutilisees`, {}, true)
+
+const STOCK_REGLAGES = 'unicare.api.bureau_reglages_stock'
+export const getReglagesStock = () => call<ReglagesStock>(`${STOCK_REGLAGES}.get_reglages_stock`)
+export const saveParametresStock = (modified: string, values: Omit<ParametresStock, 'modified' | 'valuation_method'>) => call<ReglagesStock>(`${STOCK_REGLAGES}.save_parametres`, { modified, values }, true)
+export const getSeuils = (depot: string, params: { search?: string; vue?: SeuilVue; start?: number }) => call<SeuilsResponse>(`${STOCK_REGLAGES}.get_seuils`, { depot, ...params })
+export const setSeuil = (depot: string, ligne: Pick<SeuilLigne, 'article' | 'modified'>, seuil: string, quantite: string) =>
+	call<SeuilLigne>(`${STOCK_REGLAGES}.set_seuil`, { depot, article: ligne.article, modified: ligne.modified, seuil, quantite }, true)
+
+const UTILISATEURS = 'unicare.api.bureau_utilisateurs'
+export const getUtilisateurs = () => call<ReglagesUtilisateurs>(`${UTILISATEURS}.get_utilisateurs`)
+export const saveUtilisateur = (compte: Pick<Utilisateur, 'name' | 'modified'> | null, values: Partial<UtilisateurForm>) =>
+	call<ReglagesUtilisateurs>(`${UTILISATEURS}.save_utilisateur`, { name: compte?.name, modified: compte?.modified, values }, true)
+export const setMotDePasse = (compte: Pick<Utilisateur, 'name' | 'modified'>, motDePasse: string) =>
+	call<ReglagesUtilisateurs>(`${UTILISATEURS}.set_mot_de_passe`, { name: compte.name, modified: compte.modified, mot_de_passe: motDePasse }, true)

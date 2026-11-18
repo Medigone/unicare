@@ -9,6 +9,7 @@ import { createCommande, createDevis, getCommandeOptions, getDevisOptions, searc
 import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
 import type { CommandeDetail } from '@/lib/commandes'
+import { canRead } from '@/lib/droits'
 import { addArticle, dayFromToday, draftTotal, linesForServer, parseNumber, validateDevis, type DevisArticleChoice, type DevisDetail, type DevisFormErrors, type DraftLine } from '@/lib/devis'
 
 /**
@@ -47,6 +48,8 @@ const serverError = ref('')
 const errors = ref<DevisFormErrors>({})
 const busy = ref(false)
 const total = computed(() => draftTotal(form.lignes, tarifs))
+// Une ligne sans prix saisi ni prix du tarif : le lien vers le tarif s'affiche.
+const sansPrix = computed(() => form.lignes.some((line) => line.article && !line.prix.trim() && (tarifs[line.article] ?? null) === null))
 const dateLabel = isDevis ? 'la date de validité' : 'la date de livraison'
 
 onMounted(async () => {
@@ -210,7 +213,7 @@ async function submit() {
 			<p class="text-sm">Total HT : <strong class="tabular-nums">{{ formatAmount(total) }} DA</strong> <span class="text-ink-gray-6">· TVA calculée à l'enregistrement</span></p>
 		</div>
 		<p v-if="errors.lignes" class="field-error" role="alert">{{ errors.lignes }}</p>
-		<p v-if="!linesLocked" class="field-note"><span>Un prix laissé vide reprend celui du tarif « {{ options?.liste_prix ?? 'de vente' }} ». Une ligne sans prix empêche la validation {{ isDevis ? 'du devis' : 'de la commande' }}.</span></p>
+		<p v-if="!linesLocked" class="field-note"><span>Un prix laissé vide reprend celui du tarif « {{ options?.liste_prix ?? 'de vente' }} ». Une ligne sans prix empêche la validation {{ isDevis ? 'du devis' : 'de la commande' }}.</span><a v-if="sansPrix && options?.liste_prix && canRead('Item Price')" :href="`/bureau/tarifs/${encodeURIComponent(options.liste_prix)}`" target="_blank" rel="noopener" class="font-medium underline">Ajouter les prix manquants au tarif</a></p>
 
 		<p v-if="serverError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ serverError }}</p>
 

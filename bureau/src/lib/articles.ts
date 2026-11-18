@@ -4,6 +4,7 @@ import { formatDay } from './display'
 import type { FilterField } from './filters'
 import { tagsText, type Column, type Sort } from './list'
 import type { ListResponse } from './useServerList'
+import type { PrixArticle } from './tarifs'
 
 export type ArticleView = 'all' | 'fut' | 'conditionnement' | 'produit_fini' | 'autre' | 'desactive'
 
@@ -120,6 +121,8 @@ export interface ArticleDetail {
 	/** Droit de supprimer la fiche ; Frappe refuse encore si une pièce y est liée. */
 	can_delete: boolean
 	/** Fiche seulement. Chaque bloc vaut `null` quand la personne ne lit pas le document, ou qu'il ne s'applique pas. */
+	/** Prix dans les tarifs par défaut (Réglages › Tarifs et prix). */
+	prix?: PrixArticle | null
 	bins?: ArticleBin[] | null
 	lots?: ArticleLot[] | null
 	recettes?: { produit: ArticleRecette[]; ingredient: ArticleRecette[] } | null

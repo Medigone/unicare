@@ -49,6 +49,19 @@ DOCTYPES_INTERFACE = (
 	"GL Entry",
 	# Stock des articles : colonne affichée seulement à qui lit les quantités par dépôt.
 	"Bin",
+	# Réglages, page Tarifs et prix.
+	"Item Price",
+	"Price List",
+	# Réglages, page Comptabilité.
+	"Account",
+	# Réglages, page Listes de choix.
+	"Quotation Lost Reason",
+	"Customer Group",
+	"Supplier Group",
+	"Item Group",
+	"UOM",
+	# Réglages, page Utilisateurs.
+	"User",
 )
 
 

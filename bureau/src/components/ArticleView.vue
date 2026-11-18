@@ -26,6 +26,7 @@ import { formatQty, type ArticleDetail, type ArticleMouvement, type MouvementKey
 import { formatAmount } from '@/lib/clients'
 import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
+import { formatPrix } from '@/lib/tarifs'
 import { useArticle } from '@/lib/useArticle'
 
 const props = defineProps<{ id: string; tab?: string }>()
@@ -244,6 +245,21 @@ async function supprimer() {
 									<dl class="kv">
 										<div v-for="bin in article.bins.filter((row) => row.actual_qty).slice(0, 3)" :key="bin.warehouse"><dt>{{ bin.warehouse }}</dt><dd class="tabular-nums">{{ formatQty(bin.actual_qty) }}</dd></div>
 										<div v-if="article.lots"><dt>Lots en stock</dt><dd class="tabular-nums">{{ activeLots.length }}</dd></div>
+									</dl>
+								</section>
+								<section v-if="article.prix && (article.prix.vente.concerne || article.prix.achat.concerne)" class="card ref-card">
+									<h3>Prix</h3>
+									<dl class="kv">
+										<template v-for="sens in (['vente', 'achat'] as const)" :key="sens">
+											<div v-if="article.prix[sens].concerne">
+												<dt>{{ sens === 'vente' ? 'Prix de vente' : "Prix d'achat" }}<small v-if="article.prix[sens].tarif" class="block text-ink-gray-6">{{ article.prix[sens].tarif }}</small></dt>
+												<dd class="tabular-nums">
+													<RouterLink v-if="article.prix[sens].tarif" :to="{ name: 'Tarif', params: { liste: article.prix[sens].tarif }, query: { q: article.name } }" :class="article.prix[sens].prix === null && 'text-tone-amber'" :title="article.prix.can_edit ? 'Modifier dans les tarifs' : 'Voir dans les tarifs'">{{ article.prix[sens].prix === null ? 'Sans prix' : `${formatPrix(article.prix[sens].prix)} DA` }}</RouterLink>
+													<template v-else>Aucun tarif par défaut</template>
+												</dd>
+											</div>
+										</template>
+										<div v-if="article.prix.achat.concerne && article.prix.dernier_achat"><dt>Dernier prix payé</dt><dd class="tabular-nums">{{ formatPrix(article.prix.dernier_achat) }} DA</dd></div>
 									</dl>
 								</section>
 								<section class="card ref-card">

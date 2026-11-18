@@ -263,7 +263,7 @@ def _prices(item_codes):
 		"Item Price",
 		filters={"price_list": price_list, "item_code": ["in", item_codes], "selling": 1},
 		fields=["item_code", "price_list_rate", "uom"],
-		order_by="valid_from desc",
+		order_by="valid_from desc, modified desc",
 	)
 	prices = {}
 	for row in rows:

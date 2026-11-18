@@ -20,6 +20,10 @@ import LucideLayoutDashboard from '~icons/lucide/layout-dashboard'
 import LucidePackage from '~icons/lucide/package'
 import LucideChartColumn from '~icons/lucide/chart-column'
 import LucideSettings2 from '~icons/lucide/settings-2'
+import LucideTags from '~icons/lucide/tags'
+import LucideLandmark from '~icons/lucide/landmark'
+import LucideListChecks from '~icons/lucide/list-checks'
+import LucideUsers from '~icons/lucide/users'
 import { canRead } from './droits'
 
 export interface Poste {
@@ -149,6 +153,24 @@ export const NAV: Record<string, PosteModule[]> = {
 					title: 'Réglages',
 					items: [{ id: 'reglages-production', label: 'Checklists et paramètres', icon: LucideSettings2, to: { name: 'ReglagesProduction' }, doctype: 'Checklist Ordre Conditionnement' }],
 				},
+			],
+		},
+		// Réglages repris du Desk, lot par lot ; ceux de la production restent dans leur module.
+		{
+			id: 'reglages',
+			label: 'Réglages',
+			icon: LucideSettings2,
+			groups: [
+				{
+					title: 'Ventes et achats',
+					items: [
+						{ id: 'tarifs', label: 'Tarifs et prix', icon: LucideTags, to: { name: 'Tarifs' }, doctype: 'Item Price' },
+						{ id: 'listes', label: 'Listes de choix', icon: LucideListChecks, to: { name: 'Listes' }, doctype: 'Quotation Lost Reason' },
+					],
+				},
+				{ title: 'Stock', items: [{ id: 'reglages-stock', label: 'Stock et seuils', icon: LucideWarehouse, to: { name: 'ReglagesStock' }, doctype: 'Item' }] },
+				{ title: 'Comptabilité', items: [{ id: 'compta', label: 'Comptabilité et trésorerie', icon: LucideLandmark, to: { name: 'Compta' }, doctype: 'Account' }] },
+				{ title: 'Administration', items: [{ id: 'utilisateurs', label: 'Utilisateurs', icon: LucideUsers, to: { name: 'Utilisateurs' }, doctype: 'User' }] },
 			],
 		},
 	],

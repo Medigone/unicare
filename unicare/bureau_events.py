@@ -35,6 +35,7 @@ WATCHED = {
 	"Ordre de Conditionnement",
 	"Recette de Conditionnement",
 	"Checklist Ordre Conditionnement",
+	"Item Price",
 }
 
 

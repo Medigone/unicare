@@ -21,6 +21,11 @@ import ReceptionsPage from './pages/ReceptionsPage.vue'
 import PaiementsPage from './pages/PaiementsPage.vue'
 import HomePage from './pages/HomePage.vue'
 import TableauPage from './pages/TableauPage.vue'
+import TarifsPage from './pages/TarifsPage.vue'
+import ComptaPage from './pages/ComptaPage.vue'
+import ListesPage from './pages/ListesPage.vue'
+import ReglagesStockPage from './pages/ReglagesStockPage.vue'
+import UtilisateursPage from './pages/UtilisateursPage.vue'
 import LoginPage from './pages/LoginPage.vue'
 
 // Chaque page reprise ajoute sa route avec `meta.doctype` : App.vue affiche un refus si le rôle ne lit pas ce document.
@@ -71,6 +76,13 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/recettes', name: 'Recettes', component: RecettesPage, meta: { doctype: 'Recette de Conditionnement' } },
 	{ path: '/recettes/:id', name: 'RecetteFiche', component: RecettesPage, props: true, meta: { doctype: 'Recette de Conditionnement' } },
 	{ path: '/reglages-production', name: 'ReglagesProduction', component: ReglagesProductionPage, meta: { doctype: 'Checklist Ordre Conditionnement' } },
+	{ path: '/tarifs', name: 'Tarifs', component: TarifsPage, meta: { doctype: 'Item Price' } },
+	{ path: '/tarifs/:liste', name: 'Tarif', component: TarifsPage, props: true, meta: { doctype: 'Item Price' } },
+	{ path: '/reglages-stock', name: 'ReglagesStock', component: ReglagesStockPage, meta: { doctype: 'Item' } },
+	{ path: '/utilisateurs', name: 'Utilisateurs', component: UtilisateursPage, meta: { doctype: 'User' } },
+	{ path: '/compta', name: 'Compta', component: ComptaPage, meta: { doctype: 'Account' } },
+	{ path: '/listes', name: 'Listes', component: ListesPage, meta: { doctype: 'Quotation Lost Reason' } },
+	{ path: '/listes/:code', name: 'Liste', component: ListesPage, props: true, meta: { doctype: 'Quotation Lost Reason' } },
 	{ path: '/paiements', name: 'Paiements', component: PaiementsPage, meta: { doctype: 'Payment Entry' } },
 	{ path: '/paiements/:id', name: 'PaiementFiche', component: PaiementsPage, props: true, meta: { doctype: 'Payment Entry' } },
 	{ path: '/:pathMatch(.*)*', redirect: '/' },

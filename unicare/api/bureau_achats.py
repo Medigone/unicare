@@ -37,7 +37,7 @@ def buying_prices(item_codes):
 			"Item Price",
 			filters={"price_list": price_list, "item_code": ["in", item_codes], "buying": 1},
 			fields=["item_code", "price_list_rate"],
-			order_by="valid_from desc",
+			order_by="valid_from desc, modified desc",
 		)
 		for row in rows:
 			prices.setdefault(row.item_code, flt(row.price_list_rate))

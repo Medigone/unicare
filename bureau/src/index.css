@@ -1900,7 +1900,12 @@
 		font-weight: 500;
 		@apply text-ink-gray-8;
 	}
-	.reglages-tab[aria-pressed='true'] {
+	a.reglages-tab {
+		display: inline-flex;
+		align-items: center;
+	}
+	.reglages-tab[aria-pressed='true'],
+	.reglages-tab[aria-current='page'] {
 		border-color: rgb(var(--accent-rgb) / 0.35);
 		background-color: var(--selection, #edf3f4);
 		color: var(--accent-fonce);
@@ -1921,6 +1926,55 @@
 		font-size: 12px;
 		font-weight: 600;
 		@apply text-ink-gray-7;
+	}
+	/* Tarifs et prix : la case du prix, alignée à droite. */
+	.tarifs-table td {
+		vertical-align: middle;
+	}
+	.tarifs-prix {
+		width: 9rem;
+		margin-left: auto;
+	}
+	/* Comptabilité : bilan en tête (une ligne par point, couleur selon l'état), comptes sur toute la largeur. */
+	.compta-bilan {
+		display: flex;
+		flex-direction: column;
+	}
+	.compta-bilan li {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.5rem 0;
+		border-top: 1px solid var(--line-soft);
+	}
+	.compta-bilan-icon {
+		width: 1.125rem;
+		height: 1.125rem;
+		flex: none;
+	}
+	.compta-bilan-ok .compta-bilan-icon {
+		color: var(--tone-green-ink);
+	}
+	.compta-bilan-attention .compta-bilan-icon {
+		color: var(--tone-amber-ink);
+	}
+	.compta-bilan-manque .compta-bilan-icon {
+		color: var(--tone-red-ink);
+	}
+	.compta-large {
+		grid-column: 1 / -1;
+	}
+	.compta-groupe {
+		margin-bottom: 0.5rem;
+		font-size: 13px;
+		font-weight: 600;
+		@apply text-ink-gray-7;
+	}
+	.compta-table td {
+		vertical-align: middle;
+	}
+	.compta-table .field-input {
+		min-width: 14rem;
 	}
 	@media (max-width: 1100px) {
 		.reglages-grid {

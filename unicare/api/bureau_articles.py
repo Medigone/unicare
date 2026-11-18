@@ -393,8 +393,11 @@ def _article_payload(doc, full=False):
 		"can_delete": bool(doc.has_permission("delete")),
 	}
 	if full:
+		from unicare.api.bureau_tarifs import prix_article
+
 		payload.update(
 			{
+				"prix": prix_article(doc.name),
 				"bins": _bins(doc.name) if cint(doc.is_stock_item) else None,
 				"lots": _lots(doc),
 				"recettes": _recettes(doc.name),
