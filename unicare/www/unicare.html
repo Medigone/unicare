@@ -36,7 +36,7 @@
 			{% for item in nav_items %}<a href="{{ item.href }}">{{ item.label }}</a>{% endfor %}
 		</nav>
 		<div class="header-actions">
-			<a class="professional-link" href="/app">Connexion</a>
+			<a class="professional-link" href="/bureau/connexion">Connexion</a>
 		</div>
 		<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Ouvrir le menu">
 			<span></span><span></span><span></span>
@@ -45,7 +45,7 @@
 	<div class="mobile-menu" id="mobile-menu" hidden>
 		<nav aria-label="Navigation mobile">
 			{% for item in nav_items %}<a href="{{ item.href }}">{{ item.label }}</a>{% endfor %}
-			<a href="/app">Connexion</a>
+			<a href="/bureau/connexion">Connexion</a>
 		</nav>
 	</div>
 </header>
@@ -240,7 +240,7 @@
 			<div class="social-links" aria-label="Réseaux sociaux"><a href="{{ links.instagram }}" aria-label="Instagram">ig</a><a href="{{ links.facebook }}" aria-label="Facebook">f</a><a href="{{ links.linkedin }}" aria-label="LinkedIn">in</a></div>
 		</div>
 		<div><h2>Découvrir</h2><a href="#produits">Nos produits</a><a href="#engagements">Nos engagements</a><a href="#ingredients">Nos ingrédients</a><a href="#conseils">Conseils</a></div>
-		<div><h2>Unicare</h2><a href="#qualite">Notre qualité</a><a href="/app">Connexion</a><a href="{{ links.legal }}">Mentions légales</a><a href="{{ links.privacy }}">Confidentialité</a><a href="{{ links.terms }}">Conditions générales</a></div>
+		<div><h2>Unicare</h2><a href="#qualite">Notre qualité</a><a href="/bureau/connexion">Connexion</a><a href="{{ links.legal }}">Mentions légales</a><a href="{{ links.privacy }}">Confidentialité</a><a href="{{ links.terms }}">Conditions générales</a></div>
 		<div><h2>Nous contacter</h2><a href="mailto:{{ brand.email }}">{{ brand.email }}</a><a href="tel:{{ brand.phone | replace(' ', '') }}">{{ brand.phone }}</a><p>{{ brand.address }}</p></div>
 	</div>
 	<div class="container footer-bottom"><p>© {{ frappe.utils.now_datetime().year }} {{ brand.name }}. Tous droits réservés.</p><p>Les informations de ce site ne remplacent pas l’avis d’un professionnel de santé lorsque celui-ci est nécessaire.</p></div>
