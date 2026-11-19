@@ -150,7 +150,7 @@ async function nouvelleVersion(confirmed = false) {
 					<MoreMenu>
 						<template v-if="paiement.can_print">
 							<a class="app-menu-item" role="menuitem" :href="paiementPrintUrl(paiement.name)" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Imprimer le reçu</a>
-							<a class="app-menu-item" role="menuitem" :href="paiementPdfUrl(paiement.name)"><LucideDownload class="h-3.5 w-3.5" aria-hidden="true" />Télécharger le PDF</a>
+							<a class="app-menu-item" role="menuitem" :href="paiementPdfUrl(paiement.name)" target="_blank" rel="noopener noreferrer"><LucideDownload class="h-3.5 w-3.5" aria-hidden="true" />Télécharger le PDF</a>
 							<div class="app-menu-sep"></div>
 						</template>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>

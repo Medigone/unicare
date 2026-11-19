@@ -1,0 +1,141 @@
+{#-
+	Gabarit commun des documents imprimés Unicare (facture, avoir, devis, commande, bon de livraison, reçu,
+	bon de commande fournisseur). Le contexte vient de unicare.impression.contexte.contexte_impression(doc).
+
+	Le PDF passe par wkhtmltopdf, un WebKit ancien : pas de flexbox ni de grille, la mise en page se fait en
+	tableaux et en flottants, les tailles en px (1 mm = 5,263 px, voir styles.html). Chaque page est une boîte de hauteur fixe ; les hauteurs
+	supposées par unicare/impression/pagination.py suivent ces styles.
+-#}
+{% include "templates/impression/styles.html" %}
+{%- set c = contexte_impression(doc) -%}
+{%- set s = c.societe -%}
+{%- macro kv(lignes) -%}
+<table class="u-kv">{% for libelle, valeur in lignes %}<tr><th>{{ libelle }}</th><td>{{ valeur }}</td></tr>{% endfor %}</table>
+{%- endmacro -%}
+{%- macro report(page, libelle, sommes) -%}
+<tr class="u-report">
+	<td colspan="{{ c.colonne_report }}">{{ libelle }}</td>
+	{%- for col in c.colonnes[c.colonne_report:] %}
+	<td class="{% if col.num %}u-n{% endif %}">{{ sommes.get(col.cle, "") }}</td>
+	{%- endfor %}
+</tr>
+{%- endmacro -%}
+{%- macro pied(page) -%}
+<div class="u-pied">
+	<span class="u-pied-page">Page {{ page.numero }}/{{ page.total }}</span>
+	{{ s.nom }}{% if s.forme %} {{ s.forme }}{% endif %}
+	{%- for cle, valeur in s.ids %} · {{ cle }} {{ valeur or "—" }}{% endfor %}
+</div>
+{%- endmacro -%}
+
+<div class="u-doc">
+{%- for page in c.pages %}
+<div class="u-page{% if not page.derniere %} u-saut{% endif %}">
+
+	{%- if page.premiere %}
+	<table class="u-entete"><tr>
+		<td class="u-vendeur">
+			{%- if s.logo %}<img class="u-logo" src="{{ s.logo }}" alt="">{% endif %}
+			<div class="u-raison">{{ s.nom }}</div>
+			{%- if s.forme or s.capital %}<div>{{ s.forme }}{% if s.capital %} au capital de {{ s.capital }} DA{% endif %}</div>{% endif %}
+			{%- if s.adresse %}<div>{{ s.adresse }}</div>{% endif %}
+			{%- if s.telephone or s.email %}<div>{% if s.telephone %}Tél. {{ s.telephone }}{% endif %}{% if s.telephone and s.email %} · {% endif %}{{ s.email }}</div>{% endif %}
+		</td>
+		<td class="u-titre">
+			<h1{% if c.titre | length > 18 %} class="u-long"{% endif %}>{{ c.titre }}</h1>
+			{{ kv(c.meta) }}
+		</td>
+	</tr></table>
+
+	<table class="u-parties"><tr>
+		<td class="u-boite">
+			<div class="u-lbl">{{ c.tiers.libelle }}</div>
+			<div class="u-tiers">{{ c.tiers.nom }}</div>
+			{%- if c.tiers.forme or c.tiers.adresse %}<div class="u-gris">{{ c.tiers.forme }}{% if c.tiers.forme and c.tiers.adresse %} · {% endif %}{{ c.tiers.adresse }}</div>{% endif %}
+			{{ kv(c.tiers.ids) }}
+		</td>
+		<td class="u-espace"></td>
+		<td class="u-boite">
+			<div class="u-lbl">{{ c.refs.libelle }}</div>
+			{%- if c.refs.texte %}<div class="u-texte">{{ c.refs.texte }}</div>{% endif %}
+			{{ kv(c.refs.lignes) }}
+		</td>
+	</tr></table>
+
+	{%- if c.montant_recu %}
+	<table class="u-recu"><tr><td>Montant {{ "reçu" if c.titre.startswith("REÇU") else "payé" }}</td><td class="u-n">{{ c.montant_recu }}</td></tr></table>
+	{%- endif %}
+	{%- else %}
+	<table class="u-entete-suite"><tr>
+		<td><b>{{ s.nom }}</b><br><span class="u-gris">{{ c.tiers.libelle }} : {{ c.tiers.nom }}</span></td>
+		<td class="u-titre"><b>{{ c.titre }} {{ c.nom }}</b> (suite)<br><span class="u-gris">du {{ c.date }}</span></td>
+	</tr></table>
+	{%- endif %}
+
+	<table class="u-lignes">
+		<colgroup>{% for col in c.colonnes %}<col{% if col.largeur %} style="width: {{ col.largeur }}"{% endif %}>{% endfor %}</colgroup>
+		<thead><tr>{% for col in c.colonnes %}<th class="{% if col.num %}u-n{% endif %}">{{ col.titre }}</th>{% endfor %}</tr></thead>
+		<tbody>
+		{%- if page.report_entree %}{{ report(page, "Report de la page " ~ (page.numero - 1) ~ " · lignes 1 à " ~ page.ligne_avant, page.report_entree) }}{% endif %}
+		{%- for ligne in page.lignes %}
+		<tr>{% for col in c.colonnes %}<td class="{% if col.num %}u-n{% endif %}">{{ ligne.cellules[col.cle] }}
+			{%- if col.cle == "designation" %}{% for sous in ligne.sous %}<br><span class="u-sous">{{ sous }}</span>{% endfor %}{% endif %}</td>{% endfor %}</tr>
+		{%- endfor %}
+		{%- if page.report_sortie %}{{ report(page, "Total à reporter · lignes 1 à " ~ page.derniere_ligne, page.report_sortie) }}{% endif %}
+		{%- if page.cumul_final %}{{ report(page, "Total des lignes 1 à " ~ page.derniere_ligne, page.cumul_final) }}{% endif %}
+		</tbody>
+	</table>
+
+	{%- if not page.derniere %}
+	<div class="u-suite">Suite de {{ c.nom }} en page {{ page.numero + 1 }} →</div>
+	{%- else %}
+
+	{%- if c.total %}
+	<div class="u-totaux">
+		{%- if c.totaux %}
+		<table>{% for libelle, valeur in c.totaux %}<tr><th>{{ libelle }}</th><td class="u-n">{{ valeur }}</td></tr>{% endfor %}</table>
+		{%- endif %}
+		<table class="u-ttc"><tr><th>{{ c.total[0] }}</th><td class="u-n">{{ c.total[1] }}</td></tr></table>
+	</div>
+	<div class="u-clair"></div>
+	{%- endif %}
+
+	{%- if c.lettres %}<div class="u-lettres">{{ c.lettres }}</div>{% endif %}
+
+	{%- for bloc in c.encadres %}
+	<div class="u-boite u-encadre{% if bloc.type == 'tva' %} u-etroit{% endif %}">
+		<div class="u-lbl">{{ bloc.titre }}</div>
+		{%- if bloc.type == "tva" %}
+		<table class="u-mini">
+			<tr>{% for t in bloc.colonnes %}<th class="{% if not loop.first %}u-n{% endif %}">{{ t }}</th>{% endfor %}</tr>
+			{%- for ligne in bloc.lignes %}<tr>{% for v in ligne %}<td class="{% if not loop.first %}u-n{% endif %}">{{ v }}</td>{% endfor %}</tr>{% endfor %}
+		</table>
+		{%- elif bloc.type == "kv" %}{{ kv(bloc.lignes) }}
+		{%- elif bloc.type == "reserves" %}
+		<div class="u-cases"><span class="u-case"></span>Reçu conforme <span class="u-case u-case-2"></span>Reçu avec réserves (préciser ci-dessous)</div>
+		<div class="u-pointilles"></div><div class="u-pointilles"></div>
+		{%- else %}<div class="u-texte">{{ bloc.texte | replace("\n", "<br>") }}</div>
+		{%- endif %}
+	</div>
+	{%- endfor %}
+
+	{%- if c.signatures %}
+	<table class="u-signatures"><tr>
+		{%- if c.signatures | length == 1 %}
+		{%- if c.a_gauche %}<td class="u-boite"><div class="u-lbl">{{ c.a_gauche.titre }}</div>{{ kv(c.a_gauche.lignes) }}</td>{% else %}<td></td>{% endif %}
+		<td class="u-espace"></td>
+		{%- endif %}
+		{%- for titre, aide in c.signatures %}
+		<td class="u-boite"><div class="u-lbl">{{ titre }}</div>{% if aide %}<div class="u-gris">{{ aide }}</div>{% endif %}</td>
+		{%- if not loop.last %}<td class="u-espace"></td>{% endif %}
+		{%- endfor %}
+	</tr></table>
+	{%- endif %}
+
+	{%- if c.note %}<div class="u-note">{{ c.note }}</div>{% endif %}
+	{%- endif %}
+
+	{{ pied(page) }}
+</div>
+{%- endfor %}
+</div>

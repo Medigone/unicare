@@ -269,7 +269,7 @@ export const createDevisCommande = (devis: DevisDetail, livraison: string) => ca
 
 /** Impression du Desk : aperçu et PDF, avec le format par défaut du devis. */
 export const devisPrintUrl = (name: string) => `/printview?doctype=Quotation&name=${encodeURIComponent(name)}&trigger_print=1`
-export const devisPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Quotation&name=${encodeURIComponent(name)}`
+export const devisPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Quotation&name=${encodeURIComponent(name)}&no_letterhead=1`
 
 /** Commentaires et activité d'un devis, pour le fil commun. */
 export function devisActivity(name: string): ActivityApi {
@@ -315,7 +315,7 @@ export const createSuivante = (commande: CommandeDetail, kind: 'livraison' | 'fa
 	call<{ doctype: string; name: string; commande: CommandeDetail }>(`${COMMANDES}.create_suivante`, { name: commande.name, modified: commande.modified, kind }, true)
 
 export const commandePrintUrl = (name: string) => `/printview?doctype=Sales%20Order&name=${encodeURIComponent(name)}&trigger_print=1`
-export const commandePdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Order&name=${encodeURIComponent(name)}`
+export const commandePdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Order&name=${encodeURIComponent(name)}&no_letterhead=1`
 
 /** Commentaires et activité d'une commande, pour le fil commun. */
 export function commandeActivity(name: string): ActivityApi {
@@ -352,7 +352,7 @@ export const createLivraisonSuivante = (livraison: LivraisonDetail, kind: 'factu
 	call<{ doctype: string; name: string; livraison: LivraisonDetail }>(`${LIVRAISONS}.create_suivante`, { name: livraison.name, modified: livraison.modified, kind }, true)
 
 export const livraisonPrintUrl = (name: string) => `/printview?doctype=Delivery%20Note&name=${encodeURIComponent(name)}&trigger_print=1`
-export const livraisonPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Delivery%20Note&name=${encodeURIComponent(name)}`
+export const livraisonPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Delivery%20Note&name=${encodeURIComponent(name)}&no_letterhead=1`
 
 /** Commentaires et activité d'un bon de livraison, pour le fil commun. */
 export function livraisonActivity(name: string): ActivityApi {
@@ -390,7 +390,7 @@ export const encaisserFacture = (facture: FactureDetail, values: { montant: numb
 export const createAvoir = (facture: FactureDetail) => call<{ name: string; facture: FactureDetail }>(`${FACTURES}.create_avoir`, { name: facture.name, modified: facture.modified }, true)
 
 export const facturePrintUrl = (name: string) => `/printview?doctype=Sales%20Invoice&name=${encodeURIComponent(name)}&trigger_print=1`
-export const facturePdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${encodeURIComponent(name)}`
+export const facturePdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${encodeURIComponent(name)}&no_letterhead=1`
 
 /** Commentaires et activité d'une facture, pour le fil commun. */
 export function factureActivity(name: string): ActivityApi {
@@ -439,7 +439,7 @@ export const runPaiementAction = (paiement: PaiementDetail, action: 'valider' | 
 export const deletePaiement = (paiement: PaiementDetail) => call<{ deleted: string }>(`${PAIEMENTS}.delete_paiement`, { name: paiement.name, modified: paiement.modified }, true)
 
 export const paiementPrintUrl = (name: string) => `/printview?doctype=Payment%20Entry&name=${encodeURIComponent(name)}&trigger_print=1`
-export const paiementPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Payment%20Entry&name=${encodeURIComponent(name)}`
+export const paiementPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Payment%20Entry&name=${encodeURIComponent(name)}&no_letterhead=1`
 
 /** Commentaires et activité d'un paiement, pour le fil commun. */
 export function paiementActivity(name: string): ActivityApi {
@@ -535,7 +535,7 @@ export const setCommandeAchatStatus = (commande: CommandeAchatDetail, action: St
 export const createCommandeAchatSuivante = (commande: CommandeAchatDetail, kind: 'reception' | 'facture') =>
 	call<{ doctype: string; name: string; note: string | null; commande: CommandeAchatDetail }>(`${COMMANDES_ACHAT}.create_suivante`, { name: commande.name, modified: commande.modified, kind }, true)
 export const commandeAchatPrintUrl = (name: string) => `/printview?doctype=Purchase%20Order&name=${encodeURIComponent(name)}&trigger_print=1`
-export const commandeAchatPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Purchase%20Order&name=${encodeURIComponent(name)}`
+export const commandeAchatPdfUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Purchase%20Order&name=${encodeURIComponent(name)}&no_letterhead=1`
 
 export function commandeAchatActivity(name: string): ActivityApi {
 	return {
@@ -725,7 +725,8 @@ export const updateMouvement = (mouvement: MouvementDetail, values: MouvementVal
 export const runMouvementAction = (mouvement: MouvementDetail, action: 'valider' | 'annuler') =>
 	call<MouvementDetail>(`${MOUVEMENTS}.${action === 'valider' ? 'validate_mouvement' : 'cancel_mouvement'}`, { name: mouvement.name, modified: mouvement.modified }, true)
 export const deleteMouvement = (mouvement: MouvementDetail) => call<{ deleted: string }>(`${MOUVEMENTS}.delete_mouvement`, { name: mouvement.name, modified: mouvement.modified }, true)
-export const mouvementPrintUrl = (name: string) => `/printview?doctype=Stock%20Entry&name=${encodeURIComponent(name)}&trigger_print=1`
+/** Le bon du mouvement en PDF (format « Unicare Bon de mouvement »). */
+export const mouvementPrintUrl = (name: string) => `/api/method/frappe.utils.print_format.download_pdf?doctype=Stock%20Entry&name=${encodeURIComponent(name)}&no_letterhead=1`
 
 export function mouvementActivity(name: string): ActivityApi {
 	return {
@@ -808,7 +809,21 @@ export const addComplement = (ordre: OrdreDetail, complement: { article: string;
 export const cloturerOrdre = (ordre: OrdreDetail, cloture: { qty_reelle_pf: number; lignes: { name: string; utilise: number }[]; remarque?: string }) => ordreCall('cloturer', ordre, cloture)
 export const deleteOrdre = (ordre: OrdreDetail) => call<{ deleted: string }>(`${ORDRES}.delete_ordre`, { name: ordre.name, modified: ordre.modified }, true)
 export const dupliquerOrdre = (ordre: OrdreDetail) => call<{ name: string }>(`${ORDRES}.dupliquer`, { name: ordre.name }, true)
-export const ordrePrintUrl = (name: string) => `/printview?doctype=Ordre%20de%20Conditionnement&name=${encodeURIComponent(name)}&trigger_print=1`
+/** Les pièces qu'on imprime par lot depuis leur liste (unicare/api/bureau_impression.py). */
+export const IMPRIMABLES = new Set(['Sales Invoice', 'Quotation', 'Sales Order', 'Delivery Note', 'Payment Entry', 'Purchase Order', 'Stock Entry', 'Ordre de Conditionnement'])
+export const MAX_IMPRESSION = 100
+/** Les pièces cochées dans un seul PDF, chacune avec ses pages ; `document` choisit la pièce d'un ordre. */
+export const impressionGroupeeUrl = (doctype: string, names: string[], document?: 'fiche' | 'checklist' | 'compte_rendu') =>
+	`/api/method/unicare.api.bureau_impression.imprimer?doctype=${encodeURIComponent(doctype)}&noms=${encodeURIComponent(JSON.stringify(names))}${document ? `&document=${document}` : ''}`
+
+/** Les documents internes d'un ordre, en PDF : fiche d'ordre, checklist avant production, compte rendu. */
+export const ORDRE_DOCUMENTS = {
+	fiche: "Unicare Fiche d'ordre",
+	checklist: 'Unicare Checklist avant production',
+	compte_rendu: 'Unicare Compte rendu de production',
+} as const
+export const ordrePrintUrl = (name: string, document: keyof typeof ORDRE_DOCUMENTS = 'fiche') =>
+	`/api/method/frappe.utils.print_format.download_pdf?doctype=Ordre%20de%20Conditionnement&name=${encodeURIComponent(name)}&format=${encodeURIComponent(ORDRE_DOCUMENTS[document])}&no_letterhead=1`
 
 export function ordreActivity(name: string): ActivityApi {
 	return {

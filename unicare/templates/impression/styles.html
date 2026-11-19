@@ -1,0 +1,74 @@
+{#- Styles communs des documents imprimés Unicare (pièces commerciales et documents internes). -#}
+<style>
+	/* La feuille : Frappe lit les marges de wkhtmltopdf dans la règle « .print-format » seule (10 mm partout) ;
+	   « body .print-format », qu'il ne lit pas, remet la marge CSS à zéro.
+	   wkhtmltopdf (Qt non patché) ramène toujours la largeur du document à la largeur utile : le document fait donc
+	   1000 px, qui deviennent 190 mm, soit 1 mm = 5,263 px. Toutes les tailles sont en px sur cette base ; une page
+	   fait 1447 px (275 mm), la hauteur que suppose unicare/impression/pagination.py. */
+	html, body { margin: 0 !important; padding: 0 !important; width: 1000px !important; min-width: 0 !important; }
+	.print-format { margin-top: 10mm; margin-bottom: 10mm; margin-left: 10mm; margin-right: 10mm; }
+	body .print-format { margin: 0 !important; padding: 0 !important; width: 1000px !important; max-width: 1000px !important; min-height: 0 !important; }
+	.u-doc { width: 1000px; font-family: "DejaVu Sans", Arial, sans-serif; font-size: 14.9px; line-height: 1.35; color: #000; }
+	.u-doc table { width: 100%; border-collapse: collapse; }
+	.u-doc th, .u-doc td { padding: 0; vertical-align: top; text-align: left; font-weight: normal; }
+	.u-page { position: relative; height: 1447.4px; overflow: hidden; }
+	.u-saut { page-break-after: always; }
+	.u-n { text-align: right !important; white-space: nowrap; }
+	.u-gris { color: #444; }
+	.u-lbl { font-size: 13px; font-weight: bold; letter-spacing: 0.7px; text-transform: uppercase; color: #444; margin-bottom: 7.9px; }
+
+	.u-entete td.u-vendeur { width: 55%; color: #333; }
+	.u-logo { max-height: 84.2px; max-width: 210.5px; margin-bottom: 10.5px; display: block; }
+	.u-raison { font-size: 24.1px; font-weight: bold; color: #000; letter-spacing: 0.6px; margin-bottom: 2.6px; }
+	.u-entete td.u-titre { text-align: right; }
+	.u-entete h1.u-long { font-size: 22.3px; }
+	.u-entete h1 { margin: 0 0 10.5px; font-size: 27.9px; font-weight: bold; letter-spacing: 1.9px; color: #000; }
+	.u-entete .u-kv { width: auto; margin-left: auto; }
+	.u-kv th, .u-kv td { vertical-align: top !important; padding-top: 0 !important; line-height: 1.35 !important; }
+	.u-kv th { color: #444; padding: 0 15.8px 3.2px 0 !important; white-space: nowrap; }
+	.u-kv td { font-weight: bold; padding-bottom: 3.2px !important; }
+	.u-entete-suite { border-bottom: 1.6px solid #000; margin-bottom: 21.1px; }
+	.u-entete-suite td { padding-bottom: 10.5px !important; font-size: 16.7px; }
+	.u-entete-suite td.u-titre { text-align: right; }
+
+	.u-parties, .u-signatures { width: 997px !important; }
+	.u-parties { margin: 26.3px 0 26.3px; }
+	.u-boite { border: 1.3px solid #bbb; border-radius: 7.9px; padding: 14.7px 16.8px !important; }
+	.u-parties td.u-boite { width: 49%; }
+	td.u-espace { width: 2%; }
+	.u-tiers { font-size: 18.6px; font-weight: bold; margin-bottom: 5.3px; }
+	.u-parties .u-gris { margin-bottom: 7.9px; }
+	.u-texte { margin-bottom: 7.9px; }
+	.u-recu { margin: -5.3px 0 26.3px; border: 1.6px solid #000; border-radius: 7.9px; }
+	.u-recu td { padding: 15.8px 21.1px !important; font-size: 18.6px; font-weight: bold; }
+	.u-recu td.u-n { font-size: 26px; }
+
+	.u-lignes { table-layout: fixed; }
+	.u-lignes th { font-weight: bold; color: #000 !important; background: #eee; padding: 9.5px 7.9px !important; border-top: 1.3px solid #999; border-bottom: 1.3px solid #999; }
+	.u-lignes td { padding: 9.5px 7.9px !important; border-bottom: 1.1px solid #ddd; word-wrap: break-word; }
+	.u-lignes tr.u-report td { font-weight: bold; background: #eee; border-top: 1.6px solid #000; border-bottom: 1.6px solid #000; }
+	.u-sous { color: #444; font-size: 13.4px; }
+	.u-suite { text-align: right; color: #444; margin-top: 10.5px; }
+
+	.u-totaux { width: 421.1px; float: right; margin-top: 21.1px; }
+	.u-totaux th { color: #333; padding: 4.2px 10.5px !important; }
+	.u-totaux td { padding: 4.2px 10.5px !important; }
+	.u-ttc { margin-top: 5.3px; border: 2.1px solid #000; }
+	.u-ttc th, .u-ttc td { padding: 12.6px 13.2px !important; font-weight: bold; font-size: 18.6px; color: #000; }
+	.u-clair { clear: both; }
+	.u-lettres { margin-top: 21.1px; border: 1.3px solid #bbb; border-radius: 7.9px; padding: 13.2px 16.8px; font-size: 15.8px; }
+	.u-encadre { margin-top: 21.1px; }
+	.u-etroit { width: 500px; }
+	.u-mini th { font-weight: bold; color: #000 !important; background: #eee; padding: 6.3px 7.9px !important; border-bottom: 1.3px solid #999; }
+	.u-mini td { padding: 6.3px 7.9px !important; }
+	.u-cases { margin: 5.3px 0 10.5px; }
+	.u-case { display: inline-block; width: 15.8px; height: 15.8px; border: 1.6px solid #444; vertical-align: -2.6px; margin-right: 7.9px; }
+	.u-case-2 { margin-left: 42.1px; }
+	.u-pointilles { border-bottom: 1.6px dotted #888; height: 36.8px; }
+	.u-signatures { margin-top: 26.3px; }
+	.u-signatures td.u-boite { width: 49%; height: 136.8px; }
+	.u-note { margin-top: 15.8px; color: #444; }
+
+	.u-pied { position: absolute; left: 0; right: 0; bottom: 0; border-top: 1.3px solid #999; padding-top: 10.5px; color: #333; font-size: 13.9px; }
+	.u-pied-page { float: right; font-weight: bold; color: #000; }
+</style>

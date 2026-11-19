@@ -87,10 +87,13 @@ website_route_rules = [
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "unicare.utils.jinja_methods",
-# 	"filters": "unicare.utils.jinja_filters"
-# }
+# Documents imprimés : le contexte commun des formats d'impression Unicare (unicare/impression).
+jinja = {
+	"methods": [
+		"unicare.impression.contexte.contexte_impression",
+		"unicare.impression.production.contexte_production",
+	]
+}
 
 # Installation
 # ------------
@@ -324,7 +327,8 @@ doc_events = {
 	"Purchase Invoice": {
 		"on_change": "unicare.bureau_events.on_change",
 		"on_trash": "unicare.bureau_events.on_trash",
-	},	"Warehouse": {
+	},
+	"Warehouse": {
 		"on_change": "unicare.bureau_events.on_change",
 		"on_trash": "unicare.bureau_events.on_trash",
 	},

@@ -179,7 +179,7 @@ async function nouvelleVersion(confirmed = false) {
 						</template>
 						<template v-if="commande.can_print">
 							<a class="app-menu-item" role="menuitem" :href="commandePrintUrl(commande.name)" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Imprimer</a>
-							<a class="app-menu-item" role="menuitem" :href="commandePdfUrl(commande.name)"><LucideDownload class="h-3.5 w-3.5" aria-hidden="true" />Télécharger le PDF</a>
+							<a class="app-menu-item" role="menuitem" :href="commandePdfUrl(commande.name)" target="_blank" rel="noopener noreferrer"><LucideDownload class="h-3.5 w-3.5" aria-hidden="true" />Télécharger le PDF</a>
 							<div class="app-menu-sep"></div>
 						</template>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>

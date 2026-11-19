@@ -353,7 +353,12 @@ const horsTolerance = computed(() => (ordre.value ? Math.abs(ordre.value.rendeme
 					<button v-if="can('cloturer') && state === 'En production'" type="button" class="btn-primary" :disabled="busy" @click="closing = true">Clôturer l'ordre…</button>
 					<button v-if="state === 'Terminé' && can('dupliquer')" type="button" class="btn-secondary" :disabled="busy" @click="dupliquer">Refaire cet ordre</button>
 					<MoreMenu>
-						<a v-if="ordre.can_print" class="app-menu-item" role="menuitem" :href="ordrePrintUrl(ordre.name)" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Imprimer la fiche</a>
+						<template v-if="ordre.can_print">
+							<a class="app-menu-item" role="menuitem" :href="ordrePrintUrl(ordre.name, 'fiche')" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Fiche d'ordre (PDF)</a>
+							<a class="app-menu-item" role="menuitem" :href="ordrePrintUrl(ordre.name, 'checklist')" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Checklist avant production (PDF)</a>
+							<a v-if="state === 'Terminé'" class="app-menu-item" role="menuitem" :href="ordrePrintUrl(ordre.name, 'compte_rendu')" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Compte rendu de production (PDF)</a>
+							<div class="app-menu-sep"></div>
+						</template>
 						<button v-if="can('generer_lot')" type="button" class="app-menu-item" role="menuitem" @click="generer">{{ ordre.lot_pf ? 'Générer un nouveau lot' : 'Générer le lot du produit fini' }}</button>
 						<button v-if="can('dupliquer') && state !== 'Terminé'" type="button" class="app-menu-item" role="menuitem" @click="dupliquer">Refaire cet ordre</button>
 						<div class="app-menu-sep"></div>

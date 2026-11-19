@@ -9,3 +9,5 @@ unicare.patches.v1_0.create_checklist_ordre_conditionnement
 unicare.patches.v1_0.backfill_lot_fournisseur
 unicare.patches.v1_0.backfill_qty_produite
 unicare.patches.v1_0.importer_aide
+unicare.patches.v1_0.formats_impression
+unicare.patches.v1_0.raison_sociale

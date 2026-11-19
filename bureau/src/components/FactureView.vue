@@ -250,7 +250,7 @@ async function nouvelleVersion(confirmed = false) {
 						<div v-if="can('avoir')" class="app-menu-sep"></div>
 						<template v-if="facture.can_print">
 							<a class="app-menu-item" role="menuitem" :href="facturePrintUrl(facture.name)" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Imprimer</a>
-							<a class="app-menu-item" role="menuitem" :href="facturePdfUrl(facture.name)"><LucideDownload class="h-3.5 w-3.5" aria-hidden="true" />Télécharger le PDF</a>
+							<a class="app-menu-item" role="menuitem" :href="facturePdfUrl(facture.name)" target="_blank" rel="noopener noreferrer"><LucideDownload class="h-3.5 w-3.5" aria-hidden="true" />Télécharger le PDF</a>
 							<div class="app-menu-sep"></div>
 						</template>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>

@@ -147,7 +147,7 @@ async function confirm() {
 					<button v-if="can('modifier')" type="button" class="btn-secondary" :disabled="busy" @click="editing = true">Modifier</button>
 					<MoreMenu>
 						<template v-if="mouvement.can_print">
-							<a class="app-menu-item" role="menuitem" :href="mouvementPrintUrl(mouvement.name)" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Imprimer</a>
+							<a class="app-menu-item" role="menuitem" :href="mouvementPrintUrl(mouvement.name)" target="_blank" rel="noopener noreferrer"><LucidePrinter class="h-3.5 w-3.5" aria-hidden="true" />Imprimer le bon (PDF)</a>
 							<div class="app-menu-sep"></div>
 						</template>
 						<button type="button" class="app-menu-item" role="menuitem" @click="copyLink">Copier le lien</button>

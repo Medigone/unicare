@@ -4,7 +4,7 @@ import LucideX from '~icons/lucide/x'
 import BulkDeleteDialog from './BulkDeleteDialog.vue'
 import BulkEditDialog from './BulkEditDialog.vue'
 import BulkTagsDialog from './BulkTagsDialog.vue'
-import { bulkAddTags, bulkDelete, bulkUpdate, getBulkOptions } from '@/lib/api'
+import { bulkAddTags, bulkDelete, bulkUpdate, getBulkOptions, impressionGroupeeUrl, IMPRIMABLES, MAX_IMPRESSION } from '@/lib/api'
 import type { BulkState } from '@/lib/useBulk'
 import type { BulkField, BulkOptions } from '@/types'
 
@@ -37,6 +37,13 @@ watch(
 	{ immediate: true },
 )
 
+// Impression groupée : les pièces cochées dans un seul PDF, ouvert dans un nouvel onglet.
+const imprimable = computed(() => IMPRIMABLES.has(props.doctype))
+const tropPourImprimer = computed(() => props.picked.length > MAX_IMPRESSION)
+function imprimer(document?: 'fiche' | 'checklist' | 'compte_rendu') {
+	window.open(impressionGroupeeUrl(props.doctype, props.picked.map((row) => row.name), document), '_blank', 'noopener')
+}
+
 const dialog = ref<'edit' | 'tags' | 'delete' | null>(null)
 function close() {
 	dialog.value = null
@@ -66,6 +73,13 @@ async function applyDelete() {
 		</template>
 		<button type="button" class="btn-secondary" :disabled="bulk.busy.value || !options?.fields.length" @click="dialog = 'edit'">Modifier</button>
 		<button type="button" class="btn-secondary" :disabled="bulk.busy.value" @click="dialog = 'tags'">Tags</button>
+		<template v-if="imprimable">
+			<template v-if="doctype === 'Ordre de Conditionnement'">
+				<button type="button" class="btn-secondary" :disabled="bulk.busy.value || tropPourImprimer" :title="tropPourImprimer ? `${MAX_IMPRESSION} au plus` : undefined" @click="imprimer('fiche')">Imprimer les fiches</button>
+				<button type="button" class="btn-secondary" :disabled="bulk.busy.value || tropPourImprimer" :title="tropPourImprimer ? `${MAX_IMPRESSION} au plus` : undefined" @click="imprimer('checklist')">Imprimer les checklists</button>
+			</template>
+			<button v-else type="button" class="btn-secondary" :disabled="bulk.busy.value || tropPourImprimer" :title="tropPourImprimer ? `${MAX_IMPRESSION} pièces au plus par impression` : undefined" @click="imprimer()">Imprimer</button>
+		</template>
 		<button type="button" class="btn-secondary" :disabled="bulk.busy.value" @click="emit('export')">Exporter</button>
 		<button v-if="options?.can_delete" type="button" class="btn-danger" :disabled="bulk.busy.value" @click="dialog = 'delete'">Supprimer</button>
 		<span v-if="bulk.progress.value" class="whitespace-nowrap text-sm tabular-nums text-ink-gray-7" role="status">Traitement : {{ bulk.progress.value.sent }} sur {{ bulk.progress.value.total }}</span>

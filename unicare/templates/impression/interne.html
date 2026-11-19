@@ -1,0 +1,182 @@
+{#-
+	Gabarit des documents internes de production : fiche d'ordre, checklist avant production, compte rendu de
+	production, bons de mouvement de stock. Le contexte vient de
+	unicare.impression.production.contexte_production(doc, document) ; le format d'impression fixe `document`.
+
+	Mêmes contraintes que piece.html (wkhtmltopdf : tableaux, pas de flexbox, tailles en px sur la base
+	1 mm = 5,263 px).
+-#}
+{% include "templates/impression/styles.html" %}
+<style>
+	.i-maison { font-size: 13px; font-weight: bold; letter-spacing: 1.2px; margin-bottom: 4px; }
+	.i-entete { border-bottom: 2.6px solid #000; margin-bottom: 21px; }
+	.i-entete td { padding-bottom: 14px !important; }
+	.i-entete h1 { margin: 0 0 4px; font-size: 26px; font-weight: bold; letter-spacing: 0.8px; }
+	.i-entete .i-sous { font-size: 15.8px; color: #333; }
+	.i-entete td.i-droite { text-align: right; width: 34%; }
+	.i-num { font-size: 25px; font-weight: bold; margin-bottom: 6px; }
+	.i-entete .u-kv { width: auto; margin-left: auto; }
+	.i-section { margin-bottom: 21px; }
+	.i-deux { width: 997px !important; table-layout: fixed; }
+	.i-deux > tbody > tr > td.u-boite, .i-deux > tr > td.u-boite { width: 49%; }
+	.i-grand { font-size: 17px; font-weight: bold; margin-bottom: 5px; }
+	.i-etapes td.u-boite { width: 23.5%; height: 80px; }
+	.i-etapes td.u-espace, .i-deux td.u-espace { width: 2%; }
+	.i-etape { font-weight: bold; margin-bottom: 6px; }
+	.i-blanc { display: inline-block; border-bottom: 1.3px dotted #777; width: 120px; height: 15px; }
+	.i-chiffres td.u-boite { width: 23.5%; }
+	.i-chiffres td.i-fort { border: 2.6px solid #000 !important; }
+	.i-valeur { font-size: 26px; font-weight: bold; margin: 2px 0; }
+	.u-lignes td.i-saisie { background: #f7f7f7; border-left: 1.3px dashed #bbb; height: 34px; }
+	.u-lignes tr.i-groupe td { font-weight: bold; background: #f4f4f4; border-top: 1.3px solid #999; }
+	.i-centre { text-align: center !important; }
+	.i-oblig { font-size: 12px; font-weight: bold; border: 1.3px solid #000; border-radius: 4px; padding: 0 5px; margin-left: 6px; }
+	.i-coche { display: inline-block; width: 15.8px; height: 15.8px; border: 1.6px solid #444; vertical-align: -2.6px; margin-right: 6px; text-align: center; line-height: 14px; font-weight: bold; font-size: 13px; }
+	.i-choix { margin-right: 16px; white-space: nowrap; }
+	.i-decision { border: 2.6px solid #000 !important; }
+	.i-decision td { vertical-align: middle !important; padding: 16px 18px !important; font-size: 16px; }
+	.i-pointilles { border-bottom: 1.3px dotted #888; height: 34px; }
+	.i-note { color: #333; font-size: 13.4px; margin: -12px 0 21px; }
+	.i-champs td { padding-right: 30px !important; padding-bottom: 8px !important; }
+	.i-fort-ligne td { font-weight: bold; }
+</style>
+{%- set c = contexte_production(doc, document or "fiche") -%}
+{%- macro kv(lignes) -%}
+<table class="u-kv">{% for libelle, valeur in lignes %}<tr><th>{{ libelle }}</th><td>{{ valeur }}</td></tr>{% endfor %}</table>
+{%- endmacro -%}
+{%- macro coches(cellule) -%}
+{%- for choix in cellule.cases %}<span class="i-choix"><span class="i-coche">{% if cellule.coche == choix %}X{% endif %}</span>{{ choix }}</span>{% endfor %}
+{%- endmacro -%}
+{%- macro petit_tableau(colonnes, lignes) -%}
+<table class="u-lignes">
+	<colgroup>{% for col in colonnes %}<col{% if col.largeur %} style="width: {{ col.largeur }}"{% endif %}>{% endfor %}</colgroup>
+	<thead><tr>{% for col in colonnes %}<th class="{% if col.num %}u-n{% endif %}">{{ col.titre }}</th>{% endfor %}</tr></thead>
+	<tbody>
+	{%- for ligne in lignes %}
+	<tr class="{% if ligne._fort %}i-fort-ligne{% endif %}">{% for col in colonnes %}{% set v = ligne.get(col.cle) %}<td class="{% if col.num %}u-n{% endif %}{% if v is none %} i-saisie{% endif %}">{{ v if v is not none else "" }}</td>{% endfor %}</tr>
+	{%- endfor %}
+	</tbody>
+</table>
+{%- endmacro -%}
+{%- macro section(s) -%}
+{%- if s.type == "boites" %}
+<table class="i-deux i-section"><tr>
+	{%- for b in s.boites %}
+	<td class="u-boite"><div class="u-lbl">{{ b.titre }}</div>{% if b.grand %}<div class="i-grand">{{ b.grand }}</div>{% endif %}{% if b.texte %}<div class="u-texte">{{ b.texte }}</div>{% endif %}{% if b.lignes %}{{ kv(b.lignes) }}{% endif %}</td>
+	{%- if not loop.last %}<td class="u-espace"></td>{% endif %}
+	{%- endfor %}
+	{%- if s.boites | length == 1 %}<td class="u-espace"></td><td></td>{% endif %}
+</tr></table>
+{%- elif s.type == "etapes" %}
+<div class="u-lbl">Étapes</div>
+<table class="i-etapes i-section i-deux"><tr>
+	{%- for titre, quand in s.etapes %}
+	<td class="u-boite"><div class="i-etape">{{ titre }}</div>{% if quand %}{{ quand }}{% else %}Le <span class="i-blanc"></span><br><br>Par <span class="i-blanc"></span>{% endif %}</td>
+	{%- if not loop.last %}<td class="u-espace"></td>{% endif %}
+	{%- endfor %}
+</tr></table>
+{%- elif s.type == "chiffres" %}
+<table class="i-chiffres i-section i-deux"><tr>
+	{%- for libelle, valeur, unite, fort in s.chiffres %}
+	<td class="u-boite{% if fort %} i-fort{% endif %}"><div class="u-lbl">{{ libelle }}</div><div class="i-valeur">{{ valeur }}</div><div class="u-gris">{{ unite }}</div></td>
+	{%- if not loop.last %}<td class="u-espace"></td>{% endif %}
+	{%- endfor %}
+</tr></table>
+{%- elif s.type == "tableau" %}
+<div class="u-lbl">{{ s.titre }}</div>
+<div class="i-section">{{ petit_tableau(s.colonnes, s.lignes) }}</div>
+{%- if s.note %}<div class="i-note">{{ s.note }}</div>{% endif %}
+{%- elif s.type == "deux_tableaux" %}
+<table class="i-deux i-section"><tr>
+	{%- for t in s.tableaux %}
+	<td style="width: 49%"><div class="u-lbl">{{ t.titre }}</div>{{ petit_tableau(t.colonnes, t.lignes) }}</td>
+	{%- if not loop.last %}<td class="u-espace"></td>{% endif %}
+	{%- endfor %}
+</tr></table>
+{%- elif s.type == "saisies" %}
+<div class="u-boite i-section">
+	<div class="u-lbl">{{ s.titre }}</div>
+	<table class="i-champs" style="width: auto"><tr>
+		{%- for libelle, valeur, unite in s.champs %}<td>{{ libelle }} : {% if valeur is not none %}<b>{{ valeur }}</b>{% else %}<span class="i-blanc"></span>{% endif %} {{ unite }}</td>{% endfor %}
+	</tr></table>
+	{%- if s.lignes %}<div>Observations</div>{% for _i in range(s.lignes) %}<div class="i-pointilles"></div>{% endfor %}{% endif %}
+</div>
+{%- elif s.type == "lignes" %}
+<div class="u-boite i-section"><div class="u-lbl">{{ s.titre }}</div>{% for _i in range(s.nombre) %}<div class="i-pointilles"></div>{% endfor %}</div>
+{%- elif s.type == "texte" %}
+<div class="u-boite i-section"><div class="u-lbl">{{ s.titre }}</div><div>{{ s.texte }}</div></div>
+{%- elif s.type == "decision" %}
+<table class="i-decision i-section"><tr>
+	<td style="font-weight: bold; width: 36%">{{ s.titre }}</td>
+	<td>{% for choix in s.cases %}<span class="i-choix"><span class="i-coche"></span>{{ choix }}</span>{% endfor %}</td>
+	<td class="u-n u-gris">Le <span class="i-blanc" style="width: 90px"></span> à <span class="i-blanc" style="width: 56px"></span></td>
+</tr></table>
+{%- elif s.type == "note" %}
+<div class="i-note" style="margin-top: 0">{{ s.texte }}</div>
+{%- elif s.type == "signatures" %}
+<table class="u-signatures" style="margin-top: 0"><tr>
+	{%- for titre, aide in s.signatures %}
+	<td class="u-boite" style="height: 110px"><div class="u-lbl">{{ titre }}</div><div class="u-gris">{{ aide }}</div></td>
+	{%- if not loop.last %}<td class="u-espace"></td>{% endif %}
+	{%- endfor %}
+</tr></table>
+{%- endif %}
+{%- endmacro -%}
+
+<div class="u-doc">
+{%- for page in c.pages %}
+<div class="u-page{% if not page.derniere %} u-saut{% endif %}">
+	{%- if page.premiere %}
+	<table class="i-entete"><tr>
+		<td>
+			<div class="i-maison">{{ c.maison }}</div>
+			<h1>{{ c.titre }}</h1>
+			{%- if c.sous_titre %}<div class="i-sous">{{ c.sous_titre }}</div>{% endif %}
+		</td>
+		<td class="i-droite">
+			<div class="i-num">{{ c.numero }}</div>
+			{{ kv(c.droite) }}
+		</td>
+	</tr></table>
+	{%- for s in c.avant %}{{ section(s) }}{% endfor %}
+	{%- else %}
+	<table class="u-entete-suite"><tr>
+		<td><b>{{ c.maison }}</b></td>
+		<td class="u-titre"><b>{{ c.titre }} {{ c.numero }}</b> (suite)</td>
+	</tr></table>
+	{%- endif %}
+
+	{%- if c.titre_tableau %}<div class="u-lbl">{{ c.titre_tableau }}{% if not page.premiere %} (suite){% endif %}</div>{% endif %}
+	<table class="u-lignes i-section">
+		<colgroup>{% for col in c.colonnes %}<col{% if col.largeur %} style="width: {{ col.largeur }}"{% endif %}>{% endfor %}</colgroup>
+		<thead><tr>{% for col in c.colonnes %}<th class="{% if col.num %}u-n{% endif %}{% if col.centre %} i-centre{% endif %}">{{ col.titre }}</th>{% endfor %}</tr></thead>
+		<tbody>
+		{%- for ligne in page.lignes %}
+		{%- if ligne.groupe %}
+		<tr class="i-groupe"><td colspan="{{ c.colonnes | length }}">{{ ligne.groupe }}</td></tr>
+		{%- else %}
+		<tr>
+			{%- for col in c.colonnes %}
+			{%- set v = ligne.cellules.get(col.cle) %}
+			<td class="{% if col.num %}u-n{% endif %}{% if col.centre %} i-centre{% endif %}{% if v is none and col.saisie %} i-saisie{% endif %}">
+				{%- if v is mapping %}{{ coches(v) }}
+				{%- elif col.cle == "controle" %}{{ v }}{% if ligne.cellules.obligatoire %}<span class="i-oblig">Obligatoire</span>{% endif %}{% if ligne.cellules.observation %}<br><span class="u-sous">{{ ligne.cellules.observation }}</span>{% endif %}
+				{%- elif v is not none %}{{ v }}{% endif -%}
+			</td>
+			{%- endfor %}
+		</tr>
+		{%- endif %}
+		{%- endfor %}
+		</tbody>
+	</table>
+
+	{%- if not page.derniere %}
+	<div class="u-suite">Suite en page {{ page.numero + 1 }} →</div>
+	{%- else %}
+	{%- for s in c.apres %}{{ section(s) }}{% endfor %}
+	{%- endif %}
+
+	<div class="u-pied"><span class="u-pied-page">Page {{ page.numero }}/{{ page.total }}</span>{{ c.pied }}</div>
+</div>
+{%- endfor %}
+</div>
