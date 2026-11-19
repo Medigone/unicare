@@ -19,7 +19,14 @@ import { canRead } from '@/lib/droits'
  * déductible et lignes au prix d'achat connu. Sans `piece`, la fenêtre crée ; avec, elle modifie le brouillon.
  * Le fournisseur ne change plus une fois la pièce créée.
  */
-const props = defineProps<{ kind: 'devis' | 'commande'; piece?: DevisFournisseurDetail | CommandeAchatDetail; fournisseur?: { name: string; label: string } }>()
+/** `lignesInitiales` et `depot` : commande préparée depuis les seuils d'un dépôt (Réglages › Stock et seuils). */
+const props = defineProps<{
+	kind: 'devis' | 'commande'
+	piece?: DevisFournisseurDetail | CommandeAchatDetail
+	fournisseur?: { name: string; label: string } | null
+	lignesInitiales?: { article: string; designation: string; unite: string | null; quantite: number; prix_tarif?: number | null }[]
+	depot?: string
+}>()
 const emit = defineEmits<{ close: []; created: [name: string]; saved: [piece: DevisFournisseurDetail | CommandeAchatDetail] }>()
 
 const isDevis = props.kind === 'devis'
@@ -40,10 +47,12 @@ const form = reactive({
 	date: (isDevis ? devis?.valable : commande?.reception) ?? '',
 	taxes: props.piece?.taxes_modele ?? '',
 	reference: devis?.reference ?? '',
-	lignes: props.piece ? props.piece.lignes.map((row) => line({ article: row.article, designation: row.designation, unite: row.unite ?? '', quantite: String(row.quantite), prix: String(row.prix) })) : ([] as DraftLine[]),
+	lignes: props.piece
+		? props.piece.lignes.map((row) => line({ article: row.article, designation: row.designation, unite: row.unite ?? '', quantite: String(row.quantite), prix: String(row.prix) }))
+		: (props.lignesInitiales ?? []).map((row) => line({ article: row.article, designation: row.designation, unite: row.unite ?? '', quantite: String(row.quantite) })),
 })
 // Le prix d'achat connu de chaque article : il sert de prix quand le champ reste vide.
-const tarifs = reactive<Record<string, number | null>>(Object.fromEntries((props.piece?.lignes ?? []).map((row) => [row.article, row.prix_tarif || null])))
+const tarifs = reactive<Record<string, number | null>>(Object.fromEntries([...(props.piece?.lignes ?? []), ...(props.lignesInitiales ?? [])].map((row) => [row.article, row.prix_tarif || null])))
 const initial = JSON.parse(JSON.stringify(form)) as typeof form
 const dirty = computed(() => JSON.stringify(form) !== JSON.stringify(initial))
 const options = ref<(AchatOptions & { validite_jours?: number }) | null>(null)
@@ -123,7 +132,7 @@ async function submit() {
 		} else {
 			const values = { reception: form.date, taxes: form.taxes, lignes }
 			if (commande) emit('saved', await updateCommandeAchat(commande, values))
-			else emit('created', (await createCommandeAchat({ ...values, fournisseur: form.fournisseur })).name)
+			else emit('created', (await createCommandeAchat({ ...values, fournisseur: form.fournisseur, ...(props.depot ? { depot: props.depot } : {}) })).name)
 		}
 		emit('close')
 	} catch (e) {

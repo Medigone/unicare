@@ -6,11 +6,12 @@ import { createDepot, getDepotOptions, updateDepot } from '@/lib/api'
 import type { DepotDetail, DepotOptions } from '@/lib/depots'
 
 /** Nouveau dépôt, ou modification d'un dépôt : le nom ne se saisit qu'à la création (il est dans les écritures). */
-const props = defineProps<{ depot?: DepotDetail }>()
+/** `parent` : le dossier proposé pour un nouveau dépôt (Réglages › Stock et seuils). */
+const props = defineProps<{ depot?: DepotDetail; parent?: string | null }>()
 const emit = defineEmits<{ close: []; created: [name: string]; saved: [depot: DepotDetail] }>()
 
 const editing = computed(() => Boolean(props.depot))
-const initial = { depot: '', parent: props.depot?.parent ?? '', type: props.depot?.type ?? '', desactive: Boolean(props.depot?.desactive) }
+const initial = { depot: '', parent: props.depot?.parent ?? props.parent ?? '', type: props.depot?.type ?? '', desactive: Boolean(props.depot?.desactive) }
 const values = reactive({ ...initial })
 const options = ref<DepotOptions | null>(null)
 const loadError = ref('')

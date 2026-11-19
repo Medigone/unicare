@@ -371,6 +371,13 @@ def _check_reception(reception, date):
 	return getdate(reception)
 
 
+def _depot(depot):
+	"""Le dépôt de réception demandé (commande préparée depuis les seuils d'un dépôt), vérifié."""
+	from unicare.api.bureau_stock import check_depot
+
+	return check_depot(cstr(depot).strip()) if cstr(depot).strip() else None
+
+
 def _default_warehouse():
 	"""Le dépôt de réception par défaut des réglages de stock, s'il reçoit du stock (pas un groupe)."""
 	warehouse = frappe.db.get_single_value("Stock Settings", "default_warehouse")
@@ -397,10 +404,10 @@ def create_commande_achat(values=None):
 			"transaction_date": date,
 			"schedule_date": reception,
 			"buying_price_list": buying_price_list(),
-			"set_warehouse": _default_warehouse(),
+			"set_warehouse": _depot(values.get("depot")) or _default_warehouse(),
 		}
 	)
-	set_lines(doc, lignes, schedule_date=reception)
+	set_lines(doc, lignes, schedule_date=reception, **({"warehouse": doc.set_warehouse} if values.get("depot") else {}))
 	set_purchase_taxes(doc, cstr(values.get("taxes")).strip())
 	doc.insert()
 	return {"name": doc.name}

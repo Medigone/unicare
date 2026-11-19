@@ -15,7 +15,7 @@ import type { ChecklistLigne, ReglagesProduction } from './reglages'
 import type { Changements, LigneValeurs, LignesArticle, PrixLigne, PrixResponse, PrixVue, Regle, TarifCopie, TarifSens, TarifsReglages } from './tarifs'
 import type { ModePaiement, ModeType, ReglagesCompta, TauxTva, TvaSens } from './compta'
 import type { Doublon, FichesValeur, ListeCode, ListeResume, ListeValeur } from './listes'
-import type { ParametresStock, ReglagesStock, SeuilLigne, SeuilsResponse, SeuilVue } from './reglagesStock'
+import type { ParametresStock, ReglagesStock, SeuilLigne, SeuilsResponse, SeuilVue, ACommander } from './reglagesStock'
 import type { ReglagesUtilisateurs, Utilisateur, UtilisateurForm } from './utilisateurs'
 import type { RecetteDetail, RecetteOptions, RecettesResponse, RecetteValues, RecetteView } from './recettes'
 import type { Besoin, OrdreDetail, OrdreOptions, OrdresResponse, OrdreValues, OrdreView } from './ordres'
@@ -517,6 +517,8 @@ export const getCommandeAchatOptions = () => call<CommandeAchatOptions>(`${COMMA
 
 export interface CommandeAchatValues {
 	fournisseur?: string
+	/** Dépôt de réception, quand la commande est préparée depuis les seuils d'un dépôt. */
+	depot?: string
 	reception?: string
 	taxes?: string
 	lignes?: AchatLineValues[]
@@ -936,6 +938,12 @@ const STOCK_REGLAGES = 'unicare.api.bureau_reglages_stock'
 export const getReglagesStock = () => call<ReglagesStock>(`${STOCK_REGLAGES}.get_reglages_stock`)
 export const saveParametresStock = (modified: string, values: Omit<ParametresStock, 'modified' | 'valuation_method'>) => call<ReglagesStock>(`${STOCK_REGLAGES}.save_parametres`, { modified, values }, true)
 export const getSeuils = (depot: string, params: { search?: string; vue?: SeuilVue; start?: number }) => call<SeuilsResponse>(`${STOCK_REGLAGES}.get_seuils`, { depot, ...params })
+export const supprimerDepot = (depot: string) => call<ReglagesStock>(`${STOCK_REGLAGES}.supprimer_depot`, { depot }, true)
+export const creerDossierDepots = (nom: string, dossier: string | null) => call<ReglagesStock>(`${STOCK_REGLAGES}.creer_dossier_depots`, { nom, dossier: dossier || undefined }, true)
+export const deplacerDepot = (noeud: { name: string; modified: string }, dossier: string | null) =>
+	call<ReglagesStock>(`${STOCK_REGLAGES}.deplacer_depot`, { name: noeud.name, modified: noeud.modified, dossier: dossier || undefined }, true)
+export const supprimerDossierDepots = (name: string) => call<ReglagesStock>(`${STOCK_REGLAGES}.supprimer_dossier_depots`, { name }, true)
+export const getACommander = (depot: string) => call<ACommander>(`${STOCK_REGLAGES}.get_a_commander`, { depot })
 export const setSeuil = (depot: string, ligne: Pick<SeuilLigne, 'article' | 'modified'>, seuil: string, quantite: string) =>
 	call<SeuilLigne>(`${STOCK_REGLAGES}.set_seuil`, { depot, article: ligne.article, modified: ligne.modified, seuil, quantite }, true)
 

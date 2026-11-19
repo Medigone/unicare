@@ -1968,6 +1968,13 @@
 		border-radius: 10px;
 		@apply text-ink-gray-9;
 	}
+	button.tarif-item {
+		width: 100%;
+		background-color: transparent;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
 	.tarif-item:hover {
 		background-color: var(--surface-gray-1);
 	}
@@ -2152,6 +2159,85 @@
 		right: 0.625rem;
 		transform: translateY(-50%);
 		@apply text-ink-gray-6;
+	}
+	/* Stock et seuils : réglages en lignes avec interrupteur, barre d'enregistrement, jauge du stock face au seuil. */
+	.depot-dossier {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		min-height: 2rem;
+		padding: 0.25rem 0.375rem 0.25rem 0.625rem;
+		@apply text-ink-gray-8;
+	}
+	.tarifs-detail .btn-danger.btn-sm,
+	.tarifs-liste .btn-sm {
+		height: 1.75rem;
+		padding-inline: 0.6875rem;
+		font-size: var(--text-sm);
+	}
+	.stock-groupe-titre {
+		margin: 0.75rem 0 0.625rem;
+		font-size: var(--text-xs);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		@apply text-ink-gray-6;
+	}
+	.stock-reglage {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.875rem;
+		padding: 0.875rem 0;
+		border-top: 1px solid var(--line-soft);
+	}
+	:root input.table-panel-switch.stock-switch-danger[type='checkbox']:checked {
+		border-color: var(--tone-red-ink);
+		background-color: var(--tone-red-ink);
+	}
+	.stock-barre {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1rem;
+		border-top: 1px solid var(--line-soft);
+		border-radius: 0 0 var(--radius-card) var(--radius-card);
+		background-color: var(--surface-gray-1);
+	}
+	.stock-barre.is-dirty {
+		background-color: var(--tone-amber-soft);
+	}
+	.tarifs-table.stock-table {
+		min-width: 46rem;
+	}
+	.stock-sous {
+		background-color: var(--tone-red-soft);
+	}
+	.stock-jauge {
+		position: relative;
+		display: block;
+		flex: 1 1 auto;
+		max-width: 10rem;
+		height: 6px;
+		border-radius: var(--radius-pill);
+		background-color: var(--surface-gray-3);
+	}
+	.stock-jauge-niveau {
+		position: absolute;
+		inset: 0 auto 0 0;
+		border-radius: var(--radius-pill);
+		background-color: var(--accent);
+	}
+	.stock-jauge-niveau.is-sous {
+		background-color: var(--tone-red-ink);
+	}
+	.stock-jauge-seuil {
+		position: absolute;
+		top: -3px;
+		width: 2px;
+		height: 12px;
+		margin-left: -1px;
+		background-color: var(--ink-gray-9);
 	}
 	.prix-clore {
 		display: flex;

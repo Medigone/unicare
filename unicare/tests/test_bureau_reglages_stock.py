@@ -41,7 +41,11 @@ class TestReglagesStock(FrappeTestCase):
 		frappe.db.rollback()
 
 	def _ligne(self):
-		return next(row for row in S.get_seuils(self.depot, "Essai seuil quartz")["lignes"] if row["article"] == self.article)
+		return next(
+			row
+			for row in S.get_seuils(self.depot, "Essai seuil quartz")["lignes"]
+			if row["article"] == self.article
+		)
 
 	def test_poser_changer_retirer_un_seuil(self):
 		ligne = self._ligne()
@@ -52,7 +56,7 @@ class TestReglagesStock(FrappeTestCase):
 		self.assertEqual((ligne["seuil"], ligne["quantite"]), (12.5, 50))
 		reponse = S.get_seuils(self.depot, "Essai seuil quartz", "sous_seuil")
 		self.assertEqual([row["article"] for row in reponse["lignes"]], [self.article])
-		self.assertEqual(reponse["compte"], {"tous": 1, "avec_seuil": 1, "sous_seuil": 1})
+		self.assertEqual(reponse["compte"], {"tous": 1, "avec_seuil": 1, "sous_seuil": 1, "sans_seuil": 0})
 		ligne = S.set_seuil(self.depot, self.article, ligne["modified"], "")
 		self.assertIsNone(ligne["seuil"])
 		self.assertFalse(frappe.db.exists("Item Reorder", {"parent": self.article}))
@@ -76,7 +80,12 @@ class TestReglagesStock(FrappeTestCase):
 		autre = next(d for d in reglages["depots"] if d != p["default_warehouse"])
 		reglages = S.save_parametres(
 			p["modified"],
-			{"default_warehouse": autre, "stock_uom": p["stock_uom"], "allow_negative_stock": False, "auto_indent": False},
+			{
+				"default_warehouse": autre,
+				"stock_uom": p["stock_uom"],
+				"allow_negative_stock": False,
+				"auto_indent": False,
+			},
 		)
 		self.assertEqual(reglages["parametres"]["default_warehouse"], autre)
 		self.assertFalse(reglages["parametres"]["auto_indent"])
@@ -99,3 +108,94 @@ class TestReglagesStock(FrappeTestCase):
 				S.get_reglages_stock()
 			with self.assertRaises(frappe.PermissionError):
 				S.get_seuils(self.depot)
+
+
+class TestSeuilsParDepot(FrappeTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+		self.depot = depots()[0]
+		self.article = _article("Essai seuil jaspe")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def test_resume_sans_seuil_et_a_commander(self):
+		avant = S._resume_depots().get(self.depot, {"seuils": 0, "sous": 0})
+		reponse = S.get_seuils(self.depot, "Essai seuil jaspe", "sans_seuil")
+		self.assertEqual([row["article"] for row in reponse["lignes"]], [self.article])
+		ligne = reponse["lignes"][0]
+		S.set_seuil(self.depot, self.article, ligne["modified"], "10", "40")
+		apres = S.get_reglages_stock()["resume"][self.depot]
+		self.assertEqual((apres["seuils"], apres["sous"]), (avant["seuils"] + 1, avant["sous"] + 1))
+		self.assertEqual(S.get_seuils(self.depot, "Essai seuil jaspe", "sans_seuil")["lignes"], [])
+		a_commander = S.get_a_commander(self.depot)
+		ligne = next(row for row in a_commander["lignes"] if row["article"] == self.article)
+		self.assertEqual((ligne["seuil"], ligne["quantite"], ligne["stock"]), (10, 40, 0))
+
+	def test_commande_preparee_dans_le_depot(self):
+		from unicare.api import bureau_commandes_achat as C
+
+		fournisseur = frappe.db.get_value("Supplier", {"disabled": 0}, "name")
+		if not fournisseur or len(depots()) < 2:
+			self.skipTest("Il faut un fournisseur et deux dépôts.")
+		depot = depots()[1]
+		nom = C.create_commande_achat(
+			{
+				"fournisseur": fournisseur,
+				"reception": frappe.utils.add_days(frappe.utils.today(), 7),
+				"depot": depot,
+				"lignes": [{"article": self.article, "quantite": 5, "prix": 10}],
+			}
+		)["name"]
+		doc = frappe.get_doc("Purchase Order", nom)
+		self.assertEqual(doc.set_warehouse, depot)
+		self.assertEqual({row.warehouse for row in doc.items}, {depot})
+		with self.assertRaises(frappe.ValidationError):
+			C.create_commande_achat({"fournisseur": fournisseur, "depot": "Dépôt inexistant", "lignes": []})
+
+
+class TestDepots(FrappeTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def _noeud(self, label):
+		return next((row for row in S.get_reglages_stock()["arbre"] if row["label"] == label), None)
+
+	def test_creer_ranger_supprimer(self):
+		from unicare.api import bureau_depots
+
+		S.creer_dossier_depots("Essai dossier quai")
+		dossier = self._noeud("Essai dossier quai")
+		self.assertTrue(dossier["dossier"])
+		self.assertIsNone(dossier["parent"])
+		depot = bureau_depots.create_depot({"depot": "Essai dépôt quai"})["name"]
+		noeud = self._noeud("Essai dépôt quai")
+		S.deplacer_depot(depot, noeud["modified"], dossier["name"])
+		self.assertEqual(self._noeud("Essai dépôt quai")["parent"], dossier["name"])
+		with self.assertRaises(frappe.ValidationError):
+			S.supprimer_dossier_depots(dossier["name"])
+		with self.assertRaises(frappe.ValidationError):
+			S.deplacer_depot(dossier["name"], self._noeud("Essai dossier quai")["modified"], dossier["name"])
+
+		article = _article("Essai seuil onyx")
+		ligne = next(
+			row for row in S.get_seuils(depot, "Essai seuil onyx")["lignes"] if row["article"] == article
+		)
+		S.set_seuil(depot, article, ligne["modified"], "5")
+		reglages = S.supprimer_depot(depot)
+		self.assertNotIn(depot, reglages["depots"])
+		self.assertFalse(frappe.db.exists("Item Reorder", {"parent": article}))
+		S.supprimer_dossier_depots(dossier["name"])
+		self.assertIsNone(self._noeud("Essai dossier quai"))
+
+	def test_depot_par_defaut_protege(self):
+		defaut = frappe.db.get_single_value("Stock Settings", "default_warehouse")
+		if not defaut or defaut not in depots():
+			self.skipTest("Pas de dépôt de réception par défaut.")
+		with self.assertRaises(frappe.ValidationError):
+			S.supprimer_depot(defaut)

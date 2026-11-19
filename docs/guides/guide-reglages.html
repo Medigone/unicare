@@ -332,12 +332,17 @@ ol.setup span { font-size: .9rem; color: var(--ink-2); }
     <div class="setting">
       <div><h3>Paramètres de stock</h3><span class="who bureau">Bureau</span></div>
       <div class="where-to"><span>Réglages › Stock et seuils › Paramètres</span>
-        <p class="effect-text">Le <b>dépôt de réception par défaut</b>, proposé sur chaque nouvelle commande d'achat, et l'<b>unité des nouveaux articles</b>. La case <span class="field">Demandes d'achat automatiques</span> fait créer chaque nuit, par l'ERP, une demande d'achat pour les articles sous leur seuil ; ces demandes ne se voient que sur le Desk. Laissez <span class="field">Autoriser le stock négatif</span> décochée.</p></div>
+        <p class="effect-text">Le <b>dépôt de réception par défaut</b>, proposé sur chaque nouvelle commande d'achat, et l'<b>unité des nouveaux articles</b>. La case <span class="field">Demandes d'achat automatiques</span> fait créer chaque nuit, par l'ERP, une demande d'achat pour les articles sous leur seuil ; ces demandes ne se voient que sur le Desk. Laissez l'interrupteur <span class="field">Autoriser le stock négatif</span> éteint. Une modification s'enregistre avec <span class="btn">Enregistrer</span> dans la barre du bas, qui passe en ambre tant qu'elle n'est pas enregistrée.</p></div>
     </div>
     <div class="setting">
       <div><h3>Seuil de réapprovisionnement</h3><span class="who bureau">Bureau</span></div>
-      <div class="where-to"><span>Réglages › Stock et seuils : choisissez le dépôt, saisissez le seuil (et la quantité à commander), puis Entrée</span>
-        <p class="effect-text">Quand le stock d'un dépôt passe sous ce seuil, l'article apparaît dans l'onglet <span class="field">Sous le seuil</span> de l'état du stock et sur le tableau de bord. Sans seuil, l'onglet reste vide pour cet article. Videz la case pour retirer le seuil.</p></div>
+      <div class="where-to"><span>Réglages › Stock et seuils : choisissez le dépôt à gauche, saisissez le seuil (et la quantité à commander), puis Entrée</span>
+        <p class="effect-text">Quand le stock d'un dépôt passe sous ce seuil, l'article apparaît dans l'onglet <span class="field">Sous le seuil</span> de l'état du stock et sur le tableau de bord ; la colonne <span class="field">État</span> dit ce qui manque (<span class="pill p-red">Manque 380</span>) et la barre du stock marque le seuil d'un trait. Chaque dépôt affiche à gauche son nombre d'articles sous le seuil. <span class="btn">Préparer une commande d'achat</span> ouvre une commande avec ces articles et leur quantité à commander, à recevoir dans ce dépôt : choisissez le fournisseur, vérifiez, créez. L'onglet <span class="field">Sans seuil</span> montre les articles à régler. Videz la case pour retirer le seuil.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Dépôts et dossiers de dépôts</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Stock et seuils : Nouveau dépôt, Nouveau dossier, Rangé dans, Supprimer le dépôt</span>
+        <p class="effect-text">La colonne de gauche montre les dépôts rangés dans leurs <b>dossiers</b> (les groupes de l'ERP, par exemple un dossier par site). <span class="btn alt">Nouveau dépôt</span> et le <span class="btn alt">+</span> d'un dossier créent un dépôt ; <span class="btn alt">Nouveau dossier</span> crée un dossier, qui ne reçoit pas de stock lui-même. Le champ <span class="field">Rangé dans</span> du dépôt ouvert le change de dossier, sans toucher à son stock. <span class="btn alt">Supprimer le dépôt</span> retire un dépôt qui n'a jamais eu de stock ni de mouvement, avec ses seuils ; sinon, désactivez-le depuis sa fiche. Le dépôt de réception par défaut ne se supprime pas, et un dossier seulement vide.</p></div>
     </div>
     <div class="setting">
       <div><h3>Groupes d'articles et unités</h3><span class="who bureau">Bureau</span></div>
