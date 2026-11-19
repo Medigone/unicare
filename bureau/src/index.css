@@ -50,6 +50,11 @@
 		flex: 0 1 240px;
 		min-width: 150px;
 	}
+	/* Dans une colonne (liste des comptes…), la base de 240 px deviendrait une hauteur : le champ garde sa taille. */
+	.tarifs-liste .bureau-search {
+		flex: none;
+		min-width: 0;
+	}
 	.bureau-search svg {
 		position: absolute;
 		top: 50%;
@@ -2252,6 +2257,130 @@
 	}
 	.compta-defaut {
 		background-color: var(--tone-green-soft);
+	}
+	/* Utilisateurs : avatars à initiales, rôles en cartes à cocher, tableau « Qui fait quoi ». */
+	.util-item {
+		flex-direction: row;
+		align-items: center;
+		gap: 0.625rem;
+	}
+	.util-avatar {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 2.125rem;
+		height: 2.125rem;
+		border-radius: var(--radius-pill);
+		font-size: 0.8125rem;
+		font-weight: 600;
+	}
+	.util-avatar-lg {
+		width: 3.25rem;
+		height: 3.25rem;
+		font-size: 1.125rem;
+	}
+	.util-avatar-sm {
+		width: 1.625rem;
+		height: 1.625rem;
+		font-size: 0.6875rem;
+	}
+	.util-domaine {
+		display: grid;
+		grid-template-columns: 8rem minmax(0, 1fr);
+		gap: 0.625rem;
+		align-items: start;
+		padding-top: 0.625rem;
+		border-top: 1px solid var(--line-soft);
+	}
+	.util-domaine-compact {
+		grid-template-columns: 7rem minmax(0, 1fr);
+		align-items: center;
+		padding-top: 0;
+		border-top: 0;
+	}
+	@media (max-width: 640px) {
+		.util-domaine {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+	.util-roles {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+		gap: 0.5rem;
+	}
+	.util-role {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.625rem;
+		padding: 0.625rem 0.75rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-field);
+		cursor: pointer;
+	}
+	.util-role:hover {
+		border-color: var(--control-border);
+	}
+	.util-role.is-on {
+		border-color: var(--accent);
+		background-color: var(--selection);
+		box-shadow: 0 0 0 1px var(--accent);
+	}
+	.util-profil {
+		height: 1.875rem;
+		padding-inline: 0.75rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-pill);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		@apply text-ink-gray-8;
+	}
+	.util-profil[aria-pressed='true'] {
+		border-color: var(--accent);
+		background-color: var(--selection);
+		color: var(--accent-fonce);
+		box-shadow: 0 0 0 1px var(--accent);
+	}
+	.util-matrice {
+		width: 100%;
+		min-width: 60rem;
+		border-collapse: separate;
+		border-spacing: 0;
+		font-size: var(--text-sm);
+	}
+	.util-matrice th,
+	.util-matrice td {
+		padding: 0.5rem 0.625rem;
+		border-bottom: 1px solid var(--line-soft);
+		text-align: center;
+		vertical-align: middle;
+	}
+	.util-matrice thead th {
+		background-color: var(--surface-gray-1);
+		font-weight: 500;
+		white-space: nowrap;
+		@apply text-ink-gray-6;
+	}
+	.util-matrice th:first-child {
+		padding-left: 1rem;
+	}
+	.util-matrice .util-dom {
+		font-size: var(--text-xs);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+	.util-matrice .util-dom,
+	.util-matrice .util-sep {
+		border-left: 1px solid var(--outline-gray-2);
+	}
+	.util-matrice td.is-modifie {
+		background-color: var(--tone-amber-soft);
+	}
+	.util-case {
+		width: 1rem;
+		height: 1rem;
+		cursor: pointer;
 	}
 	.stock-groupe-titre {
 		margin: 0.75rem 0 0.625rem;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { derniereConnexion, rolesLabels, utilisateurErreur, type UtilisateurForm } from './utilisateurs'
+import { derniereConnexion, rolesLabels, utilisateurErreur, type UtilisateurForm, entreDansLeBureau, genererMotDePasse, initiales } from './utilisateurs'
 
 const form = (values: Partial<UtilisateurForm>): UtilisateurForm => ({ email: 'a@b.dz', prenom: 'Amel', nom_famille: '', actif: true, roles: [], mot_de_passe: 'motdepasse', ...values })
 
@@ -23,5 +23,23 @@ describe('utilisateurs', () => {
 		expect(derniereConnexion('2026-11-18 08:00:00', today)).toBe("Aujourd'hui")
 		expect(derniereConnexion('2026-11-17 23:00:00', today)).toBe('Hier')
 		expect(derniereConnexion('2026-11-10 10:00:00', today)).toBe('Il y a 8 jours')
+	})
+
+	it('affiche des initiales', () => {
+		expect(initiales('Nadia Hamdi')).toBe('NH')
+		expect(initiales('Karim Ben Salem')).toBe('KS')
+		expect(initiales('admin')).toBe('AD')
+	})
+
+	it('génère un mot de passe facile à dicter', () => {
+		const mdp = genererMotDePasse()
+		expect(mdp).toMatch(/^[A-Z][a-z]+-[A-Z][a-z]+-\d{4}$/)
+		expect(mdp.length).toBeGreaterThanOrEqual(8)
+		expect(genererMotDePasse(() => 0)).toBe('Cedre-Olive-1000')
+	})
+
+	it("dit si les rôles ouvrent le bureau", () => {
+		expect(entreDansLeBureau(['Sales User'], ['Sales User', 'System Manager'])).toBe(true)
+		expect(entreDansLeBureau(['Item Manager'], ['Sales User'])).toBe(false)
 	})
 })

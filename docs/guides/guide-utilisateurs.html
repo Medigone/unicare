@@ -1,0 +1,345 @@
+<title>Guide Utilisateurs Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #2c6870;        /* réglages : bleu-vert neutre, comme le guide Réglages */
+  --accent-soft: #e2f0f1;
+  --violet: #5b3fa8; --violet-soft: #efe9ff;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c; --violet: #b9a4f2; --violet-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c; --violet: #b9a4f2; --violet-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+.p-violet { background: var(--violet-soft); color: var(--violet); }
+sup { line-height: 0; }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Réglages · Utilisateurs</span>
+  <h1>Donner à chacun les bons accès</h1>
+  <p class="lead">Chaque personne se connecte avec son adresse e-mail. Ses <b>rôles</b> décident de ce qu'elle voit et peut faire dans le bureau : vendre, acheter, gérer le stock, produire, tenir la comptabilité, administrer. Ce guide montre comment créer un compte, régler ses rôles, changer un mot de passe et garder une vue d'ensemble.</p>
+  <div class="where">
+    <span>Où : <b>menu de gauche › Réglages › Utilisateurs</b></span>
+    <span>Pour : administrateur</span>
+  </div>
+</header>
+
+<section aria-labelledby="vie">
+  <div class="section-head">
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h2 id="vie">La vie d'un compte</h2>
+    <p>Cliquez sur une étape pour aller à son explication.</p>
+  </div>
+  <ol class="route">
+    <li><a href="#creer"><span class="dot">1</span><span class="t">Créer le compte</span><span class="d">Adresse e-mail, nom, mot de passe et un profil de départ.</span><span class="effect e-none">À l'arrivée</span></a></li>
+    <li><a href="#roles"><span class="dot">2</span><span class="t">Ajuster les rôles</span><span class="d">Cocher ce que la personne peut faire, domaine par domaine.</span><span class="effect e-money">Au fil du temps</span></a></li>
+    <li class="opt"><a href="#mdp"><span class="dot">3</span><span class="t">Changer le mot de passe <small>au besoin</small></span><span class="d">Oubli, départ d'un collègue, sécurité.</span><span class="effect e-none">Au besoin</span></a></li>
+    <li><a href="#desactiver"><span class="dot">4</span><span class="t">Désactiver</span><span class="d">La personne quitte l'entreprise : elle ne peut plus se connecter.</span><span class="effect e-stock">Au départ</span></a></li>
+  </ol>
+  <div class="flow-notes">
+    <p><b>Réservé aux administrateurs.</b> Les autres rôles voient la page en lecture seule.</p>
+    <p><b>« Qui fait quoi »</b> montre tous les comptes face aux rôles, pour vérifier qu'aucun travail n'est sans personne. Voir l'<a href="#matrice">étape 5</a>.</p>
+  </div>
+</section>
+
+<section aria-labelledby="regle">
+  <div class="section-head">
+    <span class="eyebrow">La règle à retenir</span>
+    <h2 id="regle">Lire l'état d'un compte</h2>
+    <p>Dans la liste de gauche, une pastille signale ce qui mérite l'attention. Dans la fiche, un bandeau le dit en toutes lettres.</p>
+  </div>
+  <div class="states">
+    <div class="state"><span class="pill p-green">Entre dans le bureau</span><p>Le compte est actif et a au moins un rôle du bureau. Le bandeau liste ses domaines : <q>Ventes, Stock</q>.</p></div>
+    <div class="state"><span class="pill p-amber">hors bureau</span><p>Le compte existe mais aucun de ses rôles n'ouvre le bureau : la personne ne pourra pas y entrer. Cochez au moins un rôle.</p></div>
+    <div class="state"><span class="pill p-grey">désactivé</span><p>Le compte ne peut plus se connecter. Son historique (pièces, commentaires) est conservé.</p></div>
+  </div>
+  <p class="fix" style="background:var(--grey-soft)"><b>« jamais connecté »</b> indique un compte créé dont la personne ne s'est encore jamais servie : vérifiez qu'elle a bien reçu son identifiant et son mot de passe.</p>
+</section>
+
+<section aria-labelledby="etapes">
+  <div class="section-head">
+    <span class="eyebrow">Pas à pas</span>
+    <h2 id="etapes">Les tâches en détail</h2>
+  </div>
+
+  <article class="step" id="creer">
+    <div class="step-num" aria-hidden="true">1</div>
+    <div class="step-body">
+      <h2>Créer un compte</h2>
+      <p class="why">À faire pour chaque nouvelle personne. Le compte est prêt aussitôt : il suffit de lui communiquer son identifiant et son mot de passe.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Cliquez sur <span class="btn">Nouvel utilisateur</span>.</li>
+          <li>Saisissez l'<span class="field">Adresse e-mail</span> (son identifiant, qui ne change plus ensuite), le <span class="field">Prénom</span> et le <span class="field">Nom</span>.</li>
+          <li>Un <span class="field">Mot de passe</span> est déjà proposé, facile à dicter : <span style="font-family:var(--mono)">Olive-Atlas-4827</span>. <span class="btn alt">Générer</span> en propose un autre ; <span class="btn alt">Copier</span> le copie pour l'envoyer.</li>
+          <li>Choisissez un profil dans <span class="field">Partir d'un profil</span> : Commercial, Magasinier, Opérateur atelier, Responsable production, Acheteur, Comptable ou Administrateur. Les rôles se cochent d'un coup ; ajustez à la main si besoin.</li>
+          <li>Vérifiez la phrase du bas, <q>Entrera dans le bureau avec … rôles</q>, puis <span class="btn">Créer le compte</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le mot de passe doit faire au moins 8 caractères. La personne pourra le changer elle-même ensuite.</li>
+          <li>Donnez au moins un rôle : un compte sans aucun rôle n'apparaît plus dans la liste.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="roles">
+    <div class="step-num" aria-hidden="true">2</div>
+    <div class="step-body">
+      <h2>Ajuster les rôles</h2>
+      <p class="why">Les rôles sont regroupés par domaine : Production, Ventes, Achats, Stock, Comptabilité, Administration. Chaque carte dit ce que le rôle permet.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Cliquez sur la personne dans la liste de gauche : sa fiche s'ouvre à droite.</li>
+          <li>Cochez ou décochez les cartes de rôles. Une carte cochée est encadrée.</li>
+          <li>Corrigez au besoin le <span class="field">Prénom</span> et le <span class="field">Nom</span>.</li>
+          <li>La barre du bas passe en ambre : <q>Modifications non enregistrées</q>. Cliquez sur <span class="btn">Enregistrer</span>, ou <span class="btn alt">Annuler</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Un rôle « Responsable » donne les droits du rôle simple, plus ceux de responsable dans l'ERP.</li>
+          <li><b>Administrateur</b> donne tous les droits, dont la gestion des utilisateurs et tous les réglages. Réservez-le à une ou deux personnes.</li>
+          <li>Vous ne pouvez pas retirer votre propre rôle Administrateur : demandez-le à un autre administrateur.</li>
+          <li>Les rôles posés directement sur le Desk ne s'affichent pas ici et restent inchangés ; la fiche en indique le nombre.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="mdp">
+    <div class="step-num" aria-hidden="true">3</div>
+    <div class="step-body">
+      <h2>Changer un mot de passe <span class="tag-new">au besoin</span></h2>
+      <p class="why">Pour une personne qui a oublié le sien, ou quand un mot de passe a pu être vu.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez la fiche de la personne et cliquez sur <span class="btn alt">Changer le mot de passe</span>.</li>
+          <li>Un nouveau mot de passe est proposé ; <span class="btn alt">Générer</span> en change, ou tapez le vôtre.</li>
+          <li><span class="btn alt">Copier</span>, puis <span class="btn">Changer le mot de passe</span>. Communiquez-le à la personne : l'ancien ne fonctionne plus.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="desactiver">
+    <div class="step-num" aria-hidden="true">4</div>
+    <div class="step-body">
+      <h2>Désactiver un compte</h2>
+      <p class="why">Quand une personne quitte l'entreprise, on désactive son compte plutôt que de le supprimer : ses pièces et son historique restent rattachés à son nom.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez sa fiche et éteignez l'interrupteur <span class="field">Compte actif</span>.</li>
+          <li>Cliquez sur <span class="btn">Enregistrer</span> et confirmez.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le compte passe dans l'onglet <span class="field">Désactivés</span> de la liste. Rallumez l'interrupteur pour le réactiver.</li>
+          <li>Vous ne pouvez pas désactiver votre propre compte.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="matrice">
+    <div class="step-num" aria-hidden="true">5</div>
+    <div class="step-body">
+      <h2>Vérifier qui fait quoi</h2>
+      <p class="why">Une vue de tous les comptes actifs face aux rôles : pour répartir le travail, repérer un rôle sans personne, ou changer les rôles de plusieurs personnes d'un coup.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Cliquez sur <span class="btn alt">Qui fait quoi</span> en haut de la page.</li>
+          <li>Chaque ligne est une personne, chaque colonne un rôle. Cochez ou décochez les cases : une case changée est surlignée.</li>
+          <li>La ligne <span class="field">Personnes</span>, en bas, compte les titulaires de chaque rôle ; un <b>zéro en rouge</b> signale un travail que personne ne peut faire.</li>
+          <li>Cliquez sur <span class="btn">Enregistrer</span> : tous les changements sont enregistrés d'un coup. <span class="btn alt">Retour aux comptes</span> revient à la liste.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="messages">
+  <div class="section-head">
+    <span class="eyebrow">En cas de blocage</span>
+    <h2 id="messages">Les messages que vous pouvez voir</h2>
+  </div>
+  <div class="msgs">
+    <details><summary><q>Adresse e-mail invalide : elle sert d'identifiant de connexion.</q></summary><p>Vérifiez l'adresse : elle doit avoir la forme <span style="font-family:var(--mono)">prenom.nom@domaine.dz</span>.</p></details>
+    <details><summary><q>Un compte existe déjà pour …</q></summary><p>Cette adresse a déjà un compte, peut-être désactivé : regardez l'onglet <span class="field">Désactivés</span> et réactivez-le.</p></details>
+    <details><summary><q>Le mot de passe doit faire au moins 8 caractères.</q></summary><p>Cliquez sur <span class="btn alt">Générer</span> pour en obtenir un qui convient.</p></details>
+    <details><summary><q>Indiquez au moins le prénom.</q></summary><p>Le prénom est obligatoire ; le nom est facultatif.</p></details>
+    <details><summary><q>Vous ne pouvez pas retirer votre propre rôle Administrateur.</q></summary><p>Un garde-fou évite de se retrouver sans administrateur. Demandez à un autre administrateur de le faire.</p></details>
+    <details><summary><q>Vous ne pouvez pas désactiver votre propre compte.</q></summary><p>Même garde-fou : un autre administrateur doit le faire.</p></details>
+    <details><summary><q>Ce compte vient d'être modifié par ailleurs.</q></summary><p>Un autre administrateur a changé ce compte pendant que vous l'aviez ouvert. La page a été rechargée : vérifiez, puis recommencez.</p></details>
+  </div>
+</section>
+
+<section aria-labelledby="raccourcis">
+  <div class="section-head">
+    <span class="eyebrow">Gagner du temps</span>
+    <h2 id="raccourcis">Raccourcis clavier</h2>
+  </div>
+  <div class="keys">
+    <div class="key">Valider une fenêtre <span><kbd>Ctrl</kbd> <kbd>Entrée</kbd></span></div>
+    <div class="key">Fermer une fenêtre <span><kbd>Échap</kbd></span></div>
+  </div>
+</section>
+
+<footer>Unicare · Guide utilisateur, Utilisateurs · version de travail, novembre 2026</footer>
+</div>

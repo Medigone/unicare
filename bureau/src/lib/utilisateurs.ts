@@ -27,6 +27,8 @@ export interface ReglagesUtilisateurs {
 	roles: { domaine: string; roles: RoleChoix[] }[]
 	/** Rôles qui ouvrent le bureau : sans l'un d'eux, le compte n'y entre pas. */
 	roles_bureau: string[]
+	/** Profils de la création : des rôles cochés d'un coup. */
+	profils: { label: string; roles: string[] }[]
 	droits: { creer: boolean; modifier: boolean }
 }
 
@@ -64,4 +66,25 @@ export function derniereConnexion(iso: string | null, today = new Date()): strin
 	if (jours === 1) return 'Hier'
 	if (jours < 30) return `Il y a ${jours} jours`
 	return `Le ${new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }).format(day)}`
+}
+
+/** Initiales d'un nom : « Nadia Hamdi » → « NH ». */
+export function initiales(nom: string): string {
+	const parts = nom.trim().split(/\s+/).filter(Boolean)
+	return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : (parts[0]?.[1] ?? ''))).toUpperCase()
+}
+
+const MOTS = ['Cedre', 'Olive', 'Atlas', 'Jasmin', 'Tulipe', 'Figuier', 'Palmier', 'Grenade', 'Amande', 'Oasis', 'Dune', 'Saule']
+
+/** Un mot de passe facile à dicter et difficile à deviner : « Olive-Atlas-4827 ». */
+export function genererMotDePasse(alea: (n: number) => number = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n): string {
+	const a = MOTS[alea(MOTS.length)]
+	let b = MOTS[alea(MOTS.length)]
+	if (b === a) b = MOTS[(MOTS.indexOf(a) + 1) % MOTS.length]
+	return `${a}-${b}-${String(1000 + alea(9000))}`
+}
+
+/** Les rôles ouvrent-ils le bureau ? */
+export function entreDansLeBureau(roles: string[], rolesBureau: string[]): boolean {
+	return roles.some((role) => rolesBureau.includes(role))
 }

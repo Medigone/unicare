@@ -952,5 +952,7 @@ const UTILISATEURS = 'unicare.api.bureau_utilisateurs'
 export const getUtilisateurs = () => call<ReglagesUtilisateurs>(`${UTILISATEURS}.get_utilisateurs`)
 export const saveUtilisateur = (compte: Pick<Utilisateur, 'name' | 'modified'> | null, values: Partial<UtilisateurForm>) =>
 	call<ReglagesUtilisateurs>(`${UTILISATEURS}.save_utilisateur`, { name: compte?.name, modified: compte?.modified, values }, true)
+/** « Qui fait quoi » : les rôles de plusieurs comptes d'un coup. */
+export const saveRoles = (changements: { name: string; modified: string; roles: string[] }[]) => call<ReglagesUtilisateurs>(`${UTILISATEURS}.save_roles`, { changements }, true)
 export const setMotDePasse = (compte: Pick<Utilisateur, 'name' | 'modified'>, motDePasse: string) =>
 	call<ReglagesUtilisateurs>(`${UTILISATEURS}.set_mot_de_passe`, { name: compte.name, modified: compte.modified, mot_de_passe: motDePasse }, true)

@@ -25,7 +25,13 @@ class TestUtilisateurs(FrappeTestCase):
 
 	def _creer(self, roles=("Sales User",)):
 		return U.save_utilisateur(
-			values={"email": EMAIL, "prenom": "Essai", "nom_famille": "Compte", "mot_de_passe": MDP, "roles": list(roles)}
+			values={
+				"email": EMAIL,
+				"prenom": "Essai",
+				"nom_famille": "Compte",
+				"mot_de_passe": MDP,
+				"roles": list(roles),
+			}
 		)
 
 	def test_creer_un_compte(self):
@@ -39,7 +45,9 @@ class TestUtilisateurs(FrappeTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			U.save_utilisateur(values={"email": "pas-une-adresse", "prenom": "X", "mot_de_passe": MDP})
 		with self.assertRaises(frappe.ValidationError):
-			U.save_utilisateur(values={"email": "autre.essai@example.com", "prenom": "X", "mot_de_passe": "court"})
+			U.save_utilisateur(
+				values={"email": "autre.essai@example.com", "prenom": "X", "mot_de_passe": "court"}
+			)
 
 	def test_roles_et_desactivation(self):
 		compte = _compte(self._creer(["Sales User"]))
@@ -47,7 +55,9 @@ class TestUtilisateurs(FrappeTestCase):
 		frappe.get_doc("User", EMAIL).add_roles("Blogger")
 		compte = _compte(U.get_utilisateurs())
 		reponse = U.save_utilisateur(
-			EMAIL, compte["modified"], {"prenom": "Essai", "actif": False, "roles": ["Stock User", "Magasinier Conditionnement"]}
+			EMAIL,
+			compte["modified"],
+			{"prenom": "Essai", "actif": False, "roles": ["Stock User", "Magasinier Conditionnement"]},
 		)
 		compte = _compte(reponse)
 		self.assertEqual(compte["roles"], ["Magasinier Conditionnement", "Stock User"])
@@ -71,7 +81,9 @@ class TestUtilisateurs(FrappeTestCase):
 		compte = _compte(self._creer(["System Manager", "Sales User"]))
 		frappe.set_user(EMAIL)
 		with self.assertRaises(frappe.ValidationError):
-			U.save_utilisateur(EMAIL, compte["modified"], {"prenom": "Essai", "actif": False, "roles": compte["roles"]})
+			U.save_utilisateur(
+				EMAIL, compte["modified"], {"prenom": "Essai", "actif": False, "roles": compte["roles"]}
+			)
 		with self.assertRaises(frappe.ValidationError):
 			U.save_utilisateur(EMAIL, compte["modified"], {"prenom": "Essai", "roles": ["Sales User"]})
 		with self.assertRaises(frappe.ValidationError):
@@ -88,3 +100,41 @@ class TestUtilisateurs(FrappeTestCase):
 				U.get_utilisateurs()
 			with self.assertRaises(frappe.PermissionError):
 				self._creer()
+
+
+class TestQuiFaitQuoi(FrappeTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def test_profils(self):
+		profils = {row["label"]: row["roles"] for row in U.get_utilisateurs()["profils"]}
+		self.assertIn("Commercial", profils)
+		self.assertIn("Sales User", profils["Commercial"])
+		existants = U._roles_existants()
+		for roles in profils.values():
+			self.assertTrue(set(roles) <= existants)
+
+	def test_roles_de_plusieurs_comptes(self):
+		reponse = U.save_utilisateur(
+			values={"email": EMAIL, "prenom": "Essai", "mot_de_passe": MDP, "roles": ["Sales User"]}
+		)
+		reponse = U.save_utilisateur(
+			values={"email": "essai.deux@example.com", "prenom": "Deux", "mot_de_passe": MDP, "roles": ["Stock User"]}
+		)
+		un, deux = _compte(reponse), _compte(reponse, "essai.deux@example.com")
+		reponse = U.save_roles(
+			[
+				{"name": un["name"], "modified": un["modified"], "roles": ["Sales User", "Stock User"]},
+				{"name": deux["name"], "modified": deux["modified"], "roles": ["Accounts User"]},
+			]
+		)
+		self.assertEqual(_compte(reponse)["roles"], ["Sales User", "Stock User"])
+		self.assertEqual(_compte(reponse, "essai.deux@example.com")["roles"], ["Accounts User"])
+		with self.assertRaises(frappe.TimestampMismatchError):
+			U.save_roles([{"name": un["name"], "modified": "2000-01-01 00:00:00", "roles": []}])
+		with self.assertRaises(frappe.ValidationError):
+			U.save_roles([{"name": "Administrator", "modified": "", "roles": []}])

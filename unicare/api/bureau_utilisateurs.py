@@ -65,6 +65,17 @@ ROLES = (
 )
 GERES = [role for _domaine, rows in ROLES for role, _label, _aide in rows]
 
+# Profils proposés à la création d'un compte : des rôles cochés d'un coup, ajustables ensuite.
+PROFILS = (
+	("Commercial", ("Sales User", "Stock User")),
+	("Magasinier", ("Stock User", "Magasinier Conditionnement")),
+	("Opérateur atelier", ("Opérateur Conditionnement",)),
+	("Responsable production", ("Responsable Conditionnement", "Stock User")),
+	("Acheteur", ("Purchase User", "Stock User")),
+	("Comptable", ("Accounts User",)),
+	("Administrateur", ("System Manager",)),
+)
+
 
 def _roles_existants():
 	return set(frappe.get_all("Role", filters={"name": ["in", GERES], "disabled": 0}, pluck="name"))
@@ -113,6 +124,11 @@ def get_utilisateurs():
 			for domaine, rows in ROLES
 		],
 		"roles_bureau": sorted(BUREAU_ROLES & existants),
+		"profils": [
+			{"label": label, "roles": [role for role in roles if role in existants]}
+			for label, roles in PROFILS
+			if any(role in existants for role in roles)
+		],
 		"droits": {
 			"creer": bool(frappe.has_permission(USER, "create")),
 			"modifier": bool(frappe.has_permission(USER, "write")),
@@ -134,6 +150,19 @@ def _mot_de_passe(doc, mot_de_passe):
 	if len(mot_de_passe) < 8:
 		frappe.throw(_("Le mot de passe doit faire au moins 8 caractères."))
 	doc.new_password = mot_de_passe
+
+
+def _poser_roles(doc, roles, moi, existants=None):
+	"""Remplace les rôles proposés par la page ; les rôles posés sur le Desk restent tels quels."""
+	existants = existants if existants is not None else _roles_existants()
+	voulus = {role for role in roles or [] if role in existants}
+	inconnus = set(roles or []) - existants
+	if inconnus:
+		frappe.throw(_("Rôle inconnu : {0}.").format(", ".join(sorted(inconnus))))
+	if moi and ADMIN in {r.role for r in doc.get("roles") or []} and ADMIN not in voulus:
+		frappe.throw(_("Vous ne pouvez pas retirer votre propre rôle Administrateur."))
+	garder = [r.role for r in doc.get("roles") or [] if r.role not in GERES]
+	doc.set("roles", [{"role": role} for role in garder + [r for r in GERES if r in voulus]])
 
 
 @frappe.whitelist(methods=["POST"])
@@ -171,16 +200,7 @@ def save_utilisateur(name=None, modified=None, values=None):
 	doc.enabled = 1 if actif else 0
 
 	if "roles" in values:
-		existants = _roles_existants()
-		voulus = {role for role in values.get("roles") or [] if role in existants}
-		inconnus = set(values.get("roles") or []) - existants
-		if inconnus:
-			frappe.throw(_("Rôle inconnu : {0}.").format(", ".join(sorted(inconnus))))
-		if moi and ADMIN in {r.role for r in doc.get("roles") or []} and ADMIN not in voulus:
-			frappe.throw(_("Vous ne pouvez pas retirer votre propre rôle Administrateur."))
-		# Les rôles non proposés ici (posés sur le Desk) restent tels quels.
-		garder = [r.role for r in doc.get("roles") or [] if r.role not in GERES]
-		doc.set("roles", [{"role": role} for role in garder + [r for r in GERES if r in voulus]])
+		_poser_roles(doc, values.get("roles"), moi)
 
 	doc.save() if name else doc.insert()
 	return get_utilisateurs()
@@ -197,4 +217,24 @@ def set_mot_de_passe(name, modified, mot_de_passe):
 	_stale(doc, modified)
 	_mot_de_passe(doc, mot_de_passe)
 	doc.save()
+	return get_utilisateurs()
+
+
+@frappe.whitelist(methods=["POST"])
+def save_roles(changements=None):
+	"""« Qui fait quoi » : les rôles de plusieurs comptes d'un coup, `[{name, modified, roles}]`. Tout ou rien."""
+	require_bureau()
+	changements = _parse(changements) or []
+	if not isinstance(changements, list):
+		frappe.throw(_("Changements illisibles."))
+	existants = _roles_existants()
+	for changement in changements:
+		name = cstr((changement or {}).get("name"))
+		if name in CACHES:
+			frappe.throw(_("Ce compte ne se modifie pas ici."))
+		doc = frappe.get_doc(USER, name)
+		doc.check_permission("write")
+		_stale(doc, changement.get("modified"))
+		_poser_roles(doc, changement.get("roles") or [], doc.name == frappe.session.user, existants)
+		doc.save()
 	return get_utilisateurs()
