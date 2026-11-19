@@ -1,0 +1,445 @@
+<title>Guide Tarifs Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #2c6870;        /* réglages : bleu-vert neutre, comme le guide Réglages */
+  --accent-soft: #e2f0f1;
+  --violet: #5b3fa8; --violet-soft: #efe9ff;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c; --violet: #b9a4f2; --violet-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c; --violet: #b9a4f2; --violet-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+.p-violet { background: var(--violet-soft); color: var(--violet); }
+sup { line-height: 0; }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.59 2.59A2 2 0 0 0 11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>Réglages · Tarifs et prix</span>
+  <h1>Donner un prix à chaque article</h1>
+  <p class="lead">Un tarif est une liste de prix : celui des ventes propose le prix des devis et des commandes, celui des achats le prix des devis fournisseur et des commandes d'achat. Ce guide montre comment saisir ces prix, prévoir leurs changements, faire un prix pour un client, et créer un tarif à partir d'un autre.</p>
+  <div class="where">
+    <span>Où : <b>menu de gauche › Réglages › Tarifs et prix</b></span>
+    <span>Pour : responsable commercial, acheteur, administrateur</span>
+  </div>
+</header>
+
+<section aria-labelledby="circuit">
+  <div class="section-head">
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h2 id="circuit">D'où vient le prix d'une ligne</h2>
+    <p>Quand vous laissez le prix vide sur une pièce, Unicare le cherche dans cet ordre. Cliquez sur une étape pour aller à son explication.</p>
+  </div>
+  <ol class="route">
+    <li class="lane" aria-hidden="true">Dans Tarifs et prix</li>
+    <li><a href="#tarif"><span class="dot">1</span><span class="t">Le tarif par défaut</span><span class="d">Un pour les ventes, un pour les achats. C'est lui que lisent les nouvelles pièces.</span><span class="effect e-none">Réglé une fois</span></a></li>
+    <li><a href="#prix"><span class="dot">2</span><span class="t">Le prix de l'article</span><span class="d">Sa ligne de prix dans ce tarif.</span><span class="effect e-none">Une ligne par article</span></a></li>
+    <li class="opt"><a href="#periodes"><span class="dot">3</span><span class="t">La période <small>facultatif</small></span><span class="d">Le prix valable à la date de la pièce : un prix à venir ne compte qu'à partir de sa date.</span><span class="effect e-stock">Selon la date</span></a></li>
+    <li class="opt"><a href="#client"><span class="dot">4</span><span class="t">Le client ou le fournisseur <small>facultatif</small></span><span class="d">Un prix réservé à ce tiers passe avant le prix général.</span><span class="effect e-money">Selon le tiers</span></a></li>
+    <li class="lane" aria-hidden="true">Sur la pièce</li>
+    <li><a href="#prix"><span class="dot">5</span><span class="t">La ligne de la pièce</span><span class="d">Le prix trouvé est proposé. Un prix saisi à la main sur la ligne l'emporte toujours.</span><span class="effect e-none">Modifiable</span></a></li>
+  </ol>
+  <div class="flow-notes">
+    <p><b>Aucun prix trouvé ?</b> En vente, la ligne reste <q>sans prix</q> et la pièce ne se valide pas tant qu'on n'en saisit pas un. En achat, Unicare reprend le <b>dernier prix payé</b>.</p>
+    <p><b>Changer un tarif ne touche pas aux pièces déjà créées.</b> Elles gardent le prix qu'elles avaient à leur création.</p>
+  </div>
+</section>
+
+<section aria-labelledby="regle">
+  <div class="section-head">
+    <span class="eyebrow">La règle à retenir</span>
+    <h2 id="regle">Un article peut avoir plusieurs prix dans un même tarif</h2>
+    <p>La liste montre pour chaque article son <b>prix en vigueur</b> aujourd'hui. Les autres prix sont rangés sous la flèche <span class="btn alt">›</span> devant l'article, chacun avec sa pastille.</p>
+  </div>
+  <div class="states">
+    <div class="state"><span class="pill p-green">En vigueur</span><p>Le prix général valable aujourd'hui. C'est lui que montre la case de la liste, et que reprennent les pièces du jour.</p></div>
+    <div class="state"><span class="pill p-blue">À venir</span><p>Un prix qui commence plus tard, par exemple une hausse au 1<sup>er</sup> janvier. Les pièces le prendront à partir de sa date.</p></div>
+    <div class="state"><span class="pill p-violet">Client · Fournisseur</span><p>Un prix réservé à un client (ventes) ou à un fournisseur (achats). Les autres tiers ne le voient pas.</p></div>
+  </div>
+  <p class="fix"><b>La case ou la flèche ?</b> La case de la liste change seulement le prix <b>en vigueur aujourd'hui</b>. Pour un prix à une autre date, pour un client, ou pour revoir l'historique, ouvrez la flèche devant l'article.</p>
+  <p class="fix" style="background:var(--grey-soft)"><b>Les prix passés restent visibles</b> avec la pastille <span class="pill p-grey">Expiré</span>. Ils ne servent plus aux nouvelles pièces mais gardent la trace des anciens prix.</p>
+</section>
+
+<section aria-labelledby="etapes">
+  <div class="section-head">
+    <span class="eyebrow">Pas à pas</span>
+    <h2 id="etapes">Les tâches en détail</h2>
+  </div>
+
+  <!-- 1 · Tarif -->
+  <article class="step" id="tarif">
+    <div class="step-num" aria-hidden="true">1</div>
+    <div class="step-body">
+      <h2>Créer un tarif et le mettre par défaut</h2>
+      <p class="why">À faire à la mise en route, puis chaque fois qu'il faut une autre liste de prix (grossistes, cliniques…). La liste des tarifs, à gauche, montre pour chacun combien d'articles ont un prix.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Dans <span class="path">Réglages<i>›</i>Tarifs et prix</span>, cliquez sur <span class="btn">Nouveau tarif</span>.</li>
+          <li>Donnez-lui un <span class="field">Nom du tarif</span> et choisissez <span class="field">Pour</span> : les ventes ou les achats.</li>
+          <li>Laissez <span class="field">Un tarif vide</span> pour saisir les prix vous-même (ou voyez l'<a href="#calcule">étape 5</a> pour partir d'un autre tarif), puis <span class="btn">Créer le tarif</span>.</li>
+          <li>Pour que les nouvelles pièces le reprennent, ouvrez-le et cliquez sur <span class="btn alt">Utiliser par défaut pour les ventes</span> (ou les achats).</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le tarif par défaut porte la pastille <span class="pill p-green">Par défaut</span>. Il y en a un seul par sens : en choisir un autre remplace le précédent.</li>
+          <li>La barre sous chaque tarif montre la part d'articles qui ont un prix aujourd'hui. Elle passe à l'orange sous 50 %.</li>
+          <li>Le tarif est créé dans la devise de la société, hors taxes : la TVA s'ajoute sur la pièce.</li>
+        </ul>
+      </div>
+      <p class="next">Étape suivante : <a href="#prix">saisir les prix</a></p>
+    </div>
+  </article>
+
+  <!-- 2 · Prix -->
+  <article class="step" id="prix">
+    <div class="step-num" aria-hidden="true">2</div>
+    <div class="step-body">
+      <h2>Saisir et corriger les prix</h2>
+      <p class="why">Chaque article vendu (ou acheté, pour un tarif d'achat) a une ligne. Le prix se tape directement dans sa case : pas de fiche à ouvrir.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Choisissez le tarif dans la liste de gauche.</li>
+          <li>Cliquez sur l'onglet <span class="field">Sans prix</span> pour ne voir que les articles à chiffrer. Le bouton ambre <span class="pill p-amber">22 sans prix</span> y mène aussi.</li>
+          <li>Tapez le prix hors taxes dans la case, par exemple <span style="font-family:var(--mono)">1 250,50</span>, puis <kbd>Entrée</kbd>. La ligne s'éclaire et le message <q>Prix enregistré.</q> confirme.</li>
+          <li>Pour retirer un prix, videz la case et confirmez.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li><kbd>Échap</kbd> annule la saisie en cours et remet l'ancien prix.</li>
+          <li>Un prix créé depuis la case est valable dès aujourd'hui, sans date de fin, à l'unité de stock de l'article.</li>
+          <li>Sous l'unité, <q>prix par Boîte de 100</q> signale un prix donné dans une autre unité que l'unité de stock.</li>
+          <li>Les cases sont grisées si votre rôle ne modifie pas les prix, si le tarif est désactivé, ou si le champ <span class="field">Prix au</span> montre une autre date qu'aujourd'hui.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 3 · Périodes -->
+  <article class="step" id="periodes">
+    <div class="step-num" aria-hidden="true">3</div>
+    <div class="step-body">
+      <h2>Prévoir un changement de prix <span class="tag-new">facultatif</span></h2>
+      <p class="why">Une hausse fournisseur au 1<sup>er</sup> janvier, une promotion d'un mois : saisissez le nouveau prix à l'avance, avec ses dates. Les pièces le prendront d'elles-mêmes au bon moment.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Cliquez sur la flèche <span class="btn alt">›</span> devant l'article : ses prix s'affichent dessous.</li>
+          <li>Cliquez sur <span class="btn alt">Nouveau prix à partir d'une date</span>.</li>
+          <li>Saisissez le <span class="field">Prix HT</span>, l'<span class="field">Unité</span> et la date <span class="field">Valable à partir du</span>. Laissez <span class="field">Jusqu'au</span> vide si le prix vaut jusqu'au suivant.</li>
+          <li>Laissez cochée la case <span class="field">Arrêter le prix actuel la veille</span> : l'ancien prix s'arrêtera la veille du nouveau.</li>
+          <li>Ajoutez une <span class="field">Note</span> si utile (<q>hausse fournisseur</q>), puis <span class="btn">Enregistrer le prix</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Dans la liste, la colonne <span class="field">Autres prix</span> annonce le changement : <span class="pill p-blue">1 450 → 1 520 au 1 janv.</span></li>
+          <li>L'onglet <span class="field">À venir</span> regroupe les changements prévus ; <span class="field">Expire bientôt</span> les prix qui s'arrêtent dans les 45 jours, sans suivant.</li>
+          <li>Le champ <span class="field">Prix au</span>, en haut à droite, montre les prix valables à une autre date : utile pour vérifier une hausse avant qu'elle s'applique.</li>
+          <li>Les boutons crayon et corbeille d'un prix le modifient ou le suppriment.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 4 · Client -->
+  <article class="step" id="client">
+    <div class="step-num" aria-hidden="true">4</div>
+    <div class="step-body">
+      <h2>Faire un prix pour un client ou un fournisseur <span class="tag-new">facultatif</span></h2>
+      <p class="why">Un contrat annuel avec une clinique, un fournisseur qui livre moins cher mais plus tard : le prix réservé à ce tiers s'applique à ses seules pièces.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez la flèche <span class="btn alt">›</span> devant l'article, puis <span class="btn alt">Prix pour un client</span> (ou <span class="btn alt">Prix pour un fournisseur</span> dans un tarif d'achat).</li>
+          <li>Choisissez le <span class="field">Client</span> ou le <span class="field">Fournisseur</span>, puis le prix et ses dates.</li>
+          <li>Dans un tarif d'achat, indiquez le <span class="field">Délai de livraison (jours)</span> de ce fournisseur.</li>
+          <li>Cliquez sur <span class="btn">Enregistrer le prix</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>La colonne <span class="field">Autres prix</span> affiche <span class="pill p-violet">1 prix client</span> sur les articles concernés.</li>
+          <li>Le devis ou la commande de ce client reprend son prix ; tous les autres clients gardent le prix général.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 5 · Tarif calculé -->
+  <article class="step" id="calcule">
+    <div class="step-num" aria-hidden="true">5</div>
+    <div class="step-body">
+      <h2>Créer un tarif à partir d'un autre</h2>
+      <p class="why">Un « Tarif remise 10 % » pour les grossistes, un tarif de vente à partir des prix d'achat majorés : Unicare calcule tous les prix d'un coup, et peut ensuite suivre les changements du tarif de départ.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Cliquez sur <span class="btn">Nouveau tarif</span>, ou sur <span class="btn alt">Créer un tarif à partir de celui-ci</span> dans l'en-tête d'un tarif.</li>
+          <li>Choisissez <span class="field">Les prix d'un autre tarif</span>, puis le <span class="field">Tarif de base</span>.</li>
+          <li>Réglez l'<span class="field">Ajustement</span> : <b>Remise</b>, <b>Majoration</b> ou <b>Aucun</b>, et le pourcentage.</li>
+          <li>Choisissez comment <span class="field">Arrondir les prix</span> (au dinar, à la dizaine…) et la date <span class="field">Valable à partir du</span>.</li>
+          <li>Cochez les <span class="field">Prix repris</span> : les prix à venir, et ceux réservés à un client si vous les voulez aussi.</li>
+          <li>Vérifiez l'<span class="field">Aperçu</span>, puis <span class="btn">Créer le tarif et ses … prix</span>.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Garder le lien avec le tarif de base</h3>
+        <ul class="know">
+          <li>Avec cette case cochée, l'en-tête du nouveau tarif affiche <span class="pill p-blue">Basé sur « Tarif de vente standard » · remise 10 % · arrondi au dinar</span>.</li>
+          <li>Quand un prix change dans le tarif de base, un bandeau bleu liste les changements : cochez ceux à reprendre, puis <span class="btn">Reprendre … changements</span>.</li>
+          <li>Un prix que vous avez modifié à la main dans le tarif calculé est marqué <span class="pill p-amber">modifié à la main ici</span> et décoché d'office : il n'est jamais écrasé sans votre accord. <span class="btn alt">Reprendre la sélection et ignorer les autres</span> le garde tel quel.</li>
+          <li><span class="btn alt">Modifier la règle</span> change la remise ou l'arrondi et recalcule les prix, sauf ceux modifiés à la main. <span class="btn alt">Détacher du tarif de base</span> arrête le suivi : les prix restent.</li>
+        </ul>
+      </div>
+      <p class="fix" style="background:var(--grey-soft)"><b>Exemple :</b> un article à 1 450 dans le tarif de base, avec 10 % de remise arrondie au dinar, vaut 1 305. À 95, il vaut 86 (85,50 arrondi).</p>
+    </div>
+  </article>
+
+  <!-- 6 · Achat -->
+  <article class="step" id="achat">
+    <div class="step-num" aria-hidden="true">6</div>
+    <div class="step-body">
+      <h2>Suivre un tarif d'achat</h2>
+      <p class="why">Dans un tarif d'achat, la liste compare chaque prix au <b>dernier prix payé</b> sur une facture fournisseur, pour repérer les prix à mettre à jour.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez le tarif d'achat. Les colonnes <span class="field">Dernier prix payé</span> et <span class="field">Écart</span> s'ajoutent à la liste.</li>
+          <li>Cliquez sur l'onglet <span class="field">Écart &gt; 5 %</span> : un écart en orange, comme <span class="pill p-amber">+8,2 %</span>, signale un prix de tarif éloigné du prix réellement payé.</li>
+          <li>Pour un article sans prix déjà acheté, cliquez sur <span class="btn alt">Reprendre</span> : son dernier prix payé devient son prix, dès aujourd'hui.</li>
+          <li>Pour tous ces articles d'un coup, utilisez le bandeau bleu <span class="btn alt">Reprendre les … derniers prix payés</span>.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+
+  <!-- 7 · Désactiver, supprimer -->
+  <article class="step" id="ranger">
+    <div class="step-num" aria-hidden="true">7</div>
+    <div class="step-body">
+      <h2>Désactiver ou supprimer un tarif</h2>
+      <p class="why">Un tarif qui ne sert plus se <b>désactive</b> : il disparaît des pièces mais reste consultable. La <b>suppression</b> est réservée aux tarifs créés par erreur ou jamais utilisés.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Pour désactiver : basculez l'interrupteur <span class="field">Actif</span> dans l'en-tête du tarif. Il passe dans le groupe <b>Désactivés</b> ; <span class="btn alt">Réactiver le tarif</span> le remet en service.</li>
+          <li>Pour supprimer : cliquez sur <span class="btn" style="background:var(--red);color:var(--paper)">Supprimer</span>, lisez la confirmation, puis <span class="btn alt">Supprimer le tarif et ses prix</span>. Tous ses prix partent avec lui, définitivement.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le <b>tarif par défaut</b> ne se désactive ni ne se supprime : choisissez d'abord un autre tarif par défaut.</li>
+          <li>Un tarif déjà utilisé par une pièce, ou choisi sur une fiche client ou fournisseur, ne se supprime pas : désactivez-le.</li>
+          <li>Les tarifs calculés depuis un tarif supprimé gardent leurs prix ; ils ne le suivent simplement plus.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="reperes">
+  <div class="section-head">
+    <span class="eyebrow">Repères</span>
+    <h2 id="reperes">Les onglets de la liste</h2>
+    <p>Chaque onglet affiche son nombre d'articles. Les boutons de couleur au-dessus de la liste mènent aux mêmes onglets.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Onglet</th><th>Ce qu'il montre</th><th>Ce qu'il faut faire</th></tr></thead>
+      <tbody>
+        <tr><td>Sans prix</td><td>Les articles sans prix en vigueur aujourd'hui. <span class="field">Validité</span> dit <q>jamais chiffré</q> ou <q>dernier prix … expiré le …</q>.</td><td>Saisir un prix, sinon chaque pièce devra être chiffrée à la main.</td></tr>
+        <tr><td>Avec prix</td><td>Les articles qui ont un prix en vigueur.</td><td>Rien, sauf correction.</td></tr>
+        <tr><td>À venir</td><td>Les articles qui ont un prix prévu plus tard.</td><td>Vérifier le montant et la date avant qu'il s'applique.</td></tr>
+        <tr><td>Expire bientôt</td><td>Un prix qui s'arrête dans les 45 jours (<q>expire dans 42 jours</q>).</td><td>Prévoir le prix suivant, sinon l'article redevient <q>sans prix</q>.</td></tr>
+        <tr><td>Écart &gt; 5 %</td><td>Tarifs d'achat : prix éloigné du dernier prix payé.</td><td>Mettre le tarif à jour ou vérifier la facture fournisseur.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="messages">
+  <div class="section-head">
+    <span class="eyebrow">En cas de blocage</span>
+    <h2 id="messages">Les messages que vous pouvez voir</h2>
+  </div>
+  <div class="msgs">
+    <details><summary><q>Saisissez un nombre, par exemple 1 250,50.</q></summary><p>La case contient autre chose qu'un nombre. Les espaces et la virgule sont acceptés, pas les lettres ni deux virgules.</p></details>
+    <details><summary><q>Un prix doit être supérieur à zéro.</q></summary><p>Un prix de 0 n'est pas accepté. Pour retirer le prix d'un article, videz la case.</p></details>
+    <details><summary><q>La fin de validité ne peut pas précéder son début.</q></summary><p>Dans la fenêtre d'un prix, la date <span class="field">Jusqu'au</span> est avant <span class="field">Valable à partir du</span>. Corrigez l'une des deux, ou videz la date de fin.</p></details>
+    <details><summary><q>Ce prix vient d'être modifié par ailleurs.</q></summary><p>Un collègue a changé ce prix pendant que vous le saisissiez. Il a été rechargé : vérifiez-le, puis recommencez.</p></details>
+    <details><summary><q>… est le tarif par défaut : choisissez d'abord un autre tarif par défaut.</q></summary><p>Le tarif par défaut ne se désactive ni ne se supprime. Ouvrez un autre tarif du même sens, cliquez sur <span class="btn alt">Utiliser par défaut</span>, puis revenez.</p></details>
+    <details><summary><q>… est utilisé par des pièces ou des fiches : il ne peut pas être supprimé.</q></summary><p>Des devis, commandes, factures ou fiches client y font référence. Désactivez-le avec l'interrupteur <span class="field">Actif</span> : il ne sera plus proposé.</p></details>
+    <details><summary><q>Une remise doit rester sous 100 %.</q></summary><p>Dans un tarif calculé, la remise doit être inférieure à 100 %. Pour une majoration, choisissez <b>Majoration</b>.</p></details>
+    <details><summary><q>L'article … ne se compte pas en …</q></summary><p>L'unité choisie n'est pas déclarée sur la fiche de l'article. Choisissez une unité de la liste, ou ajoutez la conversion sur la fiche article.</p></details>
+  </div>
+</section>
+
+<section aria-labelledby="raccourcis">
+  <div class="section-head">
+    <span class="eyebrow">Gagner du temps</span>
+    <h2 id="raccourcis">Raccourcis clavier</h2>
+  </div>
+  <div class="keys">
+    <div class="key">Enregistrer le prix d'une case <span><kbd>Entrée</kbd></span></div>
+    <div class="key">Annuler la saisie d'une case <span><kbd>Échap</kbd></span></div>
+    <div class="key">Enregistrer une fenêtre <span><kbd>Ctrl</kbd> <kbd>Entrée</kbd></span></div>
+    <div class="key">Voir les prix d'une autre date <span class="btn alt">Prix au</span></div>
+  </div>
+</section>
+
+<footer>Unicare · Guide utilisateur, Tarifs et prix · version de travail, novembre 2026</footer>
+</div>
