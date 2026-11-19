@@ -1,0 +1,353 @@
+<title>Guide Comptabilité Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #2c6870;        /* réglages : bleu-vert neutre, comme le guide Réglages */
+  --accent-soft: #e2f0f1;
+  --violet: #5b3fa8; --violet-soft: #efe9ff;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c; --violet: #b9a4f2; --violet-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c; --violet: #b9a4f2; --violet-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+.p-violet { background: var(--violet-soft); color: var(--violet); }
+sup { line-height: 0; }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route li:not(.lane)::before { display: none; }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>Réglages · Comptabilité et trésorerie</span>
+  <h1>Mettre la comptabilité en ordre de marche</h1>
+  <p class="lead">Pour qu'une facture se valide, qu'un encaissement arrive sur le bon compte et que la TVA soit juste, quelques réglages comptables doivent être en place. Cette page les rassemble et dit, pastille par pastille, ce qui manque encore.</p>
+  <div class="where">
+    <span>Où : <b>menu de gauche › Réglages › Comptabilité et trésorerie</b></span>
+    <span>Pour : comptable, administrateur</span>
+  </div>
+</header>
+
+<section aria-labelledby="sections">
+  <div class="section-head">
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h2 id="sections">Six sections, une pastille chacune</h2>
+    <p>La colonne de gauche liste les sections. La pastille dit l'état de chacune ; la phrase à côté, l'essentiel. Cliquez sur une section pour aller à son explication.</p>
+  </div>
+  <ol class="route">
+    <li><a href="#ensemble"><span class="dot">1</span><span class="t">Vue d'ensemble</span><span class="d">La liste de ce qui est en place et de ce qui reste à régler.</span><span class="effect e-none">Point de départ</span></a></li>
+    <li><a href="#comptes"><span class="dot">2</span><span class="t">Comptes par défaut</span><span class="d">Clients, fournisseurs, banque, caisse, ventes, stock…</span><span class="effect e-money">Une fois</span></a></li>
+    <li><a href="#tva"><span class="dot">3</span><span class="t">TVA</span><span class="d">Les taux proposés sur les pièces, et celui par défaut.</span><span class="effect e-money">Une fois</span></a></li>
+    <li><a href="#modes"><span class="dot">4</span><span class="t">Modes de paiement</span><span class="d">Espèces, chèque, virement : le compte où va l'argent.</span><span class="effect e-money">Une fois</span></a></li>
+    <li><a href="#exercices"><span class="dot">5</span><span class="t">Exercices</span><span class="d">L'année comptable ; la suivante se crée avant le 31 décembre.</span><span class="effect e-stock">Chaque année</span></a></li>
+    <li><a href="#timbre"><span class="dot">6</span><span class="t">Droit de timbre</span><span class="d">Le barème ajouté aux factures payées en espèces.</span><span class="effect e-none">Lecture seule</span></a></li>
+  </ol>
+  <div class="flow-notes">
+    <p><b>Selon votre rôle</b>, une section peut être en lecture seule : vous voyez les réglages sans pouvoir les changer.</p>
+    <p><b>Les tarifs par défaut</b> font aussi partie du bilan ; ils se règlent dans <span class="path">Réglages<i>›</i>Tarifs et prix</span>.</p>
+  </div>
+</section>
+
+<section aria-labelledby="regle">
+  <div class="section-head">
+    <span class="eyebrow">La règle à retenir</span>
+    <h2 id="regle">Lire les pastilles</h2>
+    <p>La couleur d'une section est celle de son point le plus grave.</p>
+  </div>
+  <div class="states">
+    <div class="state"><span class="pill p-green">En place</span><p>Rien à faire. Les pièces trouvent leurs comptes, leur TVA et leur exercice.</p></div>
+    <div class="state"><span class="pill p-amber">À vérifier</span><p>Ça fonctionne, mais un réglage mérite un regard : un mode sans compte propre, un exercice qui se termine bientôt.</p></div>
+    <div class="state"><span class="pill p-red">À régler</span><p>Quelque chose bloque ou fausse les pièces : aucun exercice, un compte indispensable vide, pas de TVA par défaut.</p></div>
+  </div>
+  <p class="fix"><b>Tout doit être vert</b> avant de valider les premières factures. Dans la vue d'ensemble, <span class="btn alt">Régler</span> mène directement à la section concernée.</p>
+</section>
+
+<section aria-labelledby="etapes">
+  <div class="section-head">
+    <span class="eyebrow">Pas à pas</span>
+    <h2 id="etapes">Les sections en détail</h2>
+  </div>
+
+  <article class="step" id="ensemble">
+    <div class="step-num" aria-hidden="true">1</div>
+    <div class="step-body">
+      <h2>Faire le point avec la vue d'ensemble</h2>
+      <p class="why">La page s'ouvre sur l'état de la configuration : <q>6 points sur 8 en place</q>, une barre en segments colorés, puis les points <b>À régler</b> en premier et les points <b>En place</b> en dessous.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Lisez chaque point à régler : sa phrase dit exactement ce qui manque, par exemple <q>Aucun taux par défaut : les nouvelles pièces partent sans TVA.</q></li>
+          <li>Cliquez sur <span class="btn alt">Régler</span> pour ouvrir la section concernée.</li>
+          <li>Pour l'exercice, le bouton <span class="btn">Créer l'exercice …</span> est directement sur la ligne.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="comptes">
+    <div class="step-num" aria-hidden="true">2</div>
+    <div class="step-body">
+      <h2>Poser les comptes par défaut</h2>
+      <p class="why">Ce sont les comptes que reprennent les pièces quand l'article, le client ou le fournisseur n'en précise pas. Ils sont rangés en quatre groupes : Tiers, Trésorerie, Ventes et achats, Stock.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez <span class="field">Comptes par défaut</span>.</li>
+          <li>Pour chaque champ marqué <span class="field">obligatoire</span>, choisissez le compte dans la liste : tapez son numéro ou son nom pour le trouver.</li>
+          <li>Chaque compte changé porte la pastille <span class="pill p-amber">modifié</span> ; la barre du bas passe en ambre.</li>
+          <li>Cliquez sur <span class="btn">Enregistrer</span>, ou <span class="btn alt">Annuler</span> pour revenir en arrière.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>La liste ne propose que les comptes qui conviennent : un compte de type client pour <span class="field">Clients</span>, de banque pour <span class="field">Banque</span>, etc.</li>
+          <li>Faites valider ces choix par votre comptable : ils décident où tombent toutes les écritures automatiques.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="tva">
+    <div class="step-num" aria-hidden="true">3</div>
+    <div class="step-body">
+      <h2>Régler la TVA</h2>
+      <p class="why">Les taux proposés par la liste <span class="field">TVA</span> des pièces : TVA collectée pour les ventes, déductible pour les achats. Le taux par défaut est présélectionné sur chaque nouvelle pièce.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez <span class="field">TVA</span> et choisissez <span class="field">Ventes</span> ou <span class="field">Achats</span>.</li>
+          <li>Pour changer le taux par défaut, cochez le bouton rond de sa ligne : il porte alors la pastille <span class="pill p-green">par défaut</span>.</li>
+          <li>Pour ne plus proposer un taux, éteignez son interrupteur <span class="field">Proposé</span>.</li>
+          <li>Pour un nouveau taux, cliquez sur <span class="btn alt">Nouveau taux</span>, choisissez ventes ou achats et tapez le pourcentage.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le taux par défaut ne se retire pas : choisissez-en d'abord un autre.</li>
+          <li>Un taux retiré reste sur les pièces qui l'ont déjà ; seul le choix sur les nouvelles pièces disparaît.</li>
+          <li>Sur chaque pièce, on peut toujours changer la TVA à la main.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="modes">
+    <div class="step-num" aria-hidden="true">4</div>
+    <div class="step-body">
+      <h2>Régler les modes de paiement</h2>
+      <p class="why">Les choix du champ <span class="field">Mode</span> quand on encaisse ou qu'on paie. Chaque mode a un type (<span class="pill p-green">Espèces</span>, <span class="pill p-blue">Banque</span>, <span class="pill p-grey">Autre</span>) et un compte où va l'argent. Chaque changement est enregistré aussitôt.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez <span class="field">Modes de paiement</span>.</li>
+          <li>Dans la colonne <span class="field">Compte</span>, choisissez le compte de banque ou de caisse du mode. Laissé sur <q>Par défaut : …</q>, l'argent passe par la banque ou la caisse par défaut de la société.</li>
+          <li>Un mode en rouge, <q>Aucun compte : à choisir</q>, bloque les paiements : donnez-lui un compte.</li>
+          <li>Pour un nouveau mode, cliquez sur <span class="btn alt">Nouveau mode</span> : nom, type, et compte si besoin.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Retirer ou supprimer un mode</h3>
+        <ul class="know">
+          <li>La colonne <span class="field">Utilisé par</span> dit combien de paiements citent le mode.</li>
+          <li>Un mode qui a servi se <b>retire</b> : éteignez <span class="field">Proposé</span>. Il disparaît des listes, les paiements passés le gardent.</li>
+          <li>Un mode <b>jamais utilisé</b> se <b>supprime</b> avec la corbeille rouge, après confirmation. Sur un mode utilisé, la corbeille est grisée.</li>
+          <li>Banque : la référence (n° de chèque, de virement) est demandée à chaque paiement.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="exercices">
+    <div class="step-num" aria-hidden="true">5</div>
+    <div class="step-body">
+      <h2>Créer l'exercice suivant</h2>
+      <p class="why">Une pièce ne peut être validée que si sa date tombe dans un exercice. Deux mois avant la fin de l'exercice en cours, sa pastille passe à l'orange pour le rappeler.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez <span class="field">Exercices</span> : la liste montre chaque exercice et ses dates, avec <span class="pill p-green">en cours</span> sur l'actuel.</li>
+          <li>Cliquez sur <span class="btn">Créer l'exercice …</span>, vérifiez les dates proposées, puis confirmez.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+
+  <article class="step" id="timbre">
+    <div class="step-num" aria-hidden="true">6</div>
+    <div class="step-body">
+      <h2>Consulter le droit de timbre</h2>
+      <p class="why">Ajouté aux factures de vente payées en espèces, sur le montant TTC, au centime, avec un minimum de 5 DA. Le barème suit la loi de finances et arrive avec l'application : il se consulte ici, il ne se modifie pas.</p>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Si le compte du timbre manque au plan comptable, la pastille passe au rouge et le timbre n'est pas ajouté : demandez à votre comptable de créer le compte.</li>
+          <li>Si la loi de finances change le barème, faites-le confirmer par votre comptable et demandez la mise à jour de l'application.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="messages">
+  <div class="section-head">
+    <span class="eyebrow">En cas de blocage</span>
+    <h2 id="messages">Les messages que vous pouvez voir</h2>
+  </div>
+  <div class="msgs">
+    <details><summary><q>Aucun exercice ne couvre aujourd'hui : aucune pièce ne peut être validée.</q></summary><p>Ouvrez <span class="field">Exercices</span> et créez l'exercice de l'année en cours.</p></details>
+    <details><summary><q>Le compte « … » est indispensable.</q></summary><p>Un champ obligatoire des comptes par défaut a été vidé. Choisissez-y un compte avant d'enregistrer.</p></details>
+    <details><summary><q>Le compte … ne convient pas pour « … ».</q></summary><p>Le compte n'est pas du bon type (par exemple un compte de charge pour <span class="field">Clients</span>). Choisissez un compte de la liste proposée.</p></details>
+    <details><summary><q>C'est le taux par défaut : choisissez-en un autre par défaut avant de le désactiver.</q></summary><p>Cochez d'abord le bouton rond d'un autre taux, puis retirez celui-ci.</p></details>
+    <details><summary><q>Le taux est un pourcentage entre 0 et 99.</q></summary><p>Dans <span class="btn alt">Nouveau taux</span>, tapez un nombre comme <span style="font-family:var(--mono)">19</span> ou <span style="font-family:var(--mono)">9</span>, sans le signe %.</p></details>
+    <details><summary><q>« … » est utilisé par … paiement(s) : il ne se supprime pas.</q></summary><p>Le mode a déjà servi. Éteignez son interrupteur <span class="field">Proposé</span> pour le retirer des listes.</p></details>
+    <details><summary><q>Choisissez un compte de banque ou de caisse de la société.</q></summary><p>Le compte d'un mode de paiement doit être un compte de trésorerie. Choisissez-le dans la liste.</p></details>
+    <details><summary><q>Ces réglages viennent d'être modifiés par ailleurs.</q></summary><p>Un collègue a changé la page pendant que vous l'aviez ouverte. Elle a été rechargée : vérifiez, puis recommencez.</p></details>
+  </div>
+</section>
+
+<footer>Unicare · Guide utilisateur, Comptabilité et trésorerie · version de travail, novembre 2026</footer>
+</div>
