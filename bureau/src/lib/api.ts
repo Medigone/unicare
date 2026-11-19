@@ -14,7 +14,7 @@ import type { InventaireDetail, InventaireOptions, InventairesResponse, Inventai
 import type { ChecklistLigne, ReglagesProduction } from './reglages'
 import type { Changements, LigneValeurs, LignesArticle, PrixLigne, PrixResponse, PrixVue, Regle, TarifCopie, TarifSens, TarifsReglages } from './tarifs'
 import type { ModePaiement, ModeType, ReglagesCompta, TauxTva, TvaSens } from './compta'
-import type { ListeCode, ListeResume, ListeValeur } from './listes'
+import type { Doublon, FichesValeur, ListeCode, ListeResume, ListeValeur } from './listes'
 import type { ParametresStock, ReglagesStock, SeuilLigne, SeuilsResponse, SeuilVue } from './reglagesStock'
 import type { ReglagesUtilisateurs, Utilisateur, UtilisateurForm } from './utilisateurs'
 import type { RecetteDetail, RecetteOptions, RecettesResponse, RecetteValues, RecetteView } from './recettes'
@@ -914,12 +914,22 @@ export const createExercice = () => call<ReglagesCompta>(`${COMPTA}.create_exerc
 const LISTES = 'unicare.api.bureau_listes'
 export const getListes = () => call<ListeResume[]>(`${LISTES}.get_listes`)
 export const getValeurs = (code: ListeCode) => call<ListeValeur[]>(`${LISTES}.get_valeurs`, { code })
-export const createValeur = (code: ListeCode, nom: string) => call<ListeValeur[]>(`${LISTES}.create_valeur`, { code, nom }, true)
+/** Nouvelle valeur ; dans un arbre, rangée dans `dossier` (racine sinon), ou nouveau dossier avec `estDossier`. */
+export const createValeur = (code: ListeCode, nom: string, dossier?: string | null, estDossier = false) =>
+	call<ListeValeur[]>(`${LISTES}.create_valeur`, { code, nom, dossier: dossier || undefined, est_dossier: estDossier ? 1 : 0 }, true)
+/** Range une valeur ou un dossier dans `dossier` (null : à la racine). */
+export const deplacerValeur = (code: ListeCode, valeur: Pick<ListeValeur, 'name' | 'modified'>, dossier: string | null) =>
+	call<ListeValeur[]>(`${LISTES}.deplacer`, { code, name: valeur.name, modified: valeur.modified, dossier: dossier || undefined }, true)
 export const renameValeur = (code: ListeCode, valeur: Pick<ListeValeur, 'name' | 'modified'>, nom: string) =>
 	call<ListeValeur[]>(`${LISTES}.rename_valeur`, { code, name: valeur.name, modified: valeur.modified, nom }, true)
 export const deleteValeur = (code: ListeCode, valeur: Pick<ListeValeur, 'name' | 'modified'>) => call<ListeValeur[]>(`${LISTES}.delete_valeur`, { code, name: valeur.name, modified: valeur.modified }, true)
 export const setUnite = (valeur: Pick<ListeValeur, 'name' | 'modified'>, changes: { actif?: boolean; entier?: boolean }) =>
 	call<ListeValeur[]>(`${LISTES}.set_unite`, { name: valeur.name, modified: valeur.modified, actif: changes.actif === undefined ? undefined : Number(changes.actif), entier: changes.entier === undefined ? undefined : Number(changes.entier) }, true)
+export const getDoublons = (code: ListeCode) => call<Doublon[]>(`${LISTES}.get_doublons`, { code })
+export const getFiches = (code: ListeCode, name: string) => call<FichesValeur>(`${LISTES}.get_fiches`, { code, name })
+/** Reclasse dans `cible` tout ce qui utilise la valeur, puis la supprime. */
+export const fusionnerValeur = (code: ListeCode, valeur: Pick<ListeValeur, 'name' | 'modified'>, cible: string) =>
+	call<ListeValeur[]>(`${LISTES}.fusionner`, { code, name: valeur.name, modified: valeur.modified, cible }, true)
 export const desactiverUnitesInutilisees = () => call<{ desactivees: number; valeurs: ListeValeur[] }>(`${LISTES}.desactiver_unites_inutilisees`, {}, true)
 
 const STOCK_REGLAGES = 'unicare.api.bureau_reglages_stock'

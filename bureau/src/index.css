@@ -2095,6 +2095,25 @@
 		padding-inline: 0.6875rem;
 		font-size: var(--text-sm);
 	}
+	/* Listes de choix : mêmes cartes que les tarifs, une ligne par liste. */
+	.tarifs-table.listes-table {
+		min-width: 36rem;
+	}
+	.listes-dossier {
+		background-color: var(--surface-gray-1);
+	}
+	.listes-puce {
+		flex: none;
+		width: 6px;
+		height: 6px;
+		margin: 0 0.6875rem 0 1.125rem;
+		border-radius: var(--radius-pill);
+		background-color: var(--control-border);
+	}
+	.listes-bar {
+		flex: 0 1 8rem;
+		height: 6px;
+	}
 	.tarif-source-choix {
 		display: flex;
 		flex-wrap: wrap;

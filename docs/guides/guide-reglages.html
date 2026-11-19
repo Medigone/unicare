@@ -279,7 +279,17 @@ ol.setup span { font-size: .9rem; color: var(--ink-2); }
     <div class="setting">
       <div><h3>Catégories de clients</h3><span class="who bureau">Bureau</span></div>
       <div class="where-to"><span>Réglages › Listes de choix › Catégories de clients</span>
-        <p class="effect-text">Les choix du champ <span class="field">Catégorie</span> de la fiche client (pharmacie, grossiste…). La catégorie est obligatoire à la création d'un client.</p></div>
+        <p class="effect-text">Les choix du champ <span class="field">Catégorie</span> de la fiche client (pharmacie, grossiste…). La catégorie est obligatoire à la création d'un client. Le nombre de clients de chaque catégorie ouvre la liste des clients filtrée sur elle.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Ranger les catégories en dossiers</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Listes de choix › Catégories de clients, de fournisseurs, Groupes d'articles</span>
+        <p class="effect-text">Ces listes sont des arbres : les valeurs se rangent dans des <b>dossiers</b> (par exemple « Emballages » qui contient « Flacons » et « Étiquettes »). Sur une fiche, on choisit toujours une valeur, jamais un dossier. <span class="btn alt">Nouveau dossier</span> en crée un ; le champ <span class="field">dans</span> choisit où ajouter une valeur ; l'icône Déplacer range une valeur ou un dossier ailleurs, sans rien changer aux fiches. Un dossier se supprime seulement vide.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Fusionner un doublon</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Listes de choix : l'icône Fusionner d'une valeur, ou le bandeau « … ressemble à … »</span>
+        <p class="effect-text">Pour deux valeurs qui désignent la même chose (« Pharmacie » et « Pharmacies ») : choisissez la valeur à garder, les fiches de l'autre y sont reclassées, puis elle est supprimée. Unicare repère lui-même les valeurs qui ne diffèrent que par les accents, la casse ou le pluriel ; <span class="btn alt">Ignorer</span> cache la suggestion. Cette action ne se défait pas, et les unités ne se fusionnent pas.</p></div>
     </div>
   </div>
 </section>

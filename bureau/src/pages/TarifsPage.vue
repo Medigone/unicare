@@ -485,7 +485,7 @@ onBeforeUnmount(closeRealtime)
 						</label>
 						<div class="seg flex-wrap" role="group" aria-label="Afficher">
 							<button v-for="item in vues" :key="item.key" type="button" :aria-pressed="vue === item.key" @click="vue = item.key">
-								{{ item.label }}<span v-if="reponse" class="tabular-nums text-ink-gray-6"> {{ reponse.compte[item.key] ?? 0 }}</span>
+								{{ item.label }}<span v-if="reponse" class="ml-1 tabular-nums text-ink-gray-6">{{ reponse.compte[item.key] ?? 0 }}</span>
 							</button>
 						</div>
 						<span class="flex-auto"></span>
