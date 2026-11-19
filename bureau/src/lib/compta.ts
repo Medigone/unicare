@@ -38,6 +38,8 @@ export interface ModePaiement {
 	compte: string | null
 	/** Compte pris quand le mode n'en a pas : la banque ou la caisse par défaut de la société. */
 	repli: string | null
+	/** Paiements et pièces qui citent ce mode : un mode utilisé ne se supprime pas. */
+	usages: number
 	modified: string
 }
 
@@ -64,6 +66,7 @@ export interface ReglagesCompta {
 		tva_creer: Record<TvaSens, boolean>
 		modes: boolean
 		modes_creer: boolean
+		modes_supprimer: boolean
 		exercices: boolean
 	}
 }
@@ -78,6 +81,24 @@ export const MODE_TYPES: { value: ModeType; label: string }[] = [
 	{ value: 'Bank', label: 'Banque' },
 	{ value: 'General', label: 'Autre' },
 ]
+
+/** Sections de la page, et les points du bilan qui en dépendent (le pire donne la couleur de la section). */
+export type ComptaSection = 'bilan' | 'comptes' | 'tva' | 'modes' | 'exercices' | 'timbre'
+export const SECTIONS: { key: ComptaSection; label: string; points: string[] }[] = [
+	{ key: 'bilan', label: "Vue d'ensemble", points: [] },
+	{ key: 'comptes', label: 'Comptes par défaut', points: ['plan', 'comptes'] },
+	{ key: 'tva', label: 'TVA', points: ['tva_vente', 'tva_achat'] },
+	{ key: 'modes', label: 'Modes de paiement', points: ['modes'] },
+	{ key: 'exercices', label: 'Exercices', points: ['exercice'] },
+	{ key: 'timbre', label: 'Droit de timbre', points: ['timbre'] },
+]
+
+/** L'état le plus grave d'une liste de points : manque, puis attention, sinon ok. */
+export function pireEtat(etats: BilanEtat[]): BilanEtat {
+	if (etats.includes('manque')) return 'manque'
+	if (etats.includes('attention')) return 'attention'
+	return 'ok'
+}
 
 export const ETAT_LABELS: Record<BilanEtat, string> = { ok: 'En place', attention: 'À vérifier', manque: 'À régler' }
 

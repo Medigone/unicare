@@ -25,7 +25,9 @@ class TestCompta(FrappeTestCase):
 		reponse = C.get_compta()
 		self.assertEqual(reponse["societe"]["name"], self.company)
 		codes = [row["code"] for row in reponse["bilan"]]
-		self.assertEqual(codes, ["exercice", "plan", "comptes", "tva_vente", "tva_achat", "modes", "timbre", "tarifs"])
+		self.assertEqual(
+			codes, ["exercice", "plan", "comptes", "tva_vente", "tva_achat", "modes", "timbre", "tarifs"]
+		)
 		for row in reponse["bilan"]:
 			self.assertIn(row["etat"], ("ok", "attention", "manque"))
 		clients = reponse["comptes"]["options"]["default_receivable_account"]
@@ -67,14 +69,20 @@ class TestCompta(FrappeTestCase):
 			C.set_tva("vente", taux["name"], taux["modified"], "desactiver")
 		ancien = next(row for row in reponse["tva"]["vente"] if row["name"] == ancien["name"])
 		reponse = C.set_tva("vente", ancien["name"], ancien["modified"], "desactiver")
-		self.assertFalse(next(row for row in reponse["tva"]["vente"] if row["name"] == ancien["name"])["actif"])
+		self.assertFalse(
+			next(row for row in reponse["tva"]["vente"] if row["name"] == ancien["name"])["actif"]
+		)
 
 		reponse = C.create_tva("achat", "13,5")
 		self.assertTrue(any(row["titre"] == "TVA déductible 13,5%" for row in reponse["tva"]["achat"]))
 
 	def test_modes_de_paiement(self):
 		reponse = C.get_compta()
-		banque = next(c for c in reponse["comptes_tresorerie"] if frappe.db.get_value("Account", c, "account_type") == "Bank")
+		banque = next(
+			c
+			for c in reponse["comptes_tresorerie"]
+			if frappe.db.get_value("Account", c, "account_type") == "Bank"
+		)
 		reponse = C.save_mode(values={"nom": "Essai compta mode", "type": "Bank", "compte": banque})
 		mode = next(row for row in reponse["modes"] if row["name"] == "Essai compta mode")
 		self.assertEqual((mode["type"], mode["compte"], mode["actif"]), ("Bank", banque, True))
@@ -82,7 +90,11 @@ class TestCompta(FrappeTestCase):
 		mode = next(row for row in reponse["modes"] if row["name"] == "Essai compta mode")
 		self.assertEqual((mode["compte"], mode["actif"]), (None, False))
 		with self.assertRaises(frappe.ValidationError):
-			C.save_mode(mode["name"], mode["modified"], {"type": "Bank", "compte": reponse["comptes"]["options"]["default_receivable_account"][0]})
+			C.save_mode(
+				mode["name"],
+				mode["modified"],
+				{"type": "Bank", "compte": reponse["comptes"]["options"]["default_receivable_account"][0]},
+			)
 		with self.assertRaises(frappe.ValidationError):
 			C.save_mode(values={"nom": "Essai compta mode", "type": "Bank"})
 
@@ -115,3 +127,34 @@ class TestCompta(FrappeTestCase):
 				C.get_compta()
 			with self.assertRaises(frappe.PermissionError):
 				C.create_exercice()
+
+
+class TestSuppressionMode(FrappeTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def _mode(self, reponse, nom):
+		return next((row for row in reponse["modes"] if row["name"] == nom), None)
+
+	def test_supprimer_un_mode_jamais_utilise(self):
+		reponse = C.save_mode(values={"nom": "Essai compta jetable", "type": "Cash"})
+		mode = self._mode(reponse, "Essai compta jetable")
+		self.assertEqual(mode["usages"], 0)
+		with self.assertRaises(frappe.TimestampMismatchError):
+			C.delete_mode(mode["name"], "2000-01-01 00:00:00")
+		reponse = C.delete_mode(mode["name"], mode["modified"])
+		self.assertIsNone(self._mode(reponse, "Essai compta jetable"))
+		self.assertTrue(C.get_compta()["droits"]["modes_supprimer"])
+
+	def test_un_mode_utilise_ne_se_supprime_pas(self):
+		reponse = C.save_mode(values={"nom": "Essai compta servi", "type": "Cash"})
+		mode = self._mode(reponse, "Essai compta servi")
+		with patch.object(C, "_usages_modes", return_value={"Essai compta servi": 3}):
+			self.assertEqual(self._mode(C.get_compta(), "Essai compta servi")["usages"], 3)
+			with self.assertRaises(frappe.ValidationError):
+				C.delete_mode(mode["name"], mode["modified"])
+		self.assertTrue(frappe.db.exists("Mode of Payment", "Essai compta servi"))

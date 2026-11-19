@@ -127,6 +127,21 @@ def _tva(company, sens):
 	]
 
 
+# Pièces qui citent un mode de paiement : un mode cité ne se supprime pas (il se retire des listes).
+USAGES_MODE = (("Payment Entry", "mode_of_payment"), ("Sales Invoice Payment", "mode_of_payment"), ("Journal Entry", "mode_of_payment"))
+
+
+def _usages_modes():
+	"""{mode: nombre de paiements et pièces qui le citent}."""
+	usages = {}
+	for doctype, field in USAGES_MODE:
+		if not frappe.db.has_column(doctype, field):
+			continue
+		for row in frappe.get_all(doctype, filters={field: ["is", "set"]}, fields=[field, "count(*) as n"], group_by=field):
+			usages[row[field]] = usages.get(row[field], 0) + row.n
+	return usages
+
+
 def _modes(company):
 	societe = frappe.get_cached_value(SOCIETE, company, ["default_bank_account", "default_cash_account"], as_dict=True)
 	comptes = {
@@ -135,11 +150,13 @@ def _modes(company):
 			"Mode of Payment Account", filters={"company": company}, fields=["parent", "default_account"]
 		)
 	}
+	usages = _usages_modes()
 	return [
 		{
 			"name": row.name,
 			"type": row.type,
 			"actif": bool(cint(row.enabled)),
+			"usages": usages.get(row.name, 0),
 			"compte": comptes.get(row.name),
 			# Compte pris quand le mode n'en a pas (voir bureau_factures._payment_account).
 			"repli": societe.default_cash_account if row.type == "Cash" else societe.default_bank_account,
@@ -306,6 +323,7 @@ def get_compta():
 			"tva_creer": {sens: bool(frappe.has_permission(TVA[sens][0], "create")) for sens in TVA},
 			"modes": bool(frappe.has_permission(MODE, "write")),
 			"modes_creer": bool(frappe.has_permission(MODE, "create")),
+			"modes_supprimer": bool(frappe.has_permission(MODE, "delete")),
 			"exercices": bool(frappe.has_permission(EXERCICE, "create")),
 		},
 	}
@@ -456,4 +474,30 @@ def create_exercice():
 	doc = frappe.new_doc(EXERCICE)
 	doc.update({"year": suivant["name"], "year_start_date": suivant["debut"], "year_end_date": suivant["fin"]})
 	doc.insert()
+	return get_compta()
+
+
+@frappe.whitelist(methods=["POST"])
+def delete_mode(name, modified):
+	"""Supprime un mode de paiement jamais utilisé. Un mode utilisé se retire des listes (actif décoché)."""
+	require_bureau()
+	doc = frappe.get_doc(MODE, name)
+	doc.check_permission("delete")
+	_stale(doc, modified)
+	usages = _usages_modes().get(doc.name, 0)
+	if usages:
+		frappe.throw(
+			_("« {0} » est utilisé par {1} paiement(s) : il ne se supprime pas. Retirez-le plutôt des listes.").format(
+				doc.name, usages
+			)
+		)
+	try:
+		frappe.delete_doc(MODE, doc.name)
+	except frappe.LinkExistsError:
+		frappe.clear_last_message()
+		frappe.throw(
+			_("« {0} » est encore cité par une pièce : il ne se supprime pas. Retirez-le plutôt des listes.").format(
+				doc.name
+			)
+		)
 	return get_compta()

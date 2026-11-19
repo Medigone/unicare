@@ -2175,6 +2175,84 @@
 		padding-inline: 0.6875rem;
 		font-size: var(--text-sm);
 	}
+	/* Comptabilité : pastilles d'état des sections, barre du bilan, points à régler, groupes de comptes. */
+	.compta-pastille {
+		flex: none;
+		width: 8px;
+		height: 8px;
+		border-radius: var(--radius-pill);
+		background-color: var(--tone-green-ink);
+	}
+	.compta-pastille.is-attention,
+	.compta-segments > .is-attention {
+		background-color: var(--tone-orange-bar);
+	}
+	.compta-pastille.is-manque,
+	.compta-segments > .is-manque {
+		background-color: var(--tone-red-ink);
+	}
+	.compta-segments {
+		display: flex;
+		gap: 4px;
+	}
+	.compta-segments > span {
+		flex: 1 1 0;
+		height: 8px;
+		border-radius: var(--radius-pill);
+		background-color: var(--tone-green-ink);
+	}
+	.compta-bande {
+		margin: 0;
+		padding: 0.625rem 1rem;
+		border-top: 1px solid var(--line-soft);
+		background-color: var(--surface-gray-1);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		@apply text-ink-gray-6;
+	}
+	.compta-point {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		gap: 0.75rem;
+		padding: 0.875rem 1rem;
+		border-top: 1px solid var(--line-soft);
+	}
+	.compta-point.is-manque {
+		background-color: var(--tone-red-soft);
+	}
+	.compta-point-icone {
+		flex: none;
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+	.compta-orange {
+		color: var(--tone-orange-ink);
+	}
+	.compta-ok {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+		border-top: 1px solid var(--line-soft);
+	}
+	.compta-groupes {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+		gap: 1rem;
+		padding: 0.75rem 1rem 1.25rem;
+	}
+	.compta-groupe-carte {
+		display: flex;
+		flex-direction: column;
+		gap: 0.875rem;
+		padding: 0.875rem 1rem;
+		border: 1px solid var(--outline-gray-2);
+		border-radius: var(--radius-field);
+	}
+	.compta-defaut {
+		background-color: var(--tone-green-soft);
+	}
 	.stock-groupe-titre {
 		margin: 0.75rem 0 0.625rem;
 		font-size: var(--text-xs);

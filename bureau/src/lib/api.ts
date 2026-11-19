@@ -909,6 +909,7 @@ export const saveComptes = (modified: string, values: Record<string, string>) =>
 export const setTva = (sens: TvaSens, taux: Pick<TauxTva, 'name' | 'modified'>, action: 'defaut' | 'activer' | 'desactiver') =>
 	call<ReglagesCompta>(`${COMPTA}.set_tva`, { sens, name: taux.name, modified: taux.modified, action }, true)
 export const createTva = (sens: TvaSens, taux: string) => call<ReglagesCompta>(`${COMPTA}.create_tva`, { sens, taux }, true)
+export const deleteMode = (mode: Pick<ModePaiement, 'name' | 'modified'>) => call<ReglagesCompta>(`${COMPTA}.delete_mode`, { name: mode.name, modified: mode.modified }, true)
 export const saveMode = (mode: Pick<ModePaiement, 'name' | 'modified'> | null, values: { nom?: string; type: ModeType; compte: string; actif: boolean }) =>
 	call<ReglagesCompta>(`${COMPTA}.save_mode`, { name: mode?.name, modified: mode?.modified, values }, true)
 export const createExercice = () => call<ReglagesCompta>(`${COMPTA}.create_exercice`, {}, true)
