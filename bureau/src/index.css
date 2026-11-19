@@ -1342,10 +1342,14 @@
 
 /* Tableaux de bord des modules : indicateurs, graphiques et listes « À traiter ». La page défile en entier. */
 @layer components {
+	/* La page défile sur toute la largeur (la barre reste au bord de la fenêtre) ; le contenu, lui, reste centré
+	   dans les 1680px de `.bureau-work` grâce aux marges intérieures. */
 	.tdb {
 		gap: 1rem;
+		max-width: none;
 		overflow-y: auto;
 		padding-block: 1rem 1.5rem;
+		padding-inline: max(1rem, calc((100% - 1680px) / 2 + 1rem));
 	}
 	.tdb-head {
 		display: flex;
