@@ -54,6 +54,8 @@ DOCTYPES_INTERFACE = (
 	"Price List",
 	# Réglages, page Comptabilité.
 	"Account",
+	# Réglages, page Société.
+	"Company",
 	# Réglages, page Listes de choix.
 	"Quotation Lost Reason",
 	"Customer Group",

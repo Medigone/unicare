@@ -26,7 +26,7 @@ describe('postes du bureau', () => {
 		expect(pages('conditionnement', 'stock')).toEqual(['tableau-stock', 'etat-stock', 'mouvements', 'inventaires', 'lots', 'articles', 'depots'])
 		expect(pages('conditionnement', 'tresorerie')).toEqual(['tableau-tresorerie', 'paiements'])
 		expect(pages('conditionnement', 'production')).toEqual(['tableau-production', 'ordres', 'recettes', 'reglages-production'])
-		expect(pages('conditionnement', 'reglages')).toEqual(['tarifs', 'listes', 'reglages-stock', 'compta', 'utilisateurs', 'reglages-aide'])
+		expect(pages('conditionnement', 'reglages')).toEqual(['societe', 'tarifs', 'listes', 'reglages-stock', 'compta', 'utilisateurs', 'reglages-aide'])
 	})
 
 	it('retire une page non lue, puis le module resté vide', () => {
@@ -36,7 +36,7 @@ describe('postes du bureau', () => {
 		expect(modules('conditionnement')).not.toContain('tresorerie')
 		window.droits = noRead('Ordre de Conditionnement', 'Recette de Conditionnement', 'Checklist Ordre Conditionnement')
 		expect(modules('conditionnement')).not.toContain('production')
-		window.droits = noRead('Item Price', 'Account', 'Quotation Lost Reason', 'Item', 'User', 'Article Aide')
+		window.droits = noRead('Company', 'Item Price', 'Account', 'Quotation Lost Reason', 'Item', 'User', 'Article Aide')
 		expect(modules('conditionnement')).not.toContain('reglages')
 	})
 

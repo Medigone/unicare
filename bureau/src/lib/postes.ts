@@ -22,6 +22,7 @@ import LucideChartColumn from '~icons/lucide/chart-column'
 import LucideSettings2 from '~icons/lucide/settings-2'
 import LucideTags from '~icons/lucide/tags'
 import LucideBookOpen from '~icons/lucide/book-open'
+import LucideBuilding from '~icons/lucide/building'
 import LucideLandmark from '~icons/lucide/landmark'
 import LucideListChecks from '~icons/lucide/list-checks'
 import LucideUsers from '~icons/lucide/users'
@@ -162,6 +163,7 @@ export const NAV: Record<string, PosteModule[]> = {
 			label: 'Réglages',
 			icon: LucideSettings2,
 			groups: [
+				{ title: 'Société', items: [{ id: 'societe', label: 'Société', icon: LucideBuilding, to: { name: 'Societe' }, doctype: 'Company' }] },
 				{
 					title: 'Ventes et achats',
 					items: [

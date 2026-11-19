@@ -1,6 +1,6 @@
 /** Appels du poste de bureau. Les règles restent côté serveur (unicare/api/bureau_*.py). */
 import type { ActivityApi, ActivityFeedData, Mention } from '@shared/activity'
-import { call } from '@shared/api'
+import { call, callForm } from '@shared/api'
 import type { BulkItem, BulkOptions, BulkResult, Option } from '@/types'
 import type { ArticleChoice, ArticleDetail, ArticleOptions, ArticlesResponse, ArticleValues, ArticleView } from './articles'
 import type { CommandeDetail, CommandeOptions, CommandesResponse, CommandeView, StatusAction } from './commandes'
@@ -988,3 +988,52 @@ export const saveArticleAide = (article: Pick<AideEdition, 'slug' | 'modified'>,
 export const createArticleAide = (valeurs: AideValeurs) => call<AideEdition>(`${AIDE}.create_article`, { valeurs }, true)
 export const deleteArticleAide = (article: Pick<AideEdition, 'slug' | 'modified'>) => call<{ ok: boolean }>(`${AIDE}.delete_article`, { slug: article.slug, modified: article.modified }, true)
 export const apercuAide = (markdown: string) => call<AideApercu>(`${AIDE}.apercu`, { markdown }, true)
+
+// ---------------------------------------------------------------------------- Réglages › Société
+
+const SOCIETE = 'unicare.api.bureau_societe'
+export interface SocieteValeurs {
+	raison_sociale: string
+	forme_juridique: string
+	capital_social: number | string
+	adresse: string
+	wilaya: string
+	commune: string
+	telephone: string
+	email: string
+	site_web: string
+	rc: string
+	nif: string
+	nis: string
+	ai: string
+	banque: string
+	rib: string
+}
+export interface SocieteLieu {
+	name: string
+	nom: string
+	code?: string
+}
+export interface Societe {
+	name: string
+	nom_erp: string
+	modified: string
+	valeurs: SocieteValeurs
+	logo: string
+	wilayas: SocieteLieu[]
+	communes: SocieteLieu[]
+	mentions: { cle: keyof SocieteValeurs; label: string; ok: boolean }[]
+	peut_modifier: boolean
+	avertissements: string[]
+}
+export const getSociete = () => call<Societe>(`${SOCIETE}.get_societe`)
+export const getCommunesSociete = (wilaya: string) => call<SocieteLieu[]>(`${SOCIETE}.get_communes`, { wilaya })
+export const saveSociete = (modified: string, valeurs: SocieteValeurs) => call<Societe>(`${SOCIETE}.save_societe`, { modified, valeurs }, true)
+export const supprimerLogoSociete = (modified: string) => call<Societe>(`${SOCIETE}.supprimer_logo`, { modified }, true)
+export function envoyerLogoSociete(modified: string, fichier: File) {
+	const form = new FormData()
+	form.append('modified', modified)
+	form.append('file', fichier, fichier.name)
+	return callForm<Societe>(`${SOCIETE}.envoyer_logo`, form)
+}
+export const apercuSocieteUrl = () => `/api/method/${SOCIETE}.apercu_pdf`

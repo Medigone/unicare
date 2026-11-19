@@ -39,7 +39,8 @@
 			<div class="u-raison">{{ s.nom }}</div>
 			{%- if s.forme or s.capital %}<div>{{ s.forme }}{% if s.capital %} au capital de {{ s.capital }} DA{% endif %}</div>{% endif %}
 			{%- if s.adresse %}<div>{{ s.adresse }}</div>{% endif %}
-			{%- if s.telephone or s.email %}<div>{% if s.telephone %}Tél. {{ s.telephone }}{% endif %}{% if s.telephone and s.email %} · {% endif %}{{ s.email }}</div>{% endif %}
+			{%- set contacts = [("Tél. " ~ s.telephone) if s.telephone else "", s.email, s.site] | select | list %}
+			{%- if contacts %}<div>{{ contacts | join(" · ") }}</div>{% endif %}
 		</td>
 		<td class="u-titre">
 			<h1{% if c.titre | length > 18 %} class="u-long"{% endif %}>{{ c.titre }}</h1>

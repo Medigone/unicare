@@ -44,7 +44,20 @@ def societe(company):
 		"nom": (c.get("unicare_raison_sociale") or "").strip() or c.company_name,
 		"forme": (c.get("unicare_forme_juridique") or "").strip(),
 		"capital": montant(capital, 0) if capital else "",
-		"adresse": _texte(c.get("unicare_adresse")),
+		"adresse": ", ".join(
+			p
+			for p in (
+				_texte(c.get("unicare_adresse")),
+				frappe.db.get_value("Commune", c.get("unicare_commune"), "nom")
+				if c.get("unicare_commune")
+				else "",
+				frappe.db.get_value("Wilaya", c.get("unicare_wilaya"), "nom")
+				if c.get("unicare_wilaya")
+				else "",
+			)
+			if p
+		),
+		"site": c.website or "",
 		"telephone": c.phone_no or "",
 		"email": c.email or "",
 		"logo": c.company_logo or "",
