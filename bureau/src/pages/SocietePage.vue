@@ -138,7 +138,7 @@ const capitalTexte = computed(() => {
 </script>
 
 <template>
-	<BureauShell :crumbs="[{ label: 'Réglages' }, { label: 'Société' }]" active="societe">
+	<BureauShell :crumbs="[{ label: 'Société' }]" active="societe">
 		<div class="bureau-work tdb">
 			<div>
 				<h1 class="text-[20px] font-semibold leading-tight text-ink-gray-9">Société</h1>

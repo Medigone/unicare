@@ -195,7 +195,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<BureauShell :crumbs="slug ? [{ label: 'Réglages' }, { label: 'Aide', to: { name: 'ReglagesAide' } }, { label: article?.titre || '…' }] : [{ label: 'Réglages' }, { label: 'Aide' }]" active="reglages-aide">
+	<BureauShell :crumbs="slug ? [{ label: 'Aide', to: { name: 'ReglagesAide' } }, { label: article?.titre || '…' }] : [{ label: 'Aide' }]" active="reglages-aide">
 		<div class="bureau-work" :class="slug && 'tdb'">
 			<AideArticleList v-show="!slug" :state="state" :selected="slug || undefined" @open="ouvrir" @create="ouvrirCreation" @changed="state.load()" />
 

@@ -274,7 +274,7 @@ onMounted(load)
 </script>
 
 <template>
-	<BureauShell :crumbs="[{ label: 'Réglages' }, { label: 'Stock et seuils' }]" active="reglages-stock">
+	<BureauShell :crumbs="[{ label: 'Stock et seuils' }]" active="reglages-stock">
 		<div class="bureau-work tdb">
 			<div>
 				<h1 class="text-[20px] font-semibold leading-tight text-ink-gray-9">Stock et seuils</h1>

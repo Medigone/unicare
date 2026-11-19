@@ -104,11 +104,11 @@ onBeforeUnmount(() => {
 <template>
 	<div class="app-shell" :data-collapsed="collapsed" :data-panel="hasPanel">
 		<header class="app-topbar">
-			<button v-if="hasPanel" type="button" class="app-icon-bare app-collapse" :aria-label="collapsed ? 'Ouvrir le menu du module' : 'Replier le menu du module'" :title="collapsed ? 'Ouvrir le menu du module' : 'Replier le menu du module'" :aria-expanded="!collapsed" @click="toggle">
-				<LucidePanelLeft class="h-4 w-4" aria-hidden="true" />
-			</button>
-			<span title="Unicare"><BrandMark mark-only /></span>
-			<slot name="poste"><span class="app-poste">{{ poste }}</span></slot>
+			<!-- Le bas du « U. » sur la ligne de base du nom : la marque et le nom se lisent d'un bloc. -->
+			<span class="app-marque">
+				<span title="Unicare Pharma"><BrandMark mark-only /></span>
+				<slot name="poste"><span class="app-poste">{{ poste }}</span></slot>
+			</span>
 			<nav class="app-crumbs" aria-label="Fil d'Ariane">
 				<template v-for="(crumb, index) in crumbs" :key="index">
 					<span class="app-crumb-sep" aria-hidden="true">/</span>
@@ -153,6 +153,10 @@ onBeforeUnmount(() => {
 					<span class="app-rail-label">{{ module.label }}</span>
 				</a>
 			</template>
+			<!-- En bas du rail : la barre du haut ne porte que la marque et le fil d'Ariane. -->
+			<button v-if="hasPanel" type="button" class="app-icon-bare app-collapse" :aria-label="collapsed ? 'Ouvrir le menu du module' : 'Replier le menu du module'" :title="collapsed ? 'Ouvrir le menu du module' : 'Replier le menu du module'" :aria-expanded="!collapsed" @click="toggle">
+				<LucidePanelLeft class="h-4 w-4" aria-hidden="true" />
+			</button>
 		</nav>
 
 		<div

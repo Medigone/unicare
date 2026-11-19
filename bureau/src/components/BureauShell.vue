@@ -73,7 +73,7 @@ const panelLabel = computed(() => (currentModule.value?.groups.length ? currentM
 </script>
 
 <template>
-	<AppShell :poste="postes.length > 1 ? currentPoste.label : 'Unicare'" :modules="navModules" :module-label="panelLabel" :groups="navGroups" :crumbs="shellCrumbs" :user-name="userName" :initials="initials(userName)" storage-key="bureau-menu">
+	<AppShell :poste="postes.length > 1 ? currentPoste.label : 'Unicare Pharma'" :modules="navModules" :module-label="panelLabel" :groups="navGroups" :crumbs="shellCrumbs" :user-name="userName" :initials="initials(userName)" storage-key="bureau-menu">
 		<template v-if="postes.length > 1" #poste>
 			<HeaderMenu :label="currentPoste.label" value="" aria-label="Changer de poste">
 				<template #default="{ close }">

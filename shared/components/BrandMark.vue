@@ -7,10 +7,12 @@ withDefaults(defineProps<{ size?: 'md' | 'lg'; markOnly?: boolean }>(), { size: 
      Tout suit la couleur du texte, en clair comme en sombre. -->
 <template>
 	<div class="flex items-center" :class="size === 'lg' ? 'gap-3' : 'gap-2'">
-		<svg viewBox="0 0 100 100" class="shrink-0 text-ink-gray-9" :class="size === 'lg' ? 'h-12 w-12' : 'h-7 w-7'" aria-hidden="true">
+		<!-- Avec le nom, le dessin remonte pour que le bas du « U. » (82 % de sa hauteur) pose sur la ligne de base du texte,
+		     comme dans la barre du haut ; la mise en page, elle, reste centrée. -->
+		<svg viewBox="0 0 100 100" class="shrink-0 text-ink-gray-9" :class="[size === 'lg' ? 'h-12 w-12' : 'h-7 w-7', !markOnly && (size === 'lg' ? '-translate-y-[9px]' : '-translate-y-[4.5px]')]" aria-hidden="true">
 			<path fill="currentColor" d="M11 18h17v38a9 9 0 0 0 18 0V18h17v38a26 26 0 0 1-52 0Z" />
 			<circle cx="80.5" cy="73.5" r="8.5" fill="currentColor" />
 		</svg>
-		<p v-if="!markOnly" class="min-w-0 truncate font-bold tracking-tight" :class="size === 'lg' ? 'text-xl' : 'text-sm'">Unicare</p>
+		<p v-if="!markOnly" class="min-w-0 truncate font-bold tracking-tight" :class="size === 'lg' ? 'text-xl' : 'text-sm'">Unicare Pharma</p>
 	</div>
 </template>

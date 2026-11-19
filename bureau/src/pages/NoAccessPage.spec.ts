@@ -57,7 +57,7 @@ describe('garde des pages et choix du poste', () => {
 	it("affiche le nom de l'application avec un seul poste", async () => {
 		window.postes = [{ key: 'conditionnement', label: 'Conditionnement' }]
 		const { wrapper } = await open('/')
-		expect(wrapper.find('.app-poste').text()).toBe('Unicare')
+		expect(wrapper.find('.app-poste').text()).toBe('Unicare Pharma')
 		expect(wrapper.find('[aria-label="Changer de poste"]').exists()).toBe(false)
 		wrapper.unmount()
 	})

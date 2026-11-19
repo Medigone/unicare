@@ -174,7 +174,7 @@ onMounted(load)
 </script>
 
 <template>
-	<BureauShell :crumbs="[{ label: 'Réglages' }, { label: 'Comptabilité et trésorerie' }]" active="compta">
+	<BureauShell :crumbs="[{ label: 'Comptabilité et trésorerie' }]" active="compta">
 		<div class="bureau-work tdb">
 			<div>
 				<h1 class="text-[20px] font-semibold leading-tight text-ink-gray-9">Comptabilité et trésorerie</h1>

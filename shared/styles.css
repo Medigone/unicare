@@ -293,6 +293,17 @@
 		border-radius: var(--radius-control);
 		@apply text-ink-gray-7 hover:bg-surface-gray-2;
 	}
+	.app-marque {
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	/* Centré, le bas du dessin « U. » (82 % de sa hauteur) tombe sous la ligne de base du nom : on le remonte d'autant,
+	   sans toucher à la mise en page, pour que la marque et le nom posent sur la même ligne. */
+	.app-marque svg {
+		transform: translateY(-4.5px);
+	}
 	.app-poste {
 		flex: none;
 		padding-inline: 0.25rem;
@@ -381,6 +392,13 @@
 		border-right: 1px solid var(--outline-gray-2);
 		background-color: var(--surface-white);
 		scrollbar-width: none;
+	}
+	.app-rail .app-collapse {
+		margin-top: auto;
+	}
+	/* Le logo (28 px) centré au-dessus du rail des modules. */
+	.app-topbar {
+		padding-left: calc((var(--module-rail) - 1.75rem) / 2);
 	}
 	.app-rail-item {
 		display: flex;
@@ -547,6 +565,9 @@
 		}
 		.app-collapse {
 			display: none;
+		}
+		.app-topbar {
+			padding-left: 0.75rem;
 		}
 		.app-rail {
 			position: fixed;

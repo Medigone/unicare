@@ -245,7 +245,7 @@ onMounted(load)
 </script>
 
 <template>
-	<BureauShell :crumbs="[{ label: 'Réglages' }, { label: 'Utilisateurs' }]" active="utilisateurs">
+	<BureauShell :crumbs="[{ label: 'Utilisateurs' }]" active="utilisateurs">
 		<div class="bureau-work tdb">
 			<div class="flex flex-wrap items-end gap-3">
 				<div class="min-w-0 flex-[1_1_24rem]">

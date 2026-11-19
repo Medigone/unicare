@@ -281,7 +281,7 @@ onMounted(loadListes)
 </script>
 
 <template>
-	<BureauShell :crumbs="[{ label: 'Réglages' }, { label: 'Listes de choix' }]" active="listes">
+	<BureauShell :crumbs="[{ label: 'Listes de choix' }]" active="listes">
 		<div class="bureau-work tdb">
 			<div>
 				<h1 class="text-[20px] font-semibold leading-tight text-ink-gray-9">Listes de choix</h1>
