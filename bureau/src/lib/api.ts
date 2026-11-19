@@ -17,6 +17,7 @@ import type { ModePaiement, ModeType, ReglagesCompta, TauxTva, TvaSens } from '.
 import type { Doublon, FichesValeur, ListeCode, ListeResume, ListeValeur } from './listes'
 import type { ParametresStock, ReglagesStock, SeuilLigne, SeuilsResponse, SeuilVue, ACommander } from './reglagesStock'
 import type { ReglagesUtilisateurs, Utilisateur, UtilisateurForm } from './utilisateurs'
+import type { AideAccueil, AideApercu, AideArticle, AideCarte, AideCategorie, AideEdition, AideListe, AideRecherche, AideValeurs } from './aide'
 import type { RecetteDetail, RecetteOptions, RecettesResponse, RecetteValues, RecetteView } from './recettes'
 import type { Besoin, OrdreDetail, OrdreOptions, OrdresResponse, OrdreValues, OrdreView } from './ordres'
 import type { MouvementDetail, MouvementOptions, MouvementsResponse, MouvementValues, MouvementView, StockArticleChoice } from './mouvements'
@@ -956,3 +957,19 @@ export const saveUtilisateur = (compte: Pick<Utilisateur, 'name' | 'modified'> |
 export const saveRoles = (changements: { name: string; modified: string; roles: string[] }[]) => call<ReglagesUtilisateurs>(`${UTILISATEURS}.save_roles`, { changements }, true)
 export const setMotDePasse = (compte: Pick<Utilisateur, 'name' | 'modified'>, motDePasse: string) =>
 	call<ReglagesUtilisateurs>(`${UTILISATEURS}.set_mot_de_passe`, { name: compte.name, modified: compte.modified, mot_de_passe: motDePasse }, true)
+
+const AIDE = 'unicare.api.bureau_aide'
+/** Centre d'aide : lecture des articles publiés. */
+export const getAideAccueil = (ecran?: string) => call<AideAccueil>(`${AIDE}.get_accueil`, { ecran: ecran || null })
+export const getAideContexte = (ecran?: string) => call<{ sur_cette_page: AideCarte[] }>(`${AIDE}.get_contexte`, { ecran: ecran || null })
+export const rechercherAide = (q: string, ecran?: string) => call<AideRecherche>(`${AIDE}.rechercher`, { q, ecran: ecran || null })
+export const getAideCategorie = (slug: string) => call<AideCategorie>(`${AIDE}.get_categorie`, { slug })
+export const getAideArticle = (slug: string) => call<AideArticle>(`${AIDE}.get_article`, { slug })
+/** Réglages › Aide : édition des articles. */
+export const listArticlesAide = () => call<AideListe>(`${AIDE}.list_articles`)
+export const getArticleAideEdition = (slug: string) => call<AideEdition>(`${AIDE}.get_article_edition`, { slug })
+export const saveArticleAide = (article: Pick<AideEdition, 'slug' | 'modified'>, valeurs: AideValeurs) =>
+	call<AideEdition>(`${AIDE}.save_article`, { slug: article.slug, modified: article.modified, valeurs }, true)
+export const createArticleAide = (valeurs: AideValeurs) => call<AideEdition>(`${AIDE}.create_article`, { valeurs }, true)
+export const deleteArticleAide = (article: Pick<AideEdition, 'slug' | 'modified'>) => call<{ ok: boolean }>(`${AIDE}.delete_article`, { slug: article.slug, modified: article.modified }, true)
+export const apercuAide = (markdown: string) => call<AideApercu>(`${AIDE}.apercu`, { markdown }, true)

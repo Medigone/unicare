@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
+import LucideCircleHelp from '~icons/lucide/circle-help'
 import LucideLogOut from '~icons/lucide/log-out'
 import LucideMoon from '~icons/lucide/moon'
 import LucideSun from '~icons/lucide/sun'
 import AppShell from '@shared/components/AppShell.vue'
 import { realtimeConnected } from '@shared/realtime'
 import type { Crumb, NavGroup, NavModule } from '@shared/shell'
+import AideBouton from '@/aide/AideBouton.vue'
+import AidePanneau from '@/aide/AidePanneau.vue'
 import GotoPalette from './GotoPalette.vue'
 import HeaderMenu from './HeaderMenu.vue'
+import { aidePanneau, ecranCourant } from '@/lib/aide'
 import { logout } from '@/lib/api'
 import { initials } from '@/lib/display'
 import { activePoste, availablePostes, moduleOf, moduleTarget, navFor, pagesFor, setPoste } from '@/lib/postes'
@@ -19,6 +23,14 @@ import { useAppTheme } from '@/lib/theme'
 const props = defineProps<{ crumbs: Crumb[]; active?: string }>()
 
 const router = useRouter()
+// L'aide propose d'abord les articles de l'écran ouvert.
+watch(
+	() => props.active,
+	(active) => {
+		ecranCourant.value = active || ''
+	},
+	{ immediate: true },
+)
 const userName = window.user_fullname || window.user || ''
 const theme = useAppTheme()
 const nextThemeLabel = computed(() => (theme.resolved.value === 'dark' ? 'Passer en thème clair' : 'Passer en thème sombre'))
@@ -71,6 +83,7 @@ const panelLabel = computed(() => (currentModule.value?.groups.length ? currentM
 		</template>
 		<template #search><GotoPalette :pages="pages" /></template>
 		<template #status>
+			<AideBouton />
 			<span class="live-status" :data-live="realtimeConnected" :title="realtimeConnected ? 'Les changements faits ailleurs arrivent seuls' : 'Les changements faits ailleurs n\'arrivent plus seuls : actualisez la page'">
 				<i aria-hidden="true"></i>
 				<span>{{ realtimeConnected ? 'À jour' : 'Temps réel coupé' }}</span>
@@ -82,6 +95,10 @@ const panelLabel = computed(() => (currentModule.value?.groups.length ? currentM
 				<LucideMoon v-else class="h-3.5 w-3.5" aria-hidden="true" />
 				{{ nextThemeLabel }}
 			</button>
+			<RouterLink :to="{ name: 'Aide' }" class="app-menu-item" role="menuitem" @click="close()">
+				<LucideCircleHelp class="h-3.5 w-3.5" aria-hidden="true" />
+				Centre d'aide
+			</RouterLink>
 			<a href="/app" class="app-menu-item" role="menuitem" target="_blank" rel="noopener noreferrer" @click="close()">
 				<LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />
 				Ouvrir le Desk
@@ -93,5 +110,8 @@ const panelLabel = computed(() => (currentModule.value?.groups.length ? currentM
 			</button>
 		</template>
 		<slot />
+		<Teleport to="body">
+			<AidePanneau v-if="aidePanneau !== null" />
+		</Teleport>
 	</AppShell>
 </template>

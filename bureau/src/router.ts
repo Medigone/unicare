@@ -26,6 +26,9 @@ import ComptaPage from './pages/ComptaPage.vue'
 import ListesPage from './pages/ListesPage.vue'
 import ReglagesStockPage from './pages/ReglagesStockPage.vue'
 import UtilisateursPage from './pages/UtilisateursPage.vue'
+import AidePage from './pages/AidePage.vue'
+import AideArticlePage from './pages/AideArticlePage.vue'
+import ReglagesAidePage from './pages/ReglagesAidePage.vue'
 import LoginPage from './pages/LoginPage.vue'
 
 // Chaque page reprise ajoute sa route avec `meta.doctype` : App.vue affiche un refus si le rôle ne lit pas ce document.
@@ -80,6 +83,10 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/tarifs/:liste', name: 'Tarif', component: TarifsPage, props: true, meta: { doctype: 'Item Price' } },
 	{ path: '/reglages-stock', name: 'ReglagesStock', component: ReglagesStockPage, meta: { doctype: 'Item' } },
 	{ path: '/utilisateurs', name: 'Utilisateurs', component: UtilisateursPage, meta: { doctype: 'User' } },
+	{ path: '/reglages-aide', name: 'ReglagesAide', component: ReglagesAidePage, meta: { doctype: 'Article Aide' } },
+	{ path: '/aide', name: 'Aide', component: AidePage },
+	{ path: '/aide/c/:slug', name: 'AideCategorie', component: AidePage, props: true },
+	{ path: '/aide/a/:slug', name: 'AideArticle', component: AideArticlePage, props: true },
 	{ path: '/compta', name: 'Compta', component: ComptaPage, meta: { doctype: 'Account' } },
 	{ path: '/listes', name: 'Listes', component: ListesPage, meta: { doctype: 'Quotation Lost Reason' } },
 	{ path: '/listes/:code', name: 'Liste', component: ListesPage, props: true, meta: { doctype: 'Quotation Lost Reason' } },

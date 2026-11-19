@@ -21,6 +21,7 @@ import LucidePackage from '~icons/lucide/package'
 import LucideChartColumn from '~icons/lucide/chart-column'
 import LucideSettings2 from '~icons/lucide/settings-2'
 import LucideTags from '~icons/lucide/tags'
+import LucideBookOpen from '~icons/lucide/book-open'
 import LucideLandmark from '~icons/lucide/landmark'
 import LucideListChecks from '~icons/lucide/list-checks'
 import LucideUsers from '~icons/lucide/users'
@@ -170,7 +171,13 @@ export const NAV: Record<string, PosteModule[]> = {
 				},
 				{ title: 'Stock', items: [{ id: 'reglages-stock', label: 'Stock et seuils', icon: LucideWarehouse, to: { name: 'ReglagesStock' }, doctype: 'Item' }] },
 				{ title: 'Comptabilité', items: [{ id: 'compta', label: 'Comptabilité et trésorerie', icon: LucideLandmark, to: { name: 'Compta' }, doctype: 'Account' }] },
-				{ title: 'Administration', items: [{ id: 'utilisateurs', label: 'Utilisateurs', icon: LucideUsers, to: { name: 'Utilisateurs' }, doctype: 'User' }] },
+				{
+					title: 'Administration',
+					items: [
+						{ id: 'utilisateurs', label: 'Utilisateurs', icon: LucideUsers, to: { name: 'Utilisateurs' }, doctype: 'User' },
+						{ id: 'reglages-aide', label: 'Aide', icon: LucideBookOpen, to: { name: 'ReglagesAide' }, doctype: 'Article Aide' },
+					],
+				},
 			],
 		},
 	],

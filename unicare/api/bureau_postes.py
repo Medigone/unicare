@@ -62,6 +62,8 @@ DOCTYPES_INTERFACE = (
 	"UOM",
 	# Réglages, page Utilisateurs.
 	"User",
+	# Réglages, page Aide.
+	"Article Aide",
 )
 
 
