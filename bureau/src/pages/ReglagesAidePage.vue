@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
+import LucideArrowLeft from '~icons/lucide/arrow-left'
+import LucideChevronLeft from '~icons/lucide/chevron-left'
+import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucidePlus from '~icons/lucide/plus'
-import LucideSearch from '~icons/lucide/search'
 import LucideTrash2 from '~icons/lucide/trash-2'
 import FormDialog from '@shared/components/FormDialog.vue'
 import AideContenu from '@/aide/AideContenu.vue'
+import AideArticleList from '@/components/AideArticleList.vue'
 import AppToast from '@/components/AppToast.vue'
 import BureauShell from '@/components/BureauShell.vue'
 import { apercuAide, createArticleAide, deleteArticleAide, getArticleAideEdition, listArticlesAide, saveArticleAide } from '@/lib/api'
-import { CONVENTIONS, dureeLabel, ecransLabels, filtrerArticlesAide, type AideApercu, type AideEdition, type AideListe, type AideValeurs } from '@/lib/aide'
+import { CONVENTIONS, dureeLabel, type AideApercu, type AideEdition, type AideListe, type AideValeurs } from '@/lib/aide'
 import { confirmAction } from '@/lib/confirm'
 import { activePoste, pagesFor } from '@/lib/postes'
+import { useArticlesAide } from '@/lib/useArticlesAide'
 
-/** Réglages › Aide : les articles du centre d'aide, rangés par rubrique, et leur éditeur Markdown avec aperçu. */
+/** Réglages › Aide : la liste des articles du centre d'aide (/reglages-aide), puis un article ouvert dans son
+ * éditeur Markdown avec aperçu (/reglages-aide/<slug>). */
 const route = useRoute()
 const router = useRouter()
 
@@ -23,8 +28,9 @@ const error = ref('')
 const actionError = ref('')
 const notice = ref('')
 const busy = ref(false)
-const recherche = ref('')
-const vue = ref<'tous' | 'Publié' | 'Brouillon'>('tous')
+// La liste reste montée pendant qu'un article est ouvert : elle garde sa vue, ses filtres et sa page.
+const state = useArticlesAide()
+const slug = computed(() => (typeof route.params.slug === 'string' ? route.params.slug : ''))
 
 const article = ref<AideEdition | null>(null)
 const fiche = ref<Required<AideValeurs> | null>(null)
@@ -47,27 +53,44 @@ function versFiche(doc: AideEdition): Required<AideValeurs> {
 }
 const ficheDirty = computed(() => Boolean(article.value && fiche.value && JSON.stringify(fiche.value) !== JSON.stringify(versFiche(article.value))))
 
-async function ouvrir(slug: string) {
-	if (slug === article.value?.slug) return
-	if (ficheDirty.value && !(await confirmAction({ title: 'Quitter cet article ?', message: 'Les modifications non enregistrées seront perdues.', confirmLabel: 'Quitter sans enregistrer', danger: true }))) return
+async function charger(nom: string) {
 	actionError.value = ''
+	article.value = null
+	fiche.value = null
+	if (!nom) return
 	try {
-		const doc = await getArticleAideEdition(slug)
+		const doc = await getArticleAideEdition(nom)
 		article.value = doc
 		fiche.value = versFiche(doc)
 		apercu.value = { html: doc.html, sommaire: [], duree_lecture: doc.duree_lecture }
-		if (route.query.article !== slug) router.replace({ query: { article: slug } })
+		onglet.value = 'ecrire'
 	} catch (e) {
 		actionError.value = (e as Error).message
 	}
 }
+const ouvrir = (nom: string) => router.push({ name: 'ReglagesAide', params: { slug: nom } })
 
-const groupes = computed(() => {
-	if (!liste.value) return []
-	const articles = filtrerArticlesAide(liste.value.articles, recherche.value, vue.value)
-	return liste.value.categories.map((cat) => ({ ...cat, articles: articles.filter((a) => a.categorie === cat.slug) })).filter((cat) => cat.articles.length)
+async function quitter() {
+	return !ficheDirty.value || confirmAction({ title: 'Quitter cet article ?', message: 'Les modifications non enregistrées seront perdues.', confirmLabel: 'Quitter sans enregistrer', danger: true })
+}
+onBeforeRouteLeave(quitter)
+onBeforeRouteUpdate(async (to, from) => {
+	if (to.params.slug !== from.params.slug && !(await quitter())) return false
 })
-const compte = (statut: 'tous' | 'Publié' | 'Brouillon') => (liste.value ? filtrerArticlesAide(liste.value.articles, '', statut).length : 0)
+// L'article suit l'adresse : ouvert depuis la liste, les flèches ou un lien.
+watch(slug, (nom) => charger(nom))
+
+// Article précédent et suivant, dans la liste telle qu'elle est affichée.
+const voisins = computed(() => {
+	const suite = state.names.value
+	const i = suite.indexOf(slug.value)
+	return { position: i + 1, total: suite.length, avant: i > 0 ? suite[i - 1] : null, apres: i >= 0 && i < suite.length - 1 ? suite[i + 1] : null }
+})
+async function aller(nom: string | null) {
+	if (!nom) return
+	await router.replace({ name: 'ReglagesAide', params: { slug: nom } })
+	state.reveal(nom)
+}
 
 // Aperçu : rendu par le serveur, comme à l'enregistrement, une fois la frappe posée.
 let minuteur: ReturnType<typeof setTimeout> | null = null
@@ -103,13 +126,11 @@ async function enregistrer() {
 		article.value = doc
 		fiche.value = versFiche(doc)
 		notice.value = 'Article enregistré : il est déjà à jour dans l\'aide.'
-		await load()
+		state.load()
 	} catch (e) {
 		actionError.value = (e as Error).message
 		if ((e as Error).message.includes('modifié par ailleurs')) {
-			const slug = article.value.slug
-			article.value = null
-			await ouvrir(slug)
+			await charger(article.value.slug)
 		}
 	} finally {
 		busy.value = false
@@ -128,9 +149,9 @@ async function supprimer() {
 		await deleteArticleAide(article.value)
 		article.value = null
 		fiche.value = null
-		router.replace({ query: {} })
 		notice.value = 'Article supprimé.'
-		await load()
+		state.load()
+		router.replace({ name: 'ReglagesAide' })
 	} catch (e) {
 		actionError.value = (e as Error).message
 	} finally {
@@ -153,9 +174,8 @@ async function creer() {
 	try {
 		const doc = await createArticleAide({ titre: creation.value.titre.trim(), categorie: creation.value.categorie, contenu_markdown: '## Comment faire\n\n1. \n' })
 		creation.value = null
-		await load()
-		article.value = null
-		await ouvrir(doc.slug)
+		state.load()
+		ouvrir(doc.slug)
 	} catch (e) {
 		if (creation.value) creation.value.error = (e as Error).message
 	} finally {
@@ -164,52 +184,32 @@ async function creer() {
 }
 
 onMounted(async () => {
+	// L'ancienne adresse ?article=<slug> mène à l'article.
+	if (!slug.value && typeof route.query.article === 'string') {
+		router.replace({ name: 'ReglagesAide', params: { slug: route.query.article } })
+		return
+	}
+	charger(slug.value)
 	await load()
-	const demande = typeof route.query.article === 'string' ? route.query.article : liste.value?.articles[0]?.slug
-	if (demande) ouvrir(demande)
 })
 </script>
 
 <template>
-	<BureauShell :crumbs="[{ label: 'Réglages' }, { label: 'Aide' }]" active="reglages-aide">
-		<div class="bureau-work tdb">
-			<div class="flex flex-wrap items-end gap-3">
-				<div class="min-w-0 flex-[1_1_24rem]">
-					<h1 class="text-[20px] font-semibold leading-tight text-ink-gray-9">Aide</h1>
-					<p class="text-sm text-ink-gray-6">Les articles que le bouton « ? » et le centre d'aide affichent. Un article publié est visible de tous dès l'enregistrement ; un brouillon, seulement d'ici.</p>
+	<BureauShell :crumbs="slug ? [{ label: 'Réglages' }, { label: 'Aide', to: { name: 'ReglagesAide' } }, { label: article?.titre || '…' }] : [{ label: 'Réglages' }, { label: 'Aide' }]" active="reglages-aide">
+		<div class="bureau-work" :class="slug && 'tdb'">
+			<AideArticleList v-show="!slug" :state="state" :selected="slug || undefined" @open="ouvrir" @create="ouvrirCreation" @changed="state.load()" />
+
+			<template v-if="slug">
+				<div class="flex flex-wrap items-center gap-2">
+					<RouterLink :to="{ name: 'ReglagesAide' }" class="btn-ghost"><LucideArrowLeft class="h-3.5 w-3.5" aria-hidden="true" />Tous les articles</RouterLink>
+					<span class="flex-auto"></span>
+					<span class="text-xs tabular-nums text-ink-gray-6">{{ voisins.position ? `${voisins.position} sur ${voisins.total}` : 'Hors de la vue' }}</span>
+					<button type="button" class="icon-btn" aria-label="Article précédent" :disabled="!voisins.avant" @click="aller(voisins.avant)"><LucideChevronLeft class="h-4 w-4" aria-hidden="true" /></button>
+					<button type="button" class="icon-btn" aria-label="Article suivant" :disabled="!voisins.apres" @click="aller(voisins.apres)"><LucideChevronRight class="h-4 w-4" aria-hidden="true" /></button>
 				</div>
-				<RouterLink :to="{ name: 'Aide' }" class="btn-secondary">Voir le centre d'aide<LucideArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" /></RouterLink>
-				<button v-if="liste" type="button" class="btn-primary" :disabled="busy" @click="ouvrirCreation"><LucidePlus class="h-3.5 w-3.5" aria-hidden="true" />Nouvel article</button>
-			</div>
-			<p v-if="error" role="alert" class="card p-4 text-tone-red">{{ error }}</p>
-			<p v-else-if="!liste" class="card p-4 text-ink-gray-6">Chargement des articles…</p>
-			<p v-if="actionError" role="alert" class="rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
-
-			<div v-if="liste" class="tarifs-layout">
-				<nav class="card tarifs-liste" aria-label="Articles d'aide">
-					<label class="bureau-search">
-						<LucideSearch class="h-3.5 w-3.5" aria-hidden="true" />
-						<input v-model="recherche" class="field-input" type="search" aria-label="Chercher un article" placeholder="Titre ou écran" />
-					</label>
-					<div class="seg self-start" role="group" aria-label="Afficher">
-						<button type="button" :aria-pressed="vue === 'tous'" @click="vue = 'tous'">Tous<span class="ml-1 tabular-nums text-ink-gray-6">{{ compte('tous') }}</span></button>
-						<button type="button" :aria-pressed="vue === 'Publié'" @click="vue = 'Publié'">Publiés<span class="ml-1 tabular-nums text-ink-gray-6">{{ compte('Publié') }}</span></button>
-						<button type="button" :aria-pressed="vue === 'Brouillon'" @click="vue = 'Brouillon'">Brouillons<span class="ml-1 tabular-nums text-ink-gray-6">{{ compte('Brouillon') }}</span></button>
-					</div>
-					<div v-for="cat in groupes" :key="cat.slug" class="tarifs-groupe">
-						<span class="stock-groupe-titre">{{ cat.titre }}</span>
-						<button v-for="row in cat.articles" :key="row.slug" type="button" class="tarif-item" :aria-current="row.slug === article?.slug ? 'page' : undefined" @click="ouvrir(row.slug)">
-							<span class="block font-semibold">{{ row.titre }}</span>
-							<span class="flex flex-wrap items-center gap-1.5">
-								<span v-if="row.statut === 'Brouillon'" class="badge tone-amber">Brouillon</span>
-								<span class="truncate text-xs text-ink-gray-6">{{ ecransLabels(row.ecrans, ecrans).join(' · ') || 'Aucun écran' }}</span>
-							</span>
-						</button>
-					</div>
-					<p v-if="!groupes.length" class="px-2.5 text-sm text-ink-gray-6">Aucun article ne correspond.</p>
-				</nav>
-
-				<section v-if="article && fiche" class="card tarifs-detail overflow-hidden" aria-labelledby="a-titre">
+				<p v-if="actionError" role="alert" class="rounded-control tone-red px-3.5 py-2.5">{{ actionError }}</p>
+				<p v-else-if="!article" class="card p-4 text-ink-gray-6">Chargement de l'article…</p>
+				<section v-if="article && fiche" class="card overflow-hidden" aria-labelledby="a-titre">
 					<div class="tarifs-head flex-row flex-wrap items-center gap-3">
 						<div class="min-w-0 flex-[1_1_18rem]">
 							<h2 id="a-titre" class="text-lg font-semibold">{{ article.titre }}</h2>
@@ -232,7 +232,7 @@ onMounted(async () => {
 							<div class="form-field">
 								<label class="field-label" for="a-f-cat">Rubrique</label>
 								<select id="a-f-cat" v-model="fiche.categorie" class="field-input">
-									<option v-for="cat in liste.categories" :key="cat.slug" :value="cat.slug">{{ cat.titre }}</option>
+									<option v-for="cat in liste?.categories" :key="cat.slug" :value="cat.slug">{{ cat.titre }}</option>
 								</select>
 							</div>
 							<div class="form-field">
@@ -288,8 +288,7 @@ onMounted(async () => {
 						<button type="button" class="btn-primary" :disabled="busy || !ficheDirty || !fiche.titre.trim()" @click="enregistrer">Enregistrer</button>
 					</div>
 				</section>
-				<section v-else class="card tarifs-detail p-6 text-center text-ink-gray-6">Choisissez un article à gauche, ou créez-en un.</section>
-			</div>
+			</template>
 		</div>
 
 		<FormDialog v-if="creation" title="Nouvel article" :dirty="Boolean(creation.titre.trim())" :busy="busy" @close="creation = null" @submit="creer">

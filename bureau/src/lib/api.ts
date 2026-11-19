@@ -17,6 +17,7 @@ import type { ModePaiement, ModeType, ReglagesCompta, TauxTva, TvaSens } from '.
 import type { Doublon, FichesValeur, ListeCode, ListeResume, ListeValeur } from './listes'
 import type { ParametresStock, ReglagesStock, SeuilLigne, SeuilsResponse, SeuilVue, ACommander } from './reglagesStock'
 import type { ReglagesUtilisateurs, Utilisateur, UtilisateurForm } from './utilisateurs'
+import type { AideListeOptions, AideListeResponse, AideListeVue } from './aideListe'
 import type { AideAccueil, AideApercu, AideArticle, AideCarte, AideCategorie, AideEdition, AideListe, AideRecherche, AideValeurs } from './aide'
 import type { RecetteDetail, RecetteOptions, RecettesResponse, RecetteValues, RecetteView } from './recettes'
 import type { Besoin, OrdreDetail, OrdreOptions, OrdresResponse, OrdreValues, OrdreView } from './ordres'
@@ -982,6 +983,17 @@ export const getAideCategorie = (slug: string) => call<AideCategorie>(`${AIDE}.g
 export const getAideArticle = (slug: string) => call<AideArticle>(`${AIDE}.get_article`, { slug })
 /** Réglages › Aide : édition des articles. */
 export const listArticlesAide = () => call<AideListe>(`${AIDE}.list_articles`)
+export const getArticlesAideListe = (view: AideListeVue, conditions: Condition[], search: string, paging: ListPaging = {}) =>
+	call<AideListeResponse>(`${AIDE}.get_articles_liste`, {
+		view,
+		conditions: conditionsForServer(conditions),
+		search: search.trim() || undefined,
+		start: paging.start,
+		page_length: paging.pageLength,
+		sort: paging.sort,
+		direction: paging.direction,
+	})
+export const getArticlesAideOptions = () => call<AideListeOptions>(`${AIDE}.get_articles_options`)
 export const getArticleAideEdition = (slug: string) => call<AideEdition>(`${AIDE}.get_article_edition`, { slug })
 export const saveArticleAide = (article: Pick<AideEdition, 'slug' | 'modified'>, valeurs: AideValeurs) =>
 	call<AideEdition>(`${AIDE}.save_article`, { slug: article.slug, modified: article.modified, valeurs }, true)

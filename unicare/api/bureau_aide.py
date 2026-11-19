@@ -12,7 +12,16 @@ from frappe.utils import cint, cstr
 
 from unicare.aide import index as aide_index
 from unicare.aide.rendu import nettoyer_ecrans, rendre, sommaire, texte_brut
-from unicare.api.bureau_list import _parse
+from unicare.api.bureau_list import (
+	BELL_FIELD,
+	_parse,
+	condition_filters,
+	doctype_filter_fields,
+	has_child_filter,
+	page_bounds,
+	row_bell,
+	row_tags,
+)
 from unicare.api.bureau_postes import require_bureau
 
 ARTICLE = "Article Aide"
@@ -183,6 +192,133 @@ def list_articles():
 			for a in articles
 		],
 		"statuts": list(STATUTS),
+	}
+
+
+LISTE_CHAMPS = [
+	"name",
+	"modified",
+	"creation",
+	"titre",
+	"categorie",
+	"statut",
+	"ordre",
+	"resume",
+	"ecrans",
+	"source",
+	"date_revision",
+	"duree_lecture",
+	"_user_tags",
+	BELL_FIELD,
+]
+LISTE_VUES = {
+	"all": lambda row: True,
+	"publies": lambda row: row["statut"] == "Publié",
+	"brouillons": lambda row: row["statut"] != "Publié",
+	"bureau": lambda row: not row["source"],
+}
+LISTE_TRIS = {
+	"titre",
+	"rubrique",
+	"statut",
+	"source",
+	"ecrans",
+	"date_revision",
+	"duree_lecture",
+	"name",
+	"creation",
+	"modified",
+}
+
+
+def _ligne(article, rubriques):
+	rubrique = rubriques.get(article.categorie) or {}
+	return {
+		"name": article.name,
+		"modified": str(article.modified),
+		"creation": str(article.creation),
+		"tags": row_tags(article),
+		"cloche": row_bell(article),
+		"titre": article.titre,
+		"resume": texte_brut(article.resume or ""),
+		"categorie": article.categorie or "",
+		"rubrique": rubrique.get("titre") or article.categorie or "",
+		"rang": (cint(rubrique.get("ordre")), cint(article.ordre), cstr(article.titre).casefold()),
+		"statut": article.statut,
+		"ecrans": (article.ecrans or "").split(),
+		"source": article.source or "",
+		"date_revision": str(article.date_revision) if article.date_revision else None,
+		"duree_lecture": cint(article.duree_lecture) or None,
+	}
+
+
+def ordonner_articles(rows, sort=None, direction=None):
+	"""Par défaut : l'ordre du centre d'aide (rubrique, puis ordre dans la rubrique)."""
+	ordered = sorted(rows, key=lambda row: row["rang"])
+	if sort not in LISTE_TRIS:
+		return ordered
+	descending = cstr(direction) == "desc"
+
+	def valeur(row):
+		item = len(row["ecrans"]) if sort == "ecrans" else row.get(sort)
+		return item if isinstance(item, int | float) else cstr(item).casefold()
+
+	filled = [row for row in ordered if row.get(sort) not in (None, "", [])]
+	empty = [row for row in ordered if row.get(sort) in (None, "", [])]
+	return sorted(filled, key=valeur, reverse=descending) + empty
+
+
+@frappe.whitelist()
+def get_articles_liste(
+	view="all", conditions=None, search=None, start=0, page_length=None, sort=None, direction=None
+):
+	"""La liste de Réglages > Aide : une page, le total, l'ordre de toute la vue et les compteurs des vues."""
+	_editeur()
+	if view not in LISTE_VUES:
+		frappe.throw(_("Vue inconnue."))
+	valeur = cstr(search).strip()
+	motif = f"%{valeur}%"
+	conditions = condition_filters(_parse(conditions), ARTICLE)
+	rubriques = {c.name: c for c in frappe.get_all(CATEGORIE, fields=["name", "titre", "ordre"])}
+	articles = frappe.get_list(
+		ARTICLE,
+		filters=conditions,
+		distinct=has_child_filter(conditions, ARTICLE),
+		or_filters=[
+			["titre", "like", motif],
+			["resume", "like", motif],
+			["ecrans", "like", motif],
+			["mots_cles", "like", motif],
+			["name", "like", motif],
+		]
+		if valeur
+		else None,
+		fields=LISTE_CHAMPS,
+		limit_page_length=0,
+	)
+	rows = [_ligne(article, rubriques) for article in articles]
+	counts = {nom: sum(1 for row in rows if test(row)) for nom, test in LISTE_VUES.items()}
+	ordered = ordonner_articles([row for row in rows if LISTE_VUES[view](row)], sort, direction)
+	first, length = page_bounds(len(ordered), start, page_length)
+	page = [{k: v for k, v in row.items() if k != "rang"} for row in ordered[first : first + length]]
+	return {
+		"articles": page,
+		"counts": counts,
+		"total": len(ordered),
+		"start": first,
+		"page_length": length,
+		"names": [row["name"] for row in ordered],
+	}
+
+
+@frappe.whitelist()
+def get_articles_options():
+	_editeur()
+	rubriques = frappe.get_all(CATEGORIE, fields=["name", "titre"], order_by="ordre asc, titre asc")
+	return {
+		"filter_fields": doctype_filter_fields(
+			ARTICLE, {"categorie": [{"value": r.name, "label": r.titre} for r in rubriques]}
+		),
 	}
 
 

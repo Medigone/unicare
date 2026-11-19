@@ -192,3 +192,34 @@ class TestAide(FrappeTestCase):
 		)
 		A.delete_article(cree["slug"], cree["modified"])
 		self.assertFalse(frappe.db.exists("Article Aide", cree["slug"]))
+
+
+class TestListeAide(FrappeTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+
+	def test_liste_vues_tri_et_page(self):
+		from unicare.api import bureau_aide as A
+
+		tout = A.get_articles_liste(page_length=500)
+		self.assertEqual(tout["total"], len(tout["names"]))
+		self.assertEqual(tout["counts"]["all"], tout["counts"]["publies"] + tout["counts"]["brouillons"])
+		self.assertNotIn("rang", tout["articles"][0])
+		self.assertNotIn("**", " ".join(row["resume"] for row in tout["articles"]))
+		page = A.get_articles_liste(start=0, page_length=5)
+		self.assertEqual(len(page["articles"]), min(5, tout["total"]))
+		tries = A.get_articles_liste(sort="titre", direction="desc", page_length=500)["articles"]
+		titres = [row["titre"].casefold() for row in tries]
+		self.assertEqual(titres, sorted(titres, reverse=True))
+		cherche = A.get_articles_liste(search="devis", page_length=500)
+		self.assertTrue(cherche["total"] and cherche["total"] < tout["total"])
+		filtre = A.get_articles_liste(
+			conditions=[{"doctype": "Article Aide", "field": "categorie", "op": "=", "value": "ventes"}],
+			page_length=500,
+		)
+		self.assertTrue(
+			filtre["articles"] and all(row["categorie"] == "ventes" for row in filtre["articles"])
+		)
+		with self.assertRaises(frappe.ValidationError):
+			A.get_articles_liste(view="inconnue")
+		self.assertTrue(A.get_articles_options()["filter_fields"])

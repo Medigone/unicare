@@ -184,6 +184,13 @@ FILTER_LISTS = {
 		"disabled": "Désactivé",
 		"_user_tags": "Tag",
 	},
+	"Article Aide": {
+		"categorie": "Rubrique",
+		"statut": "Statut",
+		"source": "Guide d'origine",
+		"titre": "Titre",
+		"_user_tags": "Tag",
+	},
 	"Warehouse": {
 		"parent_warehouse": "Groupe",
 		"warehouse_type": "Type",

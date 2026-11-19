@@ -85,7 +85,8 @@ export const routes: RouteRecordRaw[] = [
 	{ path: '/reglages-stock', name: 'ReglagesStock', component: ReglagesStockPage, meta: { doctype: 'Item' } },
 	{ path: '/utilisateurs', name: 'Utilisateurs', component: UtilisateursPage, meta: { doctype: 'User' } },
 	{ path: '/societe', name: 'Societe', component: SocietePage, meta: { doctype: 'Company' } },
-	{ path: '/reglages-aide', name: 'ReglagesAide', component: ReglagesAidePage, meta: { doctype: 'Article Aide' } },
+	// Une seule route : la liste et l'article ouvert partagent la page, qui garde la liste montée.
+	{ path: '/reglages-aide/:slug?', name: 'ReglagesAide', component: ReglagesAidePage, meta: { doctype: 'Article Aide' } },
 	{ path: '/aide', name: 'Aide', component: AidePage },
 	{ path: '/aide/c/:slug', name: 'AideCategorie', component: AidePage, props: true },
 	{ path: '/aide/a/:slug', name: 'AideArticle', component: AideArticlePage, props: true },

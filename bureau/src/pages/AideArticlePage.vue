@@ -60,7 +60,7 @@ const crumbs = computed(() => [
 							{{ [dureeLabel(article.duree_lecture), article.date_revision && `revu le ${formatDay(article.date_revision)}`].filter(Boolean).join(' · ') }}
 						</p>
 					</div>
-					<RouterLink v-if="article.peut_editer" :to="{ name: 'ReglagesAide', query: { article: article.slug } }" class="btn-secondary"><LucidePencil class="h-3.5 w-3.5" aria-hidden="true" />Modifier</RouterLink>
+					<RouterLink v-if="article.peut_editer" :to="{ name: 'ReglagesAide', params: { slug: article.slug } }" class="btn-secondary"><LucidePencil class="h-3.5 w-3.5" aria-hidden="true" />Modifier</RouterLink>
 				</header>
 				<AideContenu :html="article.html" :sommaire="article.sommaire" :ancre="ancre" @article="suivre" />
 				<nav v-if="article.precedent || article.suivant" class="aide-voisins" aria-label="Articles voisins">
