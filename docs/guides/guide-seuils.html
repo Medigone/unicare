@@ -1,0 +1,363 @@
+<title>Guide Seuils Unicare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture ; le circuit en bandeau, puis une étape par section, numérotée dans l'ordre réel du travail. */
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #17191e;
+  --ink-2: #4a505c;
+  --ink-3: #7a8190;
+  --line: #e2e5ea;
+  --accent: #2c6870;        /* réglages : bleu-vert neutre, comme le guide Réglages */
+  --accent-soft: #e2f0f1;
+  --violet: #5b3fa8; --violet-soft: #efe9ff;
+  --amber: #a15c00; --amber-soft: #fdf1df;
+  --green: #17794a; --green-soft: #e3f4ea;
+  --red: #b4262c;   --red-soft: #fbe7e7;
+  --grey-soft: #eef0f3;
+  --btn: #18181b; --on-btn: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c; --violet: #b9a4f2; --violet-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #111318; --paper: #191c22; --ink: #eceef2; --ink-2: #b6bcc7; --ink-3: #8a91a0; --line: #2b2f38;
+  --accent: #79c2ca; --accent-soft: #16292c; --violet: #b9a4f2; --violet-soft: #2a2140;
+  --amber: #f0b45c; --amber-soft: #352816; --green: #6fd29b; --green-soft: #15301f; --red: #f3878a; --red-soft: #3a1c1e; --grey-soft: #252932;
+  --btn: #f2f2f0; --on-btn: #18181b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 600; font-family: var(--body); }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; }
+.section-head p { color: var(--ink-2); max-width: 62ch; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.module-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .85rem; }
+.module-chip svg { width: 16px; height: 16px; }
+.where { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .92rem; color: var(--ink-2); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Éléments qui imitent l'écran */
+.btn { display: inline-block; font-family: var(--body); font-size: .82em; font-weight: 600; line-height: 1; padding: .42em .7em; border-radius: 7px; background: var(--btn); color: var(--on-btn); white-space: nowrap; vertical-align: .08em; }
+.btn.alt { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.field { font-weight: 600; color: var(--ink); border-bottom: 1.5px dotted var(--ink-3); }
+.path { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.path i { font-style: normal; color: var(--ink-3); padding: 0 .25em; }
+kbd { font-family: var(--mono); font-size: .8em; padding: .15em .45em; border-radius: 5px; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
+.p-grey { background: var(--grey-soft); color: var(--ink-2); }
+.p-blue { background: var(--accent-soft); color: var(--accent); }
+.p-amber { background: var(--amber-soft); color: var(--amber); }
+.p-green { background: var(--green-soft); color: var(--green); }
+.p-red { background: var(--red-soft); color: var(--red); }
+.p-violet { background: var(--violet-soft); color: var(--violet); }
+sup { line-height: 0; }
+
+/* Le circuit : une ligne verticale, une station par pièce, avec qui la fait et ce qu'elle change. */
+.route { list-style: none; margin: 0; padding: 8px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
+.route li { position: relative; }
+.route a { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 18px 12px 14px; text-decoration: none; color: var(--ink); }
+.route a:hover { background: var(--accent-soft); }
+.route { position: relative; overflow: hidden; }
+.route li:not(.lane):not(:last-child)::before { content: ""; position: absolute; left: 35px; top: 40px; bottom: -40px; width: 2px; background: var(--accent); z-index: 0; }
+.route li:not(.lane):has(+ .lane)::before { bottom: -80px; }
+.route li.opt:not(.lane):not(:last-child)::before { background: repeating-linear-gradient(var(--accent) 0 5px, transparent 5px 10px); }
+.dot { position: relative; z-index: 1; grid-row: span 2; width: 32px; height: 32px; margin-left: 6px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; background: var(--accent); color: var(--paper); }
+.opt .dot { background: var(--paper); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.route .t { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.route .t small { font-family: var(--body); font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.route .d { grid-column: 2; font-size: .9rem; color: var(--ink-2); line-height: 1.4; }
+.effect { grid-column: 3; grid-row: 1 / span 2; justify-self: end; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.e-none { background: var(--grey-soft); color: var(--ink-2); }
+.e-stock { background: var(--amber-soft); color: var(--amber); }
+.e-money { background: var(--green-soft); color: var(--green); }
+.lane { padding: 10px 18px 2px 64px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); position: relative; }
+.lane:not(:first-child) { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; }
+.shortcut { font-size: .8rem; color: var(--ink-3); font-weight: 500; }
+.flow-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-notes p { font-size: .92rem; color: var(--ink-2); padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+.flow-notes b { color: var(--ink); }
+
+/* Les trois états */
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.state { padding: 16px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.state p { font-size: .92rem; color: var(--ink-2); }
+.fix { padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .95rem; }
+
+/* Étapes */
+.step { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 0 18px; scroll-margin-top: 20px; }
+.step-num { font-family: var(--display); font-weight: 700; font-size: 1.4rem; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--paper); }
+.step-body { display: grid; gap: 16px; min-width: 0; }
+.step-body > .why { color: var(--ink-2); max-width: 62ch; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { display: flex; align-items: center; gap: 8px; }
+ol.do { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.do li::marker { font-family: var(--mono); font-size: .85em; color: var(--accent); }
+ul.know { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); }
+ul.know b { color: var(--ink); }
+.know-card { background: transparent; border-style: dashed; }
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-2); }
+.next::before { content: "→"; color: var(--accent); font-weight: 700; }
+.tag-new { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Tableaux */
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td .pill { margin: 0 4px 4px 0; }
+
+/* Messages */
+.msgs { display: grid; gap: 10px; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; font-family: var(--mono); color: var(--accent); }
+details[open] summary::before { content: "−"; }
+summary q { quotes: "« " " »"; }
+details > p { padding: 0 16px 14px 36px; color: var(--ink-2); }
+
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.key { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; font-size: .92rem; }
+
+footer { color: var(--ink-3); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 760px) {
+  .route a { grid-template-columns: 44px minmax(0, 1fr); }
+
+  .effect { grid-column: 2; grid-row: auto; justify-self: start; margin-top: 4px; }
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="module-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12M6 14h12"/></svg>Réglages · Stock et seuils</span>
+  <h1>Ne jamais tomber en rupture</h1>
+  <p class="lead">Un seuil dit à partir de quand un article est à recommander, dépôt par dépôt. Ce guide montre comment poser les seuils, repérer les articles passés dessous, préparer la commande d'achat qui les remet à niveau, et organiser les dépôts et les paramètres de stock.</p>
+  <div class="where">
+    <span>Où : <b>menu de gauche › Réglages › Stock et seuils</b></span>
+    <span>Pour : acheteur, magasinier, administrateur</span>
+  </div>
+</header>
+
+<section aria-labelledby="cycle">
+  <div class="section-head">
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h2 id="cycle">Du seuil à la commande</h2>
+    <p>Le cycle se répète pour chaque dépôt. Cliquez sur une étape pour aller à son explication.</p>
+  </div>
+  <ol class="route">
+    <li class="lane" aria-hidden="true">Une fois, puis à l'occasion</li>
+    <li><a href="#depots"><span class="dot">1</span><span class="t">Dépôts et dossiers</span><span class="d">Les lieux où le stock est rangé, groupés par site si besoin.</span><span class="effect e-none">Organisation</span></a></li>
+    <li><a href="#seuils"><span class="dot">2</span><span class="t">Seuils</span><span class="d">Pour chaque article d'un dépôt : le seuil et la quantité à commander.</span><span class="effect e-none">Réglage</span></a></li>
+    <li class="lane" aria-hidden="true">Au fil des sorties</li>
+    <li><a href="#suivre"><span class="dot">3</span><span class="t">Sous le seuil</span><span class="d">Le stock baisse : l'article est signalé en rouge, avec ce qui manque.</span><span class="effect e-stock">Alerte</span></a></li>
+    <li><a href="#commander"><span class="dot">4</span><span class="t">Commande d'achat</span><span class="d">Préparée d'un clic avec les articles manquants, à recevoir dans le dépôt.</span><span class="effect e-money">Achat</span></a></li>
+  </ol>
+  <div class="flow-notes">
+    <p><b>Les seuils sont par dépôt.</b> Un flacon peut avoir un seuil de 500 au magasin principal et aucun au dépôt de quarantaine.</p>
+    <p><b>L'alerte se voit aussi ailleurs</b> : dans l'onglet <span class="field">Sous le seuil</span> de l'état du stock et sur le tableau de bord.</p>
+  </div>
+</section>
+
+<section aria-labelledby="regle">
+  <div class="section-head">
+    <span class="eyebrow">La règle à retenir</span>
+    <h2 id="regle">Lire l'état d'un article</h2>
+    <p>La colonne <span class="field">État</span> compare le stock du dépôt au seuil. La barre de la colonne <span class="field">En stock</span> le montre aussi : le trait noir marque le seuil.</p>
+  </div>
+  <div class="states">
+    <div class="state"><span class="pill p-red">Manque 380</span><p>Le stock est passé <b>sous le seuil</b>. Le nombre dit ce qu'il faut pour y revenir ; la quantité est en rouge.</p></div>
+    <div class="state"><span class="pill p-green">OK</span><p>Le stock est au seuil ou au-dessus. Rien à faire.</p></div>
+    <div class="state"><span class="pill p-grey">Sans seuil</span><p>Aucun seuil n'est posé : l'article ne sera jamais signalé dans ce dépôt.</p></div>
+  </div>
+  <p class="fix"><b>Seuil et quantité à commander, ce n'est pas pareil.</b> Le seuil déclenche l'alerte (« sous 500, on recommande ») ; la quantité à commander est ce qu'on achète d'habitude (« par 2 000 »). Laissée vide, elle vaut le seuil.</p>
+</section>
+
+<section aria-labelledby="etapes">
+  <div class="section-head">
+    <span class="eyebrow">Pas à pas</span>
+    <h2 id="etapes">Les tâches en détail</h2>
+  </div>
+
+  <!-- 1 · Dépôts -->
+  <article class="step" id="depots">
+    <div class="step-num" aria-hidden="true">1</div>
+    <div class="step-body">
+      <h2>Organiser les dépôts</h2>
+      <p class="why">La colonne de gauche montre les dépôts, rangés dans des <b>dossiers</b> si vous en avez (un par site, par exemple). Un dossier range des dépôts ; il ne reçoit jamais de stock lui-même.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Pour un nouveau dépôt, cliquez sur <span class="btn alt">Nouveau dépôt</span> sous la liste, ou sur le <span class="btn alt">+</span> d'un dossier pour le créer dedans. Donnez son nom, puis créez-le : il s'ouvre aussitôt.</li>
+          <li>Pour un nouveau dossier, cliquez sur <span class="btn alt">Nouveau dossier</span>, donnez-lui un nom et choisissez où le ranger.</li>
+          <li>Pour changer un dépôt de dossier, ouvrez-le et choisissez son dossier dans <span class="field">Rangé dans</span>. Son stock ne bouge pas.</li>
+          <li>Pour supprimer un dépôt créé par erreur, ouvrez-le, cliquez sur <span class="btn" style="background:var(--red);color:var(--paper)">Supprimer le dépôt</span> et confirmez. Ses seuils partent avec lui.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Seul un dépôt qui n'a <b>jamais eu de stock ni de mouvement</b> se supprime. Un dépôt qui a servi se <b>désactive</b> : ouvrez <span class="btn alt">Fiche du dépôt</span> et désactivez-le.</li>
+          <li>Le <b>dépôt de réception par défaut</b> ne se supprime pas : choisissez-en d'abord un autre dans les paramètres.</li>
+          <li>Un dossier se supprime seulement vide, avec la corbeille de sa ligne.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 2 · Seuils -->
+  <article class="step" id="seuils">
+    <div class="step-num" aria-hidden="true">2</div>
+    <div class="step-body">
+      <h2>Poser les seuils</h2>
+      <p class="why">À faire pour les articles qu'on ne veut jamais manquer : matières premières, emballages, produits finis les plus vendus.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Cliquez sur le dépôt dans la colonne de gauche.</li>
+          <li>L'onglet <span class="field">Sans seuil</span> liste les articles qui n'en ont pas encore.</li>
+          <li>Tapez le <span class="field">Seuil</span> dans la case de l'article, puis la <span class="field">Quantité à commander</span> si elle diffère.</li>
+          <li>Appuyez sur <kbd>Entrée</kbd>, ou quittez la ligne : la ligne s'éclaire et le message <q>Seuil enregistré.</q> confirme.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Pour retirer un seuil, videz sa case puis <kbd>Entrée</kbd>.</li>
+          <li><kbd>Échap</kbd> remet les valeurs enregistrées.</li>
+          <li>Les cases sont en lecture seule si votre rôle ne modifie pas les articles.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 3 · Suivre -->
+  <article class="step" id="suivre">
+    <div class="step-num" aria-hidden="true">3</div>
+    <div class="step-body">
+      <h2>Repérer ce qui est à recommander</h2>
+      <p class="why">Chaque dépôt affiche dans la colonne de gauche une pastille <span class="pill p-red">4 sous le seuil</span> dès qu'un article passe sous son seuil.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Ouvrez le dépôt qui porte la pastille rouge.</li>
+          <li>Le bandeau rouge dit combien d'articles sont sous leur seuil ; cliquez sur <span class="btn alt">Voir les … articles</span>, ou sur l'onglet <span class="field">Sous le seuil</span>.</li>
+          <li>Lisez la colonne <span class="field">État</span> : <span class="pill p-red">Manque 380</span> dit ce qu'il faut pour revenir au seuil.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+
+  <!-- 4 · Commander -->
+  <article class="step" id="commander">
+    <div class="step-num" aria-hidden="true">4</div>
+    <div class="step-body">
+      <h2>Préparer la commande d'achat</h2>
+      <p class="why">Plus besoin de recopier la liste : la commande se prépare avec les articles sous leur seuil et leur quantité à commander.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Dans le bandeau rouge du dépôt, cliquez sur <span class="btn">Préparer une commande d'achat</span>.</li>
+          <li>La fenêtre de commande s'ouvre avec les articles, leurs quantités et leur prix d'achat connu. Choisissez le <span class="field">Fournisseur</span> s'il n'est pas déjà rempli.</li>
+          <li>Retirez les articles d'un autre fournisseur, ajustez les quantités, indiquez la date de réception prévue.</li>
+          <li>Créez la commande : sa fiche s'ouvre, en brouillon, prête à être validée et envoyée.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>La commande sera reçue dans <b>le dépôt des seuils</b>, pas dans le dépôt de réception par défaut.</li>
+          <li>Le fournisseur est prérempli quand tous les articles ont le même fournisseur par défaut sur leur fiche.</li>
+          <li>Seuls les articles achetables sont repris ; un article fabriqué sur place se relance par un ordre de production.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- 5 · Paramètres -->
+  <article class="step" id="parametres">
+    <div class="step-num" aria-hidden="true">5</div>
+    <div class="step-body">
+      <h2>Régler les paramètres de stock</h2>
+      <p class="why">Quelques réglages valent pour tout le stock. Ouvrez <span class="field">Paramètres</span>, en haut de la colonne de gauche.</p>
+      <div class="card">
+        <h3>Comment faire</h3>
+        <ol class="do">
+          <li>Choisissez le <span class="field">Dépôt de réception par défaut</span>, proposé sur chaque nouvelle commande d'achat, et l'<span class="field">Unité des nouveaux articles</span>.</li>
+          <li>Laissez l'interrupteur <span class="field">Autoriser le stock négatif</span> éteint, sauf le temps d'une reprise de stock.</li>
+          <li>Allumez <span class="field">Demandes d'achat automatiques</span> si vous voulez que l'ERP crée chaque nuit une demande pour les articles sous leur seuil.</li>
+          <li>La barre du bas passe en ambre : <q>Modifications non enregistrées</q>. Cliquez sur <span class="btn">Enregistrer</span>, ou <span class="btn alt">Annuler</span> pour revenir en arrière.</li>
+        </ol>
+      </div>
+      <div class="card know-card">
+        <h3>Bon à savoir</h3>
+        <ul class="know">
+          <li>Le stock négatif laisse passer une livraison ou une consommation sans stock : le stock affiché et sa valeur deviennent faux jusqu'à régularisation. Une confirmation est demandée à l'enregistrement.</li>
+          <li>La <b>valorisation du stock</b> (coût moyen pondéré, FIFO) est fixée à la mise en route ; elle ne se change qu'avec votre comptable, dans l'ERP.</li>
+          <li>Les demandes d'achat automatiques ne s'affichent pas dans le bureau : suivez plutôt la pastille rouge de chaque dépôt.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="messages">
+  <div class="section-head">
+    <span class="eyebrow">En cas de blocage</span>
+    <h2 id="messages">Les messages que vous pouvez voir</h2>
+  </div>
+  <div class="msgs">
+    <details><summary><q>Le seuil est illisible.</q></summary><p>La case contient autre chose qu'un nombre. Tapez par exemple <span style="font-family:var(--mono)">500</span> ou <span style="font-family:var(--mono)">12,5</span>.</p></details>
+    <details><summary><q>… est le dépôt de réception par défaut : choisissez-en un autre dans Paramètres.</q></summary><p>Ouvrez <span class="field">Paramètres</span>, changez le dépôt de réception par défaut, enregistrez, puis revenez supprimer le dépôt.</p></details>
+    <details><summary><q>… a encore du stock : videz-le avant de le supprimer.</q></summary><p>Transférez ou sortez son stock par un mouvement de stock, puis recommencez.</p></details>
+    <details><summary><q>… a déjà eu des mouvements de stock : il ne peut pas être supprimé.</q></summary><p>Un dépôt qui a servi garde son historique. Ouvrez <span class="btn alt">Fiche du dépôt</span> et désactivez-le : il ne sera plus proposé.</p></details>
+    <details><summary><q>Le dossier … n'est pas vide.</q></summary><p>Rangez ses dépôts ailleurs avec <span class="field">Rangé dans</span>, ou supprimez-les, puis supprimez le dossier.</p></details>
+    <details><summary><q>Aucun article achetable n'est sous son seuil dans ce dépôt.</q></summary><p>Les articles signalés sont tous fabriqués sur place (non achetables) : relancez-les par un ordre de production.</p></details>
+    <details><summary><q>Cet article vient d'être modifié par ailleurs.</q></summary><p>Un collègue a changé la fiche de l'article pendant votre saisie. La ligne a été rechargée : vérifiez, puis recommencez.</p></details>
+  </div>
+</section>
+
+<section aria-labelledby="raccourcis">
+  <div class="section-head">
+    <span class="eyebrow">Gagner du temps</span>
+    <h2 id="raccourcis">Raccourcis clavier</h2>
+  </div>
+  <div class="keys">
+    <div class="key">Enregistrer un seuil <span><kbd>Entrée</kbd></span></div>
+    <div class="key">Annuler la saisie d'une ligne <span><kbd>Échap</kbd></span></div>
+    <div class="key">Valider une fenêtre <span><kbd>Ctrl</kbd> <kbd>Entrée</kbd></span></div>
+  </div>
+</section>
+
+<footer>Unicare · Guide utilisateur, Stock et seuils · version de travail, novembre 2026</footer>
+</div>
