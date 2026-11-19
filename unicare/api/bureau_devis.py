@@ -254,21 +254,18 @@ def get_devis_options():
 	}
 
 
-def _prices(item_codes):
-	"""Prix de vente du tarif par défaut. Un article sans prix part à zéro : la validation le refusera."""
+def _prices(item_codes, client=None, date=None):
+	"""Prix de vente en vigueur dans le tarif par défaut, pour ce client à cette date (voir prix_en_vigueur).
+
+	Un article sans prix part à zéro : la validation le refusera.
+	"""
+	from unicare.api.prix_en_vigueur import prix_en_vigueur
+
 	price_list = _price_list()
 	if not item_codes or not price_list:
 		return {}
-	rows = frappe.get_all(
-		"Item Price",
-		filters={"price_list": price_list, "item_code": ["in", item_codes], "selling": 1},
-		fields=["item_code", "price_list_rate", "uom"],
-		order_by="valid_from desc, modified desc",
-	)
-	prices = {}
-	for row in rows:
-		prices.setdefault(row.item_code, flt(row.price_list_rate))
-	return prices
+	rows = prix_en_vigueur(price_list, item_codes, date, client=client)
+	return {code: flt(row.price_list_rate) for code, row in rows.items()}
 
 
 def _plain(text):
@@ -506,8 +503,9 @@ def _clean_lines(lignes):
 
 
 def _set_lines(doc, lignes):
-	"""Remplace les lignes. Un prix vide reprend celui du tarif ; un prix saisi l'emporte."""
-	prices = _prices([article for article, _quantite, _prix in lignes])
+	"""Remplace les lignes. Un prix vide reprend celui du tarif (client et date du devis) ; un prix saisi l'emporte."""
+	client = doc.party_name if doc.quotation_to == "Customer" else None
+	prices = _prices([article for article, _quantite, _prix in lignes], client, doc.transaction_date)
 	doc.set("items", [])
 	for article, quantite, prix in lignes:
 		rate = prices.get(article, 0) if prix is None else prix

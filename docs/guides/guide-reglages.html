@@ -247,6 +247,26 @@ ol.setup span { font-size: .9rem; color: var(--ink-2); }
         <p class="effect-text">Un article sans prix dans le tarif donne une ligne <b>« Sans prix »</b> qui bloque la validation, jusqu'à ce que le vendeur saisisse un prix. L'onglet <span class="field">Sans prix</span> liste ces articles. La fiche article affiche aussi ses prix dans une carte <b>Prix</b>, avec un lien vers le tarif.</p></div>
     </div>
     <div class="setting">
+      <div><h3>Prix à venir, prix d'un client, historique</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Tarifs et prix : la flèche devant un article › Nouveau prix à partir d'une date, ou Prix pour un client</span>
+        <p class="effect-text">Un article peut avoir plusieurs prix dans un même tarif, chacun avec sa période (<b>à partir du</b>, <b>jusqu'au</b>), son unité et une note. Une pièce reprend le prix <b>en vigueur à sa date</b> ; un prix réservé à un client l'emporte sur ses pièces. Un nouveau prix propose d'<b>arrêter la veille</b> le prix actuel. La case de la liste modifie toujours le prix en vigueur aujourd'hui. Les filtres <span class="field">À venir</span> et <span class="field">Expire bientôt</span> (45 jours) montrent les changements à prévoir, et <span class="field">Prix au</span> affiche les prix d'une autre date.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Tarif calculé depuis un autre</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Tarifs et prix › Nouveau tarif › Les prix d'un autre tarif (ou « Créer un tarif à partir de celui-ci »)</span>
+        <p class="effect-text">Pour un « Tarif remise 10 % » : choisissez le tarif de base, une <b>remise</b> ou une <b>majoration</b> en %, l'<b>arrondi</b> et la date de début. L'aperçu montre les nouveaux prix avant la création. Avec <span class="field">Garder le lien avec le tarif de base</span>, le tarif affiche « Basé sur … » et signale chaque changement du tarif de base (prix modifié, ajouté ou retiré) : cochez ceux à <span class="btn alt">Reprendre</span>. Un prix modifié à la main dans le tarif calculé n'est jamais écrasé sans votre accord. <span class="btn alt">Modifier la règle</span> recalcule les prix, <span class="btn alt">Détacher du tarif de base</span> arrête le suivi.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Activer ou désactiver un tarif</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Tarifs et prix : l'interrupteur Actif du tarif</span>
+        <p class="effect-text">Un tarif désactivé n'est plus proposé sur les pièces et ses prix ne se modifient plus ; il reste consultable dans le groupe <b>Désactivés</b>. Les pièces déjà créées gardent leurs prix. Le tarif par défaut reste toujours actif : choisissez d'abord un autre tarif par défaut.</p></div>
+    </div>
+    <div class="setting">
+      <div><h3>Supprimer un tarif</h3><span class="who bureau">Bureau</span></div>
+      <div class="where-to"><span>Réglages › Tarifs et prix : le bouton Supprimer du tarif</span>
+        <p class="effect-text">Supprime le tarif et <b>tous ses prix</b> (en vigueur, à venir, passés, par client ou fournisseur), après confirmation. Les tarifs calculés depuis lui gardent leurs prix et ne le suivent plus. Le tarif par défaut ne se supprime pas, ni un tarif déjà utilisé par une pièce ou une fiche client ou fournisseur : désactivez-le à la place.</p></div>
+    </div>
+    <div class="setting">
       <div><h3>Taux de TVA des ventes</h3><span class="who bureau">Bureau</span></div>
       <div class="where-to"><span>Réglages › Comptabilité et trésorerie › TVA</span>
         <p class="effect-text">Ce sont les choix de la liste <b>TVA</b> des pièces de vente. Le taux marqué <b>par défaut</b> est présélectionné sur chaque nouveau devis et chaque commande ; le bouton <span class="btn alt">Par défaut</span> en change. Un taux désactivé disparaît de la liste. <span class="btn alt">Nouveau taux</span> en ajoute un, sur le compte de TVA collectée.</p></div>
@@ -273,7 +293,7 @@ ol.setup span { font-size: .9rem; color: var(--ink-2); }
     <div class="setting">
       <div><h3>Tarif d'achat et prix d'achat</h3><span class="who bureau">Bureau</span></div>
       <div class="where-to"><span>Réglages › Tarifs et prix › Utiliser par défaut pour les achats</span>
-        <p class="effect-text">Le prix proposé quand on laisse le prix vide sur un devis fournisseur ou une commande d'achat. Sans prix dans ce tarif, Unicare reprend le <b>dernier prix payé</b>, affiché à côté de chaque article.</p></div>
+        <p class="effect-text">Le prix proposé quand on laisse le prix vide sur un devis fournisseur ou une commande d'achat : le prix en vigueur à la date de la pièce, ou le prix réservé à ce fournisseur s'il y en a un (avec son délai de livraison). Sans prix en vigueur, Unicare reprend le <b>dernier prix payé</b>, affiché à côté de chaque article avec l'<b>écart</b> au prix du tarif. <span class="btn alt">Reprendre</span> fige le dernier prix payé dans le tarif, dès aujourd'hui.</p></div>
     </div>
     <div class="setting">
       <div><h3>Taux de TVA des achats</h3><span class="who bureau">Bureau</span></div>

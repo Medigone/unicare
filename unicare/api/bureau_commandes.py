@@ -387,7 +387,7 @@ def _check_delivery(livraison, date):
 
 def _set_lines(doc, lignes):
 	"""Remplace les lignes. Un prix vide reprend celui du tarif ; chaque ligne prend la date de livraison de la commande."""
-	prices = _prices([article for article, _quantite, _prix in lignes])
+	prices = _prices([article for article, _quantite, _prix in lignes], doc.customer, doc.transaction_date)
 	doc.set("items", [])
 	for article, quantite, prix in lignes:
 		doc.append(

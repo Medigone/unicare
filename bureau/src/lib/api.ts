@@ -12,7 +12,7 @@ import type { AchatArticleChoice, AchatLineValues } from './achats'
 import type { FactureAchatDetail, FactureAchatOptions, FacturesAchatResponse, FactureAchatValues, FactureAchatView } from './facturesAchat'
 import type { InventaireDetail, InventaireOptions, InventairesResponse, InventaireView } from './inventaires'
 import type { ChecklistLigne, ReglagesProduction } from './reglages'
-import type { PrixLigne, PrixResponse, PrixVue, TarifSens, TarifsReglages } from './tarifs'
+import type { Changements, LigneValeurs, LignesArticle, PrixLigne, PrixResponse, PrixVue, Regle, TarifCopie, TarifSens, TarifsReglages } from './tarifs'
 import type { ModePaiement, ModeType, ReglagesCompta, TauxTva, TvaSens } from './compta'
 import type { ListeCode, ListeResume, ListeValeur } from './listes'
 import type { ParametresStock, ReglagesStock, SeuilLigne, SeuilsResponse, SeuilVue } from './reglagesStock'
@@ -882,11 +882,24 @@ export const marquerNotificationsLues = () => call('unicare.api.bureau_accueil.m
 
 const TARIFS = 'unicare.api.bureau_tarifs'
 export const getTarifs = () => call<TarifsReglages>(`${TARIFS}.get_tarifs`)
-export const getPrix = (liste: string, params: { search?: string; vue?: PrixVue; start?: number }) => call<PrixResponse>(`${TARIFS}.get_prix`, { liste, ...params })
+export const getPrix = (liste: string, params: { search?: string; vue?: PrixVue; start?: number; date?: string }) => call<PrixResponse>(`${TARIFS}.get_prix`, { liste, ...params })
 export const setPrix = (liste: string, ligne: Pick<PrixLigne, 'article' | 'modified'>, prix: string) =>
 	call<PrixLigne>(`${TARIFS}.set_prix`, { liste, article: ligne.article, prix, modified: ligne.modified ?? '' }, true)
-export const createTarif = (nom: string, sens: TarifSens) => call<TarifsReglages>(`${TARIFS}.create_tarif`, { nom, sens }, true)
+/** Nouveau tarif, vide ou calculé depuis `copie.base` (remise ou majoration, arrondi, prix à venir, prix des tiers). */
+export const createTarif = (nom: string, sens: TarifSens, copie?: TarifCopie | null) => call<TarifsReglages & { crees: number }>(`${TARIFS}.create_tarif`, { nom, sens, ...(copie ?? {}) }, true)
+export const getChangements = (liste: string) => call<Changements>(`${TARIFS}.get_changements`, { liste })
+export const recalculer = (liste: string, cles: string[], ignorer: string[] = []) => call<Changements & { touches: number }>(`${TARIFS}.recalculer`, { liste, cles, ignorer }, true)
+export const setRegle = (liste: string, regle: Pick<Regle, 'ajustement' | 'pourcentage' | 'arrondi'>) => call<Changements & { gardes: number }>(`${TARIFS}.set_regle`, { liste, ...regle }, true)
+/** Supprime un tarif et ses prix ; les tarifs calculés depuis lui sont détachés (`detaches`). */
+export const deleteTarif = (liste: string) => call<TarifsReglages & { supprimes: number; detaches: string[] }>(`${TARIFS}.delete_tarif`, { liste }, true)
+export const detacherTarif = (liste: string) => call<TarifsReglages>(`${TARIFS}.detacher`, { liste }, true)
 export const setTarifDefaut = (sens: TarifSens, liste: string) => call<TarifsReglages>(`${TARIFS}.set_tarif_defaut`, { sens, liste }, true)
+export const setTarifActif = (liste: string, actif: boolean) => call<TarifsReglages>(`${TARIFS}.set_tarif_actif`, { liste, actif: actif ? 1 : 0 }, true)
+export const getLignes = (liste: string, article: string, date?: string) => call<LignesArticle>(`${TARIFS}.get_lignes`, { liste, article, date })
+export const saveLigne = (liste: string, article: string, valeurs: LigneValeurs, ligne?: { ligne: string; modified: string } | null, clore = false) =>
+	call<LignesArticle>(`${TARIFS}.save_ligne`, { liste, article, valeurs, ligne: ligne?.ligne, modified: ligne?.modified, clore: clore ? 1 : 0 }, true)
+export const deleteLigne = (liste: string, ligne: { ligne: string; modified: string }) => call<LignesArticle>(`${TARIFS}.delete_ligne`, { liste, ligne: ligne.ligne, modified: ligne.modified }, true)
+export const reprendreDerniersPrix = (liste: string, articles?: string[]) => call<{ crees: number }>(`${TARIFS}.reprendre_derniers_prix`, { liste, articles }, true)
 
 const COMPTA = 'unicare.api.bureau_compta'
 export const getCompta = () => call<ReglagesCompta>(`${COMPTA}.get_compta`)

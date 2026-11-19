@@ -26,21 +26,20 @@ def buying_price_list():
 	)
 
 
-def buying_prices(item_codes):
-	"""Prix d'achat du tarif par défaut, sinon le dernier prix d'achat de l'article. Sans l'un ni l'autre : absent."""
+def buying_prices(item_codes, fournisseur=None, date=None):
+	"""Prix d'achat en vigueur dans le tarif par défaut, pour ce fournisseur à cette date (voir prix_en_vigueur).
+
+	Sans prix en vigueur : le dernier prix d'achat de l'article. Sans l'un ni l'autre : absent.
+	"""
+	from unicare.api.prix_en_vigueur import prix_en_vigueur
+
 	if not item_codes:
 		return {}
 	prices = {}
 	price_list = buying_price_list()
 	if price_list:
-		rows = frappe.get_all(
-			"Item Price",
-			filters={"price_list": price_list, "item_code": ["in", item_codes], "buying": 1},
-			fields=["item_code", "price_list_rate"],
-			order_by="valid_from desc, modified desc",
-		)
-		for row in rows:
-			prices.setdefault(row.item_code, flt(row.price_list_rate))
+		for code, row in prix_en_vigueur(price_list, item_codes, date, fournisseur=fournisseur).items():
+			prices[code] = flt(row.price_list_rate)
 	missing = [code for code in item_codes if code not in prices]
 	if missing:
 		for row in frappe.get_all(
@@ -158,7 +157,11 @@ def set_lines(doc, lignes, **extra):
 
 	`extra` : champs posés sur chaque ligne (date de réception prévue d'une commande).
 	"""
-	prices = buying_prices([article for article, _quantite, _prix in lignes])
+	prices = buying_prices(
+		[article for article, _quantite, _prix in lignes],
+		doc.get("supplier"),
+		doc.get("transaction_date") or doc.get("posting_date"),
+	)
 	doc.set("items", [])
 	for article, quantite, prix in lignes:
 		doc.append(
