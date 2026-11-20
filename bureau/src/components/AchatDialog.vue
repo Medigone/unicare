@@ -4,6 +4,7 @@ import LucideInfo from '~icons/lucide/info'
 import LucideTrash2 from '~icons/lucide/trash-2'
 import FormDialog from '@shared/components/FormDialog.vue'
 import ChoicePicker from './ChoicePicker.vue'
+import FournisseurDialog from './FournisseurDialog.vue'
 import QuickAddBar from './QuickAddBar.vue'
 import { createCommandeAchat, createDevisFournisseur, getCommandeAchatOptions, getDevisFournisseurOptions, searchAchatArticles, searchFournisseurs, updateCommandeAchat, updateDevisFournisseur } from '@/lib/api'
 import type { AchatArticleChoice, AchatOptions } from '@/lib/achats'
@@ -12,7 +13,8 @@ import { formatAmount } from '@/lib/clients'
 import { addArticle, dayFromToday, draftTotal, linesForServer, parseNumber, validateDevis, type DevisFormErrors, type DraftLine } from '@/lib/devis'
 import type { CommandeAchatDetail } from '@/lib/commandesAchat'
 import type { DevisFournisseurDetail } from '@/lib/devisFournisseur'
-import { canRead } from '@/lib/droits'
+import type { FournisseurChoice } from '@/lib/fournisseurs'
+import { canCreate, canRead } from '@/lib/droits'
 
 /**
  * Saisie d'un devis fournisseur ou d'une commande d'achat : fournisseur, date (validité ou réception prévue), TVA
@@ -81,6 +83,21 @@ onMounted(async () => {
 })
 
 const findFournisseurs = async (query: string) => (await searchFournisseurs(query, true)).map((item) => ({ ...item, hint: item.wilaya }))
+
+// Fournisseur absent de la recherche : il se crée par-dessus la pièce, qui garde sa saisie, puis il est choisi.
+const newFournisseur = ref<string | null>(null)
+const createdFournisseur = ref('')
+function pickFournisseur(choice: { name: string; label: string }) {
+	form.fournisseur = choice.name
+	form.fournisseurLabel = choice.label
+	delete errors.value.client
+}
+async function onFournisseurCreated(name: string, fournisseur: FournisseurChoice) {
+	createdFournisseur.value = name
+	pickFournisseur(fournisseur)
+	await nextTick()
+	document.querySelector<HTMLElement>('#achat-date')?.focus()
+}
 const findArticles = (query: string) => searchAchatArticles(query)
 // Stock de chaque article ajouté par la barre : affiché sous sa désignation.
 const stocks = reactive<Record<string, number | null | undefined>>({})
@@ -159,10 +176,16 @@ async function submit() {
 					input-id="achat-fournisseur"
 					placeholder="Raison sociale ou code"
 					:invalid="Boolean(errors.client)"
-					@pick="(choice) => ((form.fournisseur = choice.name), (form.fournisseurLabel = choice.label), delete errors.client)"
+					:create-label="canCreate('Supplier') ? 'Créer le fournisseur' : undefined"
+					@pick="pickFournisseur"
 					@clear="(form.fournisseur = ''), (form.fournisseurLabel = '')"
+					@create="(query) => (newFournisseur = query)"
 				/>
 				<p v-if="errors.client" class="field-error" role="alert">{{ errors.client }}</p>
+				<p v-else-if="form.fournisseur && form.fournisseur === createdFournisseur" class="field-note">
+					<LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" />
+					<span>Fournisseur créé. <a class="ref-link" :href="`/bureau/fournisseurs/${encodeURIComponent(createdFournisseur)}`" target="_blank" rel="noopener noreferrer">Compléter la fiche</a></span>
+				</p>
 			</div>
 			<div class="form-field">
 				<label class="field-label" for="achat-date">{{ isDevis ? "Valable jusqu'au" : 'Réception prévue le' }} <span class="req">obligatoire</span></label>
@@ -234,5 +257,8 @@ async function submit() {
 		<template #actions>
 			<button type="button" class="btn-primary" :disabled="busy" @click="submit">{{ busy ? 'Enregistrement…' : editing ? 'Enregistrer' : isDevis ? 'Créer le devis' : 'Créer la commande' }}</button>
 		</template>
+		<Teleport to="body">
+			<FournisseurDialog v-if="newFournisseur !== null" quick :name="newFournisseur" @close="newFournisseur = null" @created="onFournisseurCreated" @pick="pickFournisseur" />
+		</Teleport>
 	</FormDialog>
 </template>

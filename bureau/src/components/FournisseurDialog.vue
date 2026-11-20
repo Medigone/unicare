@@ -8,13 +8,17 @@ import { createFournisseur, getFournisseurOptions, searchCommunes, searchFournis
 import type { CommuneChoice } from '@/lib/clients'
 import { changedFournisseurValues, fournisseurFormValues, normalizeName, validateFournisseur, type FournisseurChoice, type FournisseurDetail, type FournisseurField, type FournisseurOptions, type FournisseurValues } from '@/lib/fournisseurs'
 
-/** Nouveau fournisseur, ou modification d'un fournisseur : la même fenêtre. Le contact principal ne se saisit qu'à la création. */
-const props = defineProps<{ fournisseur?: FournisseurDetail }>()
-const emit = defineEmits<{ close: []; created: [name: string]; saved: [fournisseur: FournisseurDetail] }>()
+/**
+ * Nouveau fournisseur, ou modification d'un fournisseur : la même fenêtre. Le contact principal ne se saisit qu'à la création.
+ * `quick` : création depuis une pièce d'achat, réduite à la raison sociale, la catégorie et la commune ; `name` la préremplit.
+ */
+const props = defineProps<{ fournisseur?: FournisseurDetail; quick?: boolean; name?: string }>()
+const emit = defineEmits<{ close: []; created: [name: string, fournisseur: FournisseurChoice]; saved: [fournisseur: FournisseurDetail]; pick: [fournisseur: FournisseurChoice] }>()
 
 const editing = computed(() => Boolean(props.fournisseur))
 const EMPTY: FournisseurValues = { supplier_name: '', status: '', categorie: '', commune: '', contact: '', fonction: '', contact_telephone: '', contact_email: '', rc: '', nif: '', nis: '', ai: '' }
-const initial: FournisseurValues = props.fournisseur ? { ...EMPTY, ...fournisseurFormValues(props.fournisseur) } : { ...EMPTY }
+// Le nom repris de la recherche n'est pas une saisie : la fermeture ne demande pas de confirmation.
+const initial: FournisseurValues = props.fournisseur ? { ...EMPTY, ...fournisseurFormValues(props.fournisseur) } : { ...EMPTY, supplier_name: props.name?.trim() ?? '' }
 const values = reactive<Record<FournisseurField, string>>({ ...(initial as Record<FournisseurField, string>) })
 const options = ref<FournisseurOptions | null>(null)
 const loadError = ref('')
@@ -148,7 +152,9 @@ async function submit() {
 	serverError.value = ''
 	if (Object.keys(errors.value).length) {
 		await nextTick()
-		document.querySelector<HTMLElement>('.dialog [aria-invalid="true"]')?.focus()
+		// La dernière fenêtre ouverte : ouverte depuis une pièce d'achat, celle-ci est par-dessus.
+		const dialogs = document.querySelectorAll('.dialog')
+		dialogs[dialogs.length - 1]?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
 		return
 	}
 	if (props.fournisseur && !Object.keys(changes.value).length) {
@@ -162,7 +168,7 @@ async function submit() {
 		} else {
 			const { status: _status, ...fields } = values
 			const { name } = await createFournisseur(Object.fromEntries(Object.entries(fields).map(([field, value]) => [field, value.trim()])))
-			emit('created', name)
+			emit('created', name, { name, label: values.supplier_name.trim(), wilaya: communeWilaya.value || null, disabled: 0 })
 		}
 		emit('close')
 	} catch (e) {
@@ -181,12 +187,24 @@ onBeforeUnmount(() => {
 <template>
 	<FormDialog :title="editing ? 'Modifier le fournisseur' : 'Nouveau fournisseur'" :dirty="dirty" :busy="busy" :hint="editing ? 'Ctrl + Entrée pour enregistrer' : 'Ctrl + Entrée pour créer'" @close="emit('close')" @submit="submit">
 		<p v-if="loadError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ loadError }}</p>
+		<p v-if="quick" class="field-note -mt-1"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Le fournisseur est choisi pour la pièce en cours. Contact et pièces administratives se complètent ensuite depuis la fiche.</span></p>
 
 		<div class="form-field">
 			<label class="field-label" for="fournisseur-raison">Raison sociale <span class="req">obligatoire</span></label>
 			<input id="fournisseur-raison" v-model="values.supplier_name" class="field-input" placeholder="Nom de la société" autocomplete="off" :aria-invalid="Boolean(errors.supplier_name)" />
 			<p v-if="errors.supplier_name" class="field-error" role="alert">{{ errors.supplier_name }}</p>
-			<p v-if="similar.length" class="field-note">
+			<p v-if="quick && similar.length" class="field-note">
+				<LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" />
+				<span>
+					Déjà enregistré :
+					<template v-for="(item, index) in similar" :key="item.name"
+						>{{ index ? ', ' : '' }}<template v-if="item.disabled">{{ item.label }} (désactivé ou exclu)</template
+						><button v-else type="button" class="ref-link" :title="`Choisir ${item.label} pour la pièce`" @click="emit('pick', item), emit('close')">{{ item.label }}</button
+						><template v-if="item.wilaya && !item.disabled"> ({{ item.wilaya }})</template></template
+					>. Cliquez un nom pour le choisir plutôt.
+				</span>
+			</p>
+			<p v-else-if="similar.length" class="field-note">
 				<LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" />
 				<span>
 					Déjà enregistré :
@@ -254,7 +272,7 @@ onBeforeUnmount(() => {
 			</div>
 		</div>
 
-		<template v-if="!editing">
+		<template v-if="!editing && !quick">
 			<h3 class="form-section">Contact principal</h3>
 			<p class="field-note -mt-1"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Facultatif. Le contact est créé avec le fournisseur et lui est lié, comme sur le Desk.</span></p>
 			<div class="form-grid">
@@ -279,6 +297,7 @@ onBeforeUnmount(() => {
 			</div>
 		</template>
 
+		<template v-if="!quick">
 		<h3 class="form-section">Pièces administratives</h3>
 		<div class="form-grid">
 			<div v-for="item in PIECES" :key="item.field" class="form-field">
@@ -287,11 +306,12 @@ onBeforeUnmount(() => {
 			</div>
 		</div>
 		<p v-if="!editing" class="field-note"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Les fichiers des pièces se joignent ensuite depuis la fiche.</span></p>
+		</template>
 
 		<p v-if="serverError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ serverError }}</p>
 
 		<template #actions>
-			<button type="button" class="btn-primary" :disabled="busy" @click="submit">{{ busy ? 'Enregistrement…' : editing ? 'Enregistrer' : 'Créer le fournisseur' }}</button>
+			<button type="button" class="btn-primary" :disabled="busy" @click="submit">{{ busy ? 'Enregistrement…' : editing ? 'Enregistrer' : quick ? 'Créer et choisir' : 'Créer le fournisseur' }}</button>
 		</template>
 	</FormDialog>
 </template>
