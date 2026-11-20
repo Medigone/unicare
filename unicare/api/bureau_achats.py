@@ -15,6 +15,7 @@ from unicare.api.bureau_list import _parse
 from unicare.api.bureau_postes import require_bureau
 
 SUPPLIER = "Supplier"
+PRICE_LIST = "Price List"
 TAXES_ACHAT = "Purchase Taxes and Charges Template"
 ARTICLE_SEARCH_LIMIT = 12
 EXCLU = "Exclu"
@@ -26,21 +27,41 @@ def buying_price_list():
 	)
 
 
-def buying_prices(item_codes, fournisseur=None, date=None):
-	"""Prix d'achat en vigueur dans le tarif par défaut, pour ce fournisseur à cette date (voir prix_en_vigueur).
+def buying_lists():
+	"""Listes de prix d'achat actives, proposées dans les fenêtres."""
+	return frappe.get_all(PRICE_LIST, filters={"buying": 1, "enabled": 1}, pluck="name", order_by="name asc")
 
-	Sans prix en vigueur : le dernier prix d'achat de l'article. Sans l'un ni l'autre : absent.
+
+def liste_achat(value=None, fournisseur=None):
+	"""La liste de prix d'une pièce d'achat : celle choisie, sinon celle du fournisseur, sinon celle par défaut."""
+	value = cstr(value).strip()
+	if value:
+		if not frappe.db.exists(PRICE_LIST, {"name": value, "buying": 1, "enabled": 1}):
+			frappe.throw(_("Choisissez une liste de prix d'achat active."))
+		return value
+	own = frappe.db.get_value(SUPPLIER, fournisseur, "default_price_list") if fournisseur else None
+	if own and frappe.db.exists(PRICE_LIST, {"name": own, "buying": 1, "enabled": 1}):
+		return own
+	return buying_price_list()
+
+
+def buying_prices(item_codes, fournisseur=None, date=None, liste=None, dernier=True):
+	"""Prix d'achat en vigueur dans le tarif `liste` (par défaut : celui des réglages), pour ce fournisseur à cette date.
+
+	Voir prix_en_vigueur.
+
+	Sans prix en vigueur : le dernier prix d'achat de l'article (sauf `dernier` faux). Sans l'un ni l'autre : absent.
 	"""
 	from unicare.api.prix_en_vigueur import prix_en_vigueur
 
 	if not item_codes:
 		return {}
 	prices = {}
-	price_list = buying_price_list()
+	price_list = liste or buying_price_list()
 	if price_list:
 		for code, row in prix_en_vigueur(price_list, item_codes, date, fournisseur=fournisseur).items():
 			prices[code] = flt(row.price_list_rate)
-	missing = [code for code in item_codes if code not in prices]
+	missing = [code for code in item_codes if code not in prices] if dernier else []
 	if missing:
 		for row in frappe.get_all(
 			"Item", filters={"name": ["in", missing]}, fields=["name", "last_purchase_rate"]
@@ -66,6 +87,7 @@ def taxes_options(company):
 		"taxes": [{"value": row.name, "label": row.title or row.name} for row in templates],
 		"taxes_defaut": next((row.name for row in templates if row.is_default), None),
 		"liste_prix": buying_price_list(),
+		"listes_prix": buying_lists(),
 	}
 
 
@@ -161,6 +183,7 @@ def set_lines(doc, lignes, **extra):
 		[article for article, _quantite, _prix in lignes],
 		doc.get("supplier"),
 		doc.get("transaction_date") or doc.get("posting_date"),
+		doc.get("buying_price_list"),
 	)
 	doc.set("items", [])
 	for article, quantite, prix in lignes:
@@ -177,9 +200,30 @@ def set_lines(doc, lignes, **extra):
 
 
 @frappe.whitelist()
-def search_achat_articles(search=None):
-	"""Articles d'achat actifs, avec leur unité, leur prix d'achat connu et leur stock."""
+def search_achat_articles(search=None, liste_prix=None, fournisseur=None):
+	"""Articles d'achat actifs, avec leur unité, leur prix d'achat dans la liste choisie (pour ce fournisseur) et leur stock."""
 	from unicare.api.bureau_devis import article_search
 
 	require_bureau()
-	return article_search(search, "is_purchase_item", buying_prices)
+	fournisseur = cstr(fournisseur).strip() or None
+	liste = liste_achat(liste_prix, fournisseur)
+	found = article_search(search, "is_purchase_item", lambda codes: buying_prices(codes, fournisseur, None, liste))
+	# Le prix de la liste seule (sans le dernier prix payé) : un prix saisi autre que lui se reporte dans la liste.
+	dans_liste = buying_prices([row["name"] for row in found], fournisseur, None, liste, dernier=False)
+	for row in found:
+		row["prix_liste"] = dans_liste.get(row["name"])
+	return found
+
+
+@frappe.whitelist()
+def get_prix_achat(articles=None, liste_prix=None, fournisseur=None):
+	"""Prix d'achat de ces articles pour ce fournisseur : `prix`, repris par les lignes (la liste, sinon le dernier
+	prix payé) ; `liste`, ceux de la liste seule, auxquels se compare un prix saisi."""
+	require_bureau()
+	codes = [cstr(code) for code in (_parse(articles) or []) if cstr(code)][:LIGNES_MAX]
+	fournisseur = cstr(fournisseur).strip() or None
+	liste = liste_achat(liste_prix, fournisseur)
+	return {
+		"prix": buying_prices(codes, fournisseur, None, liste),
+		"liste": buying_prices(codes, fournisseur, None, liste, dernier=False),
+	}

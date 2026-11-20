@@ -7,6 +7,7 @@ import LucideCalendar from '~icons/lucide/calendar'
 import LucideCalendarClock from '~icons/lucide/calendar-clock'
 import LucideHash from '~icons/lucide/hash'
 import LucidePrinter from '~icons/lucide/printer'
+import LucideTag from '~icons/lucide/tag'
 import LucideUser from '~icons/lucide/user'
 import ActivityFeed from '@shared/components/ActivityFeed.vue'
 import FormDialog from '@shared/components/FormDialog.vue'
@@ -187,6 +188,7 @@ async function nouvelleVersion(confirmed = false) {
 							<div><dt><LucideCalendar aria-hidden="true" />Date</dt><dd class="tabular-nums">{{ formatDay(devis.date) || '—' }}</dd></div>
 							<div><dt><LucideCalendarClock aria-hidden="true" />Valable jusqu'au</dt><dd class="tabular-nums" :class="expired && 'text-tone-red'">{{ formatDay(devis.valable) || '—' }}</dd></div>
 							<div><dt><LucideHash aria-hidden="true" />Réf. fournisseur</dt><dd class="tabular-nums" :class="!devis.reference && 'record-fact-none'">{{ devis.reference || 'Non renseignée' }}</dd></div>
+							<div v-if="devis.liste_prix"><dt><LucideTag aria-hidden="true" />Liste de prix</dt><dd>{{ devis.liste_prix }}</dd></div>
 							<div><dt><LucideUser aria-hidden="true" />Créé par</dt><dd>{{ devis.cree_par }}</dd></div>
 						</dl>
 					</div>

@@ -5,16 +5,18 @@ import LucideTrash2 from '~icons/lucide/trash-2'
 import FormDialog from '@shared/components/FormDialog.vue'
 import ChoicePicker from './ChoicePicker.vue'
 import ClientDialog from './ClientDialog.vue'
+import PrixTarifDialog from './PrixTarifDialog.vue'
 import QuickAddBar from './QuickAddBar.vue'
-import { createCommande, createDevis, getCommandeOptions, getDevisOptions, searchClients, searchDevisArticles, updateCommande, updateDevis } from '@/lib/api'
+import { createCommande, createDevis, getCommandeOptions, getDevisOptions, getPrixVente, searchClients, searchDevisArticles, updateCommande, updateDevis } from '@/lib/api'
 import { formatQty } from '@/lib/articles'
 import { formatAmount, type ClientChoice } from '@/lib/clients'
 import type { CommandeDetail } from '@/lib/commandes'
 import { canCreate, canRead } from '@/lib/droits'
-import { addArticle, dayFromToday, draftTotal, linesForServer, parseNumber, validateDevis, type DevisArticleChoice, type DevisDetail, type DevisFormErrors, type DraftLine } from '@/lib/devis'
+import { addArticle, applyTarifs, dayFromToday, draftTotal, linesForServer, parseNumber, prixManuels, validateDevis, type DevisArticleChoice, type DevisDetail, type DevisFormErrors, type DraftLine } from '@/lib/devis'
 
 /**
- * Saisie d'un devis ou d'une commande : client, date (validité ou livraison), TVA et lignes, au prix du tarif.
+ * Saisie d'un devis ou d'une commande : client, date (validité ou livraison), TVA, liste de prix et lignes, au prix
+ * de cette liste. La liste vient du client s'il en a une, sinon des réglages de vente ; elle se change à la main.
  * Sans `piece`, la fenêtre crée ; avec, elle modifie le brouillon. Le client ne change plus une fois la pièce créée.
  */
 const props = defineProps<{ kind: 'devis' | 'commande'; piece?: DevisDetail | CommandeDetail; client?: { name: string; label: string } }>()
@@ -36,14 +38,22 @@ const form = reactive({
 	clientLabel: props.piece?.client_label ?? props.client?.label ?? '',
 	date: (isDevis ? devis?.valable : commande?.livraison) ?? '',
 	taxes: props.piece?.taxes_modele ?? '',
+	liste: props.piece?.liste_prix ?? '',
 	reference: commande?.reference ?? '',
 	lignes: props.piece ? props.piece.lignes.map((row) => line({ article: row.article, designation: row.designation, unite: row.unite ?? '', quantite: String(row.quantite), prix: String(row.prix) })) : ([] as DraftLine[]),
 })
 // Le tarif de chaque article choisi : il sert de prix quand le champ reste vide.
 const tarifs = reactive<Record<string, number | null>>(Object.fromEntries((props.piece?.lignes ?? []).map((row) => [row.article, row.prix_tarif || null])))
 const initial = JSON.parse(JSON.stringify(form)) as typeof form
+// Prix des lignes à l'ouverture : seuls les prix saisis depuis se reportent dans la liste.
+const prixAvant: Record<number, string> = Object.fromEntries(form.lignes.map((line) => [line.key, line.prix]))
 const dirty = computed(() => JSON.stringify(form) !== JSON.stringify(initial))
-const options = ref<{ taxes: { value: string; label: string }[]; taxes_defaut: string | null; liste_prix: string | null; validite_jours?: number } | null>(null)
+const options = ref<{ taxes: { value: string; label: string }[]; taxes_defaut: string | null; liste_prix: string | null; listes_prix: string[]; validite_jours?: number } | null>(null)
+// La liste de la pièce reste proposée même désactivée depuis : la fenêtre ne la change pas d'elle-même.
+const listes = computed(() => {
+	const actives = options.value?.listes_prix ?? []
+	return form.liste && !actives.includes(form.liste) ? [form.liste, ...actives] : actives
+})
 const loadError = ref('')
 const serverError = ref('')
 const errors = ref<DevisFormErrors>({})
@@ -59,25 +69,62 @@ onMounted(async () => {
 		if (!editing.value) {
 			form.date ||= dayFromToday(isDevis ? (options.value.validite_jours ?? 30) : 7)
 			form.taxes ||= options.value.taxes_defaut ?? ''
+			form.liste ||= (await listeDuClient()) || options.value.liste_prix || ''
 			// Préremplis : ce n'est pas une saisie, la fermeture ne demande pas de confirmation.
 			initial.date = form.date
 			initial.taxes = form.taxes
+			initial.liste = form.liste
 		}
 	} catch (e) {
 		loadError.value = (e as Error).message
 	}
 })
 
+/** Client déjà choisi à l'ouverture (depuis sa fiche) : sa propre liste de vente, s'il en a une active. */
+async function listeDuClient() {
+	if (!props.client?.name) return ''
+	try {
+		const found = (await searchClients(props.client.label)).find((item) => item.name === props.client?.name)
+		return found?.liste_prix && options.value?.listes_prix.includes(found.liste_prix) ? found.liste_prix : ''
+	} catch {
+		return ''
+	}
+}
+
 const findClients = async (query: string) => (await searchClients(query || ' ')).filter((client) => !client.disabled).map((client) => ({ ...client, hint: client.wilaya }))
-const findArticles = (query: string) => searchDevisArticles(query)
+const findArticles = (query: string) => searchDevisArticles(query, form.liste, form.client)
+
+// Autre liste ou autre client : les prix du tarif changent. Une seule réponse compte, celle du dernier changement.
+const tarifsError = ref('')
+let lastTarifs = 0
+async function refreshTarifs() {
+	const articles = [...new Set(form.lignes.map((line) => line.article).filter(Boolean))]
+	tarifsError.value = ''
+	if (!articles.length || linesLocked) return
+	const request = ++lastTarifs
+	try {
+		const prix = await getPrixVente(articles, form.liste, form.client)
+		if (request === lastTarifs) applyTarifs(form.lignes, tarifs, prix)
+	} catch (e) {
+		if (request === lastTarifs) tarifsError.value = (e as Error).message
+	}
+}
+function changeListe(liste: string) {
+	if (liste === form.liste) return
+	form.liste = liste
+	refreshTarifs()
+}
 
 // Client absent de la recherche : il se crée par-dessus la pièce, qui garde sa saisie, puis il est choisi.
 const newClient = ref<string | null>(null)
 const createdClient = ref('')
-function pickClient(choice: { name: string; label: string }) {
+function pickClient(choice: { name: string; label: string; liste_prix?: string | null }) {
 	form.client = choice.name
 	form.clientLabel = choice.label
 	delete errors.value.client
+	// Le client a sa liste : elle s'applique. Sinon la liste en cours reste, avec les prix propres à ce client.
+	if (choice.liste_prix && options.value?.listes_prix.includes(choice.liste_prix) && choice.liste_prix !== form.liste) changeListe(choice.liste_prix)
+	else refreshTarifs()
 }
 async function onClientCreated(name: string, client: ClientChoice) {
 	createdClient.value = name
@@ -111,6 +158,25 @@ function lineTotal(target: DraftLine) {
 	return Number.isFinite(quantite * prix) ? formatAmount(quantite * prix) : '—'
 }
 
+// Prix saisis à la main : un article absent de la liste y est ajouté ; un prix autre que celui de la liste attend le
+// choix de la personne (mettre la liste à jour, ou garder ce prix pour cette pièce). `null` : retour à la saisie.
+const ecarts = ref<ReturnType<typeof prixManuels> | null>(null)
+let choixEcarts: ((choice: 'liste' | 'piece' | null) => void) | null = null
+async function tarifsAReporter(): Promise<string[] | null> {
+	if (linesLocked || !form.liste || !canCreate('Item Price')) return []
+	const found = prixManuels(form.lignes, tarifs, prixAvant)
+	if (!found.differents.length) return found.nouveaux
+	ecarts.value = found
+	const choice = await new Promise<'liste' | 'piece' | null>((resolve) => (choixEcarts = resolve))
+	ecarts.value = null
+	if (!choice) return null
+	return choice === 'liste' ? [...found.nouveaux, ...found.differents.map((item) => item.article)] : found.nouveaux
+}
+function choisirEcarts(choice: 'liste' | 'piece' | null) {
+	choixEcarts?.(choice)
+	choixEcarts = null
+}
+
 async function submit() {
 	if (busy.value) return
 	errors.value = validateDevis({ client: form.client, valable: form.date, lignes: form.lignes }, dayFromToday(0), dateLabel)
@@ -125,14 +191,16 @@ async function submit() {
 		return
 	}
 	const lignes = linesLocked ? undefined : linesForServer(form.lignes)
+	const reportes = await tarifsAReporter()
+	if (!reportes) return
 	busy.value = true
 	try {
 		if (isDevis) {
-			const values = { valable: form.date, taxes: form.taxes, lignes }
+			const values = { valable: form.date, taxes: form.taxes, liste_prix: form.liste || undefined, tarifs: reportes, lignes }
 			if (devis) emit('saved', await updateDevis(devis, values))
 			else emit('created', (await createDevis({ ...values, client: form.client })).name)
 		} else {
-			const values = { livraison: form.date, taxes: form.taxes, reference: form.reference.trim(), lignes }
+			const values = { livraison: form.date, taxes: form.taxes, liste_prix: form.liste || undefined, tarifs: reportes, reference: form.reference.trim(), lignes }
 			if (commande) emit('saved', await updateCommande(commande, values))
 			else emit('created', (await createCommande({ ...values, client: form.client })).name)
 		}
@@ -183,6 +251,15 @@ async function submit() {
 					<option value="">Sans TVA</option>
 					<option v-for="item in options?.taxes" :key="item.value" :value="item.value">{{ item.label }}</option>
 				</select>
+			</div>
+			<div class="form-field">
+				<label class="field-label" for="vente-liste">Liste de prix</label>
+				<select v-search id="vente-liste" :value="form.liste" class="field-input" :disabled="linesLocked" @change="changeListe(($event.target as HTMLSelectElement).value)">
+					<option v-if="!listes.length" value="">Aucune liste de vente active</option>
+					<option v-for="item in listes" :key="item" :value="item">{{ item }}</option>
+				</select>
+				<p v-if="tarifsError" class="field-error" role="alert">{{ tarifsError }}</p>
+				<p v-else-if="linesLocked" class="field-note"><span>Reprise du devis : elle se change sur le Desk.</span></p>
 			</div>
 			<div v-if="!isDevis" class="form-field">
 				<label class="field-label" for="vente-reference">Référence client</label>
@@ -235,7 +312,7 @@ async function submit() {
 			<p class="text-sm">Total HT : <strong class="tabular-nums">{{ formatAmount(total) }} DA</strong> <span class="text-ink-gray-6">· TVA calculée à l'enregistrement</span></p>
 		</div>
 		<p v-if="errors.lignes" class="field-error" role="alert">{{ errors.lignes }}</p>
-		<p v-if="!linesLocked" class="field-note"><span>Un prix laissé vide reprend celui du tarif « {{ options?.liste_prix ?? 'de vente' }} ». Une ligne sans prix empêche la validation {{ isDevis ? 'du devis' : 'de la commande' }}.</span><a v-if="sansPrix && options?.liste_prix && canRead('Item Price')" :href="`/bureau/tarifs/${encodeURIComponent(options.liste_prix)}`" target="_blank" rel="noopener" class="font-medium underline">Ajouter les prix manquants au tarif</a></p>
+		<p v-if="!linesLocked" class="field-note"><span>Un prix laissé vide reprend celui de la liste « {{ form.liste || 'de vente' }} »<template v-if="form.liste && canCreate('Item Price')"> ; un prix saisi pour un article absent de la liste y est ajouté</template>. Une ligne sans prix empêche la validation {{ isDevis ? 'du devis' : 'de la commande' }}.</span><a v-if="sansPrix && form.liste && canRead('Item Price')" :href="`/bureau/tarifs/${encodeURIComponent(form.liste)}`" target="_blank" rel="noopener" class="font-medium underline">Ajouter les prix manquants au tarif</a></p>
 
 		<p v-if="serverError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ serverError }}</p>
 
@@ -244,6 +321,7 @@ async function submit() {
 		</template>
 		<Teleport to="body">
 			<ClientDialog v-if="newClient !== null" quick :name="newClient" @close="newClient = null" @created="onClientCreated" @pick="pickClient" />
+			<PrixTarifDialog v-if="ecarts" :liste="form.liste" :piece="isDevis ? 'ce devis' : 'cette commande'" :lignes="ecarts.differents" :nouveaux="ecarts.nouveaux.length" @close="choisirEcarts(null)" @choose="choisirEcarts" />
 		</Teleport>
 	</FormDialog>
 </template>

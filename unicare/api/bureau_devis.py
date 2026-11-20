@@ -30,6 +30,8 @@ DEVIS = "Quotation"
 LIGNES = "Quotation Item"
 COMMANDE = "Sales Order"
 CUSTOMER = "Customer"
+PRICE_LIST = "Price List"
+ITEM_PRICE = "Item Price"
 TAXES = "Sales Taxes and Charges Template"
 LOST_REASON = "Quotation Lost Reason"
 
@@ -231,6 +233,61 @@ def _price_list():
 	)
 
 
+def selling_lists():
+	"""Listes de prix de vente actives, proposées dans les fenêtres."""
+	return frappe.get_all(PRICE_LIST, filters={"selling": 1, "enabled": 1}, pluck="name", order_by="name asc")
+
+
+def liste_vente(value=None, client=None):
+	"""La liste de prix d'une pièce de vente : celle choisie, sinon celle du client, sinon celle par défaut."""
+	value = cstr(value).strip()
+	if value:
+		if not frappe.db.exists(PRICE_LIST, {"name": value, "selling": 1, "enabled": 1}):
+			frappe.throw(_("Choisissez une liste de prix de vente active."))
+		return value
+	own = frappe.db.get_value(CUSTOMER, client, "default_price_list") if client else None
+	if own and frappe.db.exists(PRICE_LIST, {"name": own, "selling": 1, "enabled": 1}):
+		return own
+	return _price_list()
+
+
+def enregistrer_tarifs(liste, lignes, articles, client=None, fournisseur=None):
+	"""Prix saisis à la main reportés dans la liste de prix : la fenêtre nomme les `articles` à reporter.
+
+	Un article sans prix en vigueur reçoit une ligne générale, à l'unité de stock, valable dès aujourd'hui ; sinon la
+	ligne en vigueur pour ce tiers (celle que la pièce a reprise) prend le nouveau prix. Droits : ceux d'ERPNext.
+	"""
+	from unicare.api.prix_en_vigueur import prix_en_vigueur
+
+	articles = {cstr(code) for code in (_parse(articles) or []) if cstr(code)}
+	saisis = {article: prix for article, _quantite, prix in lignes if article in articles and flt(prix) > 0}
+	if not liste or not saisis:
+		return
+	courants = prix_en_vigueur(liste, list(saisis), None, client, fournisseur)
+	for article, prix in saisis.items():
+		row = courants.get(article)
+		if row and flt(row.price_list_rate) == flt(prix):
+			continue
+		if row:
+			doc = frappe.get_doc(ITEM_PRICE, row.name)
+			doc.check_permission("write")
+			doc.price_list_rate = prix
+			doc.save()
+		else:
+			doc = frappe.new_doc(ITEM_PRICE)
+			doc.update(
+				{
+					"price_list": liste,
+					"item_code": article,
+					"uom": frappe.db.get_value("Item", article, "stock_uom"),
+					"price_list_rate": prix,
+					"valid_from": today(),
+				}
+			)
+			doc.check_permission("create")
+			doc.insert()
+
+
 def _taxes_templates():
 	return frappe.get_all(
 		TAXES,
@@ -250,18 +307,21 @@ def get_devis_options():
 		"taxes_defaut": next((row.name for row in templates if row.is_default), None),
 		"validite_jours": VALIDITE_PAR_DEFAUT,
 		"liste_prix": _price_list(),
+		"listes_prix": selling_lists(),
 		"filter_fields": doctype_filter_fields(DEVIS),
 	}
 
 
-def _prices(item_codes, client=None, date=None):
-	"""Prix de vente en vigueur dans le tarif par défaut, pour ce client à cette date (voir prix_en_vigueur).
+def _prices(item_codes, client=None, date=None, liste=None):
+	"""Prix de vente en vigueur dans le tarif `liste` (par défaut : celui des réglages), pour ce client à cette date.
+
+	Voir prix_en_vigueur.
 
 	Un article sans prix part à zéro : la validation le refusera.
 	"""
 	from unicare.api.prix_en_vigueur import prix_en_vigueur
 
-	price_list = _price_list()
+	price_list = liste or _price_list()
 	if not item_codes or not price_list:
 		return {}
 	rows = prix_en_vigueur(price_list, item_codes, date, client=client)
@@ -324,10 +384,21 @@ def article_search(search, flag, prices_of, limit=ARTICLE_SEARCH_LIMIT):
 
 
 @frappe.whitelist()
-def search_devis_articles(search=None):
-	"""Articles vendables actifs, avec leur unité, leur prix de vente du tarif par défaut et leur stock."""
+def search_devis_articles(search=None, liste_prix=None, client=None):
+	"""Articles vendables actifs, avec leur unité, leur prix dans la liste choisie (pour ce client) et leur stock."""
 	require_bureau()
-	return article_search(search, "is_sales_item", _prices)
+	client = cstr(client).strip() or None
+	liste = liste_vente(liste_prix, client)
+	return article_search(search, "is_sales_item", lambda codes: _prices(codes, client, None, liste))
+
+
+@frappe.whitelist()
+def get_prix_vente(articles=None, liste_prix=None, client=None):
+	"""Prix de ces articles dans une liste de vente, pour ce client : la fenêtre les reprend au changement de liste."""
+	require_bureau()
+	codes = [cstr(code) for code in (_parse(articles) or []) if cstr(code)][:LIGNES_MAX]
+	client = cstr(client).strip() or None
+	return _prices(codes, client, None, liste_vente(liste_prix, client))
 
 
 def blocked(doc):
@@ -430,6 +501,7 @@ def _devis_payload(doc):
 		"cree_par": get_fullname(doc.owner),
 		"devise": doc.currency,
 		"taxes_modele": doc.taxes_and_charges,
+		"liste_prix": doc.selling_price_list,
 		"lignes": [_line(item) for item in doc.items],
 		"taxes": tax_lines(doc),
 		"total": flt(doc.net_total),
@@ -505,7 +577,9 @@ def _clean_lines(lignes):
 def _set_lines(doc, lignes):
 	"""Remplace les lignes. Un prix vide reprend celui du tarif (client et date du devis) ; un prix saisi l'emporte."""
 	client = doc.party_name if doc.quotation_to == "Customer" else None
-	prices = _prices([article for article, _quantite, _prix in lignes], client, doc.transaction_date)
+	prices = _prices(
+		[article for article, _quantite, _prix in lignes], client, doc.transaction_date, doc.selling_price_list
+	)
 	doc.set("items", [])
 	for article, quantite, prix in lignes:
 		rate = prices.get(article, 0) if prix is None else prix
@@ -555,13 +629,14 @@ def create_devis(values=None):
 			"company": _company(),
 			"transaction_date": date,
 			"valid_till": _check_validity(values.get("valable"), date),
-			"selling_price_list": _price_list(),
+			"selling_price_list": liste_vente(values.get("liste_prix"), client),
 			"order_type": "Sales",
 		}
 	)
 	_set_lines(doc, lignes)
 	_set_taxes(doc, cstr(values.get("taxes")).strip())
 	doc.insert()
+	enregistrer_tarifs(doc.selling_price_list, lignes, values.get("tarifs"), client)
 	return {"name": doc.name}
 
 
@@ -570,13 +645,18 @@ def update_devis(name, modified, values=None):
 	"""Brouillon seulement : lignes, validité et TVA. Les champs absents ne changent pas."""
 	doc = _for_work(name, modified, "modifier")
 	values = _parse(values) or {}
-	if "lignes" in values:
-		_set_lines(doc, _clean_lines(values["lignes"]))
+	# La liste d'abord : les lignes en reprennent les prix.
+	if "liste_prix" in values:
+		doc.selling_price_list = liste_vente(values["liste_prix"], doc.party_name)
+	lignes = _clean_lines(values["lignes"]) if "lignes" in values else []
+	if lignes:
+		_set_lines(doc, lignes)
 	if "valable" in values:
 		doc.valid_till = _check_validity(values["valable"], doc.transaction_date)
 	if "taxes" in values:
 		_set_taxes(doc, cstr(values["taxes"]).strip())
 	doc.save()
+	enregistrer_tarifs(doc.selling_price_list, lignes, values.get("tarifs"), doc.party_name)
 	return _devis_payload(doc)
 
 

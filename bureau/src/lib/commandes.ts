@@ -91,6 +91,7 @@ export interface CommandeDetail {
 	cree_par: string
 	devise: string
 	taxes_modele: string | null
+	liste_prix: string | null
 	lignes: CommandeLine[]
 	/** Une ligne « TVA », et le droit de timbre à part s'il y en a un. */
 	taxes: { description: string; montant: number }[]
@@ -119,6 +120,7 @@ export interface CommandeOptions {
 	taxes: { value: string; label: string }[]
 	taxes_defaut: string | null
 	liste_prix: string | null
+	listes_prix: string[]
 }
 
 /** Libellés des changements de statut, comme les boutons du Desk. */

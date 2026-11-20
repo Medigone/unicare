@@ -10,6 +10,7 @@ import LucideMapPin from '~icons/lucide/map-pin'
 import LucideDownload from '~icons/lucide/download'
 import LucidePrinter from '~icons/lucide/printer'
 import LucideTruck from '~icons/lucide/truck'
+import LucideTag from '~icons/lucide/tag'
 import LucideUser from '~icons/lucide/user'
 import ActivityFeed from '@shared/components/ActivityFeed.vue'
 import FormDialog from '@shared/components/FormDialog.vue'
@@ -203,6 +204,7 @@ async function nouvelleVersion(confirmed = false) {
 							<div><dt><LucideTruck aria-hidden="true" />Livraison prévue</dt><dd class="tabular-nums" :class="late && 'text-tone-red'">{{ formatDay(commande.livraison) || '—' }}<template v-if="late"> · en retard</template></dd></div>
 							<div v-if="commande.reference"><dt><LucideHash aria-hidden="true" />Référence client</dt><dd>{{ commande.reference }}</dd></div>
 							<div v-if="commande.devis.length"><dt><LucideFileText aria-hidden="true" />Devis</dt><dd><template v-for="(name, index) in commande.devis" :key="name">{{ index ? ', ' : '' }}<RouterLink class="ref-link tabular-nums" :to="{ name: 'DevisFiche', params: { id: name } }">{{ name }}</RouterLink></template></dd></div>
+							<div v-if="commande.liste_prix"><dt><LucideTag aria-hidden="true" />Liste de prix</dt><dd>{{ commande.liste_prix }}</dd></div>
 							<div><dt><LucideUser aria-hidden="true" />Créée par</dt><dd>{{ commande.cree_par }}</dd></div>
 						</dl>
 					</div>

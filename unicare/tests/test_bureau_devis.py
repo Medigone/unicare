@@ -181,3 +181,146 @@ class TestRechercheArticlesAchat(FrappeTestCase):
 			self.assertEqual((found[0]["prix"], found[0]["stock"]), (85, 0))
 		finally:
 			frappe.db.rollback()
+
+
+def _liste(nom, prix_par_article, **sens):
+	"""Une liste de prix active (vente par défaut) et ses prix."""
+	sens = sens or {"selling": 1}
+	devise = frappe.db.get_value("Price List", bureau_devis._price_list(), "currency")
+	liste = frappe.get_doc(
+		{"doctype": "Price List", "price_list_name": nom, "enabled": 1, "currency": devise, **sens}
+	).insert()
+	for article, prix in prix_par_article.items():
+		frappe.get_doc(
+			{"doctype": "Item Price", "item_code": article, "price_list": liste.name, "price_list_rate": prix}
+		).insert()
+	return liste.name
+
+
+class TestListeDePrixVente(FrappeTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+		self.client = _client()
+		self.article = _article("Crème essai liste", 450)
+		self.liste = _liste("Grossiste essai", {self.article: 400})
+
+	def tearDown(self):
+		frappe.db.rollback()
+
+	def _values(self, **extra):
+		return {
+			"client": self.client,
+			"lignes": [{"article": self.article, "quantite": 10}],
+			**extra,
+		}
+
+	def test_liste_choisie_fixe_le_prix_et_se_change(self):
+		self.assertIn(self.liste, bureau_devis.get_devis_options()["listes_prix"])
+		values = self._values(valable=add_days(today(), 30), liste_prix=self.liste)
+		devis = bureau_devis.get_devis(bureau_devis.create_devis(json.dumps(values))["name"])
+		self.assertEqual(devis["liste_prix"], self.liste)
+		self.assertEqual(devis["lignes"][0]["prix"], 400)
+		defaut = bureau_devis._price_list()
+		devis = bureau_devis.update_devis(
+			devis["name"],
+			devis["modified"],
+			json.dumps({"liste_prix": defaut, "lignes": [{"article": self.article, "quantite": 10}]}),
+		)
+		self.assertEqual(devis["liste_prix"], defaut)
+		self.assertEqual(devis["lignes"][0]["prix"], 450)
+
+	def test_liste_du_client_par_defaut(self):
+		from unicare.api import bureau_commandes
+
+		frappe.db.set_value("Customer", self.client, "default_price_list", self.liste)
+		trouve = next(
+			row
+			for row in bureau_clients.search_clients("Pharmacie Devis Essai")
+			if row["name"] == self.client
+		)
+		self.assertEqual(trouve["liste_prix"], self.liste)
+		devis = bureau_devis.create_devis(json.dumps(self._values(valable=add_days(today(), 30))))["name"]
+		self.assertEqual(bureau_devis.get_devis(devis)["liste_prix"], self.liste)
+		commande = bureau_commandes.create_commande(json.dumps(self._values(livraison=add_days(today(), 7))))[
+			"name"
+		]
+		fiche = bureau_commandes.get_commande(commande)
+		self.assertEqual(fiche["liste_prix"], self.liste)
+		self.assertEqual(fiche["lignes"][0]["prix"], 400)
+
+	def test_prix_et_recherche_dans_la_liste(self):
+		self.assertEqual(
+			bureau_devis.get_prix_vente(json.dumps([self.article]), self.liste), {self.article: 400}
+		)
+		self.assertEqual(bureau_devis.get_prix_vente(json.dumps([self.article])), {self.article: 450})
+		trouves = bureau_devis.search_devis_articles("Crème essai liste", self.liste)
+		self.assertEqual(trouves[0]["prix"], 400)
+
+	def test_liste_refusee(self):
+		achat = _liste("Achat essai refus", {}, buying=1)
+		for liste in ("Liste inexistante", achat):
+			self.assertRaises(
+				frappe.ValidationError, bureau_devis.get_prix_vente, json.dumps([self.article]), liste
+			)
+
+
+class TestPrixSaisisReportes(FrappeTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+		self.client = _client()
+		self.avec_prix = _article("Lotion essai report", 450)
+		self.sans_prix = _article("Gel essai report")
+		self.liste = bureau_devis._price_list()
+
+	def tearDown(self):
+		frappe.db.rollback()
+
+	def _prix(self, article):
+		return frappe.db.get_value(
+			"Item Price", {"price_list": self.liste, "item_code": article}, "price_list_rate"
+		)
+
+	def _devis(self, tarifs):
+		lignes = [
+			{"article": self.avec_prix, "quantite": 1, "prix": 400},
+			{"article": self.sans_prix, "quantite": 1, "prix": 90},
+		]
+		values = {"client": self.client, "valable": add_days(today(), 30), "lignes": lignes, "tarifs": tarifs}
+		return bureau_devis.create_devis(json.dumps(values))["name"]
+
+	def test_seuls_les_articles_nommes_vont_dans_la_liste(self):
+		self._devis([self.sans_prix])
+		self.assertEqual(self._prix(self.sans_prix), 90)
+		self.assertEqual(self._prix(self.avec_prix), 450)
+
+	def test_mise_a_jour_de_la_liste(self):
+		devis = bureau_devis.get_devis(self._devis([self.sans_prix, self.avec_prix]))
+		self.assertEqual(self._prix(self.avec_prix), 400)
+		self.assertEqual(devis["lignes"][0]["prix"], 400)
+
+	def test_sans_report_la_liste_ne_change_pas(self):
+		self._devis([])
+		self.assertIsNone(self._prix(self.sans_prix))
+		self.assertEqual(self._prix(self.avec_prix), 450)
+
+	def test_commande_modifiee(self):
+		from unicare.api import bureau_commandes
+
+		values = {
+			"client": self.client,
+			"livraison": add_days(today(), 7),
+			"lignes": [{"article": self.sans_prix, "quantite": 2, "prix": 50}],
+		}
+		commande = bureau_commandes.get_commande(bureau_commandes.create_commande(json.dumps(values))["name"])
+		self.assertIsNone(self._prix(self.sans_prix))
+		bureau_commandes.update_commande(
+			commande["name"],
+			commande["modified"],
+			json.dumps(
+				{
+					"lignes": [{"article": self.sans_prix, "quantite": 2, "prix": 55}],
+					"tarifs": [self.sans_prix],
+				}
+			),
+		)
+		self.assertEqual(self._prix(self.sans_prix), 55)

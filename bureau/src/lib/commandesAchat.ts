@@ -87,6 +87,7 @@ export interface CommandeAchatDetail {
 	cree_par: string
 	devise: string
 	taxes_modele: string | null
+	liste_prix: string | null
 	lignes: CommandeAchatLine[]
 	/** Une ligne « TVA », et le droit de timbre à part s'il y en a un. */
 	taxes: { description: string; montant: number }[]

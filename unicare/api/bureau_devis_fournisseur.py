@@ -14,11 +14,11 @@ from frappe.utils import add_days, cint, cstr, flt, get_fullname, getdate, today
 
 from unicare.api import activity
 from unicare.api.bureau_achats import (
-	replace_disabled_taxes,
 	SUPPLIER,
-	buying_price_list,
 	check_supplier,
 	clean_lines,
+	liste_achat,
+	replace_disabled_taxes,
 	set_lines,
 	set_purchase_taxes,
 	taxes_options,
@@ -29,6 +29,7 @@ from unicare.api.bureau_devis import (
 	_company,
 	_day,
 	_status,
+	enregistrer_tarifs,
 	line_description,
 	tax_lines,
 )
@@ -315,6 +316,7 @@ def _devis_payload(doc):
 		"fournisseur_label": doc.supplier_name or doc.supplier,
 		"date": _day(doc.transaction_date),
 		"valable": _day(doc.valid_till),
+		"liste_prix": doc.buying_price_list,
 		"reference": doc.quotation_number or None,
 		"cree_par": get_fullname(doc.owner),
 		"devise": doc.currency,
@@ -392,12 +394,13 @@ def create_devis_fournisseur(values=None):
 			"transaction_date": date,
 			"valid_till": _check_validity(values.get("valable"), date),
 			"quotation_number": cstr(values.get("reference")).strip() or None,
-			"buying_price_list": buying_price_list(),
+			"buying_price_list": liste_achat(values.get("liste_prix"), fournisseur),
 		}
 	)
 	set_lines(doc, lignes)
 	set_purchase_taxes(doc, cstr(values.get("taxes")).strip())
 	doc.insert()
+	enregistrer_tarifs(doc.buying_price_list, lignes, values.get("tarifs"), fournisseur=fournisseur)
 	return {"name": doc.name}
 
 
@@ -406,8 +409,12 @@ def update_devis_fournisseur(name, modified, values=None):
 	"""Brouillon seulement : lignes, validité, référence et TVA. Les champs absents ne changent pas."""
 	doc = _for_work(name, modified, "modifier")
 	values = _parse(values) or {}
-	if "lignes" in values:
-		set_lines(doc, clean_lines(values["lignes"]))
+	# La liste d'abord : les lignes en reprennent les prix.
+	if "liste_prix" in values:
+		doc.buying_price_list = liste_achat(values["liste_prix"], doc.supplier)
+	lignes = clean_lines(values["lignes"]) if "lignes" in values else []
+	if lignes:
+		set_lines(doc, lignes)
 	if "valable" in values:
 		doc.valid_till = _check_validity(values["valable"], doc.transaction_date)
 	if "reference" in values:
@@ -415,6 +422,7 @@ def update_devis_fournisseur(name, modified, values=None):
 	if "taxes" in values:
 		set_purchase_taxes(doc, cstr(values["taxes"]).strip())
 	doc.save()
+	enregistrer_tarifs(doc.buying_price_list, lignes, values.get("tarifs"), fournisseur=doc.supplier)
 	return _devis_payload(doc)
 
 

@@ -24,7 +24,10 @@ from unicare.api.bureau_devis import (
 	_prices,
 	_status,
 	_taxes_templates,
+	enregistrer_tarifs,
 	line_description,
+	liste_vente,
+	selling_lists,
 	tax_lines,
 )
 from unicare.api.bureau_list import (
@@ -215,6 +218,7 @@ def get_commande_options():
 		"taxes": [{"value": row.name, "label": row.title or row.name} for row in templates],
 		"taxes_defaut": next((row.name for row in templates if row.is_default), None),
 		"liste_prix": _price_list(),
+		"listes_prix": selling_lists(),
 		"filter_fields": doctype_filter_fields(COMMANDE),
 	}
 
@@ -331,6 +335,7 @@ def _commande_payload(doc):
 		"cree_par": get_fullname(doc.owner),
 		"devise": doc.currency,
 		"taxes_modele": doc.taxes_and_charges,
+		"liste_prix": doc.selling_price_list,
 		"lignes": [_line(item) for item in doc.items],
 		"taxes": tax_lines(doc),
 		"total": flt(doc.net_total),
@@ -387,7 +392,12 @@ def _check_delivery(livraison, date):
 
 def _set_lines(doc, lignes):
 	"""Remplace les lignes. Un prix vide reprend celui du tarif ; chaque ligne prend la date de livraison de la commande."""
-	prices = _prices([article for article, _quantite, _prix in lignes], doc.customer, doc.transaction_date)
+	prices = _prices(
+		[article for article, _quantite, _prix in lignes],
+		doc.customer,
+		doc.transaction_date,
+		doc.selling_price_list,
+	)
 	doc.set("items", [])
 	for article, quantite, prix in lignes:
 		doc.append(
@@ -432,7 +442,7 @@ def create_commande(values=None):
 			"company": _company(),
 			"transaction_date": date,
 			"delivery_date": _check_delivery(values.get("livraison"), date),
-			"selling_price_list": _price_list(),
+			"selling_price_list": liste_vente(values.get("liste_prix"), client),
 			"order_type": "Sales",
 			"po_no": cstr(values.get("reference")).strip() or None,
 		}
@@ -440,6 +450,7 @@ def create_commande(values=None):
 	_set_lines(doc, lignes)
 	_set_taxes(doc, cstr(values.get("taxes")).strip())
 	doc.insert()
+	enregistrer_tarifs(doc.selling_price_list, lignes, values.get("tarifs"), client)
 	return {"name": doc.name}
 
 
@@ -452,17 +463,25 @@ def update_commande(name, modified, values=None):
 		doc.delivery_date = _check_delivery(values["livraison"], doc.transaction_date)
 		for item in doc.items:
 			item.delivery_date = doc.delivery_date
+	if "liste_prix" in values:
+		liste = liste_vente(values["liste_prix"], doc.customer)
+		if liste != doc.selling_price_list and any(item.prevdoc_docname for item in doc.items):
+			frappe.throw(_("La liste de prix d'une commande reprise d'un devis se change sur le Desk."))
+		doc.selling_price_list = liste
+	lignes = []
 	if "lignes" in values:
 		if any(item.prevdoc_docname for item in doc.items):
 			frappe.throw(
 				_("Les lignes reprises d'un devis se modifient sur le Desk, pour garder le lien au devis.")
 			)
-		_set_lines(doc, _clean_lines(values["lignes"]))
+		lignes = _clean_lines(values["lignes"])
+		_set_lines(doc, lignes)
 	if "taxes" in values:
 		_set_taxes(doc, cstr(values["taxes"]).strip())
 	if "reference" in values:
 		doc.po_no = cstr(values["reference"]).strip() or None
 	doc.save()
+	enregistrer_tarifs(doc.selling_price_list, lignes, values.get("tarifs"), doc.customer)
 	return _commande_payload(doc)
 
 

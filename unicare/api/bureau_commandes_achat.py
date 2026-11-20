@@ -15,16 +15,16 @@ from frappe.utils import cint, cstr, flt, get_fullname, getdate, today
 
 from unicare.api import activity
 from unicare.api.bureau_achats import (
-	drop_invoice_batches,
-	replace_disabled_taxes,
-	buying_price_list,
 	check_supplier,
 	clean_lines,
+	drop_invoice_batches,
+	liste_achat,
+	replace_disabled_taxes,
 	set_lines,
 	set_purchase_taxes,
 	taxes_options,
 )
-from unicare.api.bureau_devis import _company, _day, _status, line_description, tax_lines
+from unicare.api.bureau_devis import _company, _day, _status, enregistrer_tarifs, line_description, tax_lines
 from unicare.api.bureau_list import (
 	BELL_FIELD,
 	_parse,
@@ -312,6 +312,7 @@ def _commande_payload(doc):
 		"cree_par": get_fullname(doc.owner),
 		"devise": doc.currency,
 		"taxes_modele": doc.taxes_and_charges,
+		"liste_prix": doc.buying_price_list,
 		"lignes": [_line(item) for item in doc.items],
 		"taxes": tax_lines(doc),
 		"total": flt(doc.net_total),
@@ -403,13 +404,14 @@ def create_commande_achat(values=None):
 			"company": _company(),
 			"transaction_date": date,
 			"schedule_date": reception,
-			"buying_price_list": buying_price_list(),
+			"buying_price_list": liste_achat(values.get("liste_prix"), fournisseur),
 			"set_warehouse": _depot(values.get("depot")) or _default_warehouse(),
 		}
 	)
 	set_lines(doc, lignes, schedule_date=reception, **({"warehouse": doc.set_warehouse} if values.get("depot") else {}))
 	set_purchase_taxes(doc, cstr(values.get("taxes")).strip())
 	doc.insert()
+	enregistrer_tarifs(doc.buying_price_list, lignes, values.get("tarifs"), fournisseur=fournisseur)
 	return {"name": doc.name}
 
 
@@ -422,6 +424,12 @@ def update_commande_achat(name, modified, values=None):
 		doc.schedule_date = _check_reception(values["reception"], doc.transaction_date)
 		for item in doc.items:
 			item.schedule_date = doc.schedule_date
+	if "liste_prix" in values:
+		liste = liste_achat(values["liste_prix"], doc.supplier)
+		if liste != doc.buying_price_list and any(item.supplier_quotation for item in doc.items):
+			frappe.throw(_("La liste de prix d'une commande reprise d'un devis fournisseur se change sur le Desk."))
+		doc.buying_price_list = liste
+	lignes = []
 	if "lignes" in values:
 		if any(item.supplier_quotation for item in doc.items):
 			frappe.throw(
@@ -429,10 +437,12 @@ def update_commande_achat(name, modified, values=None):
 					"Les lignes reprises d'un devis fournisseur se modifient sur le Desk, pour garder le lien au devis."
 				)
 			)
-		set_lines(doc, clean_lines(values["lignes"]), schedule_date=doc.schedule_date)
+		lignes = clean_lines(values["lignes"])
+		set_lines(doc, lignes, schedule_date=doc.schedule_date)
 	if "taxes" in values:
 		set_purchase_taxes(doc, cstr(values["taxes"]).strip())
 	doc.save()
+	enregistrer_tarifs(doc.buying_price_list, lignes, values.get("tarifs"), fournisseur=doc.supplier)
 	return _commande_payload(doc)
 
 

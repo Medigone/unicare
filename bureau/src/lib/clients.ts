@@ -155,6 +155,8 @@ export interface ClientChoice {
 	label: string
 	wilaya: string | null
 	disabled: number
+	/** Liste de prix de vente propre au client. */
+	liste_prix?: string | null
 }
 
 export interface CommuneChoice {

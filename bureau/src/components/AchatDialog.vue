@@ -5,12 +5,13 @@ import LucideTrash2 from '~icons/lucide/trash-2'
 import FormDialog from '@shared/components/FormDialog.vue'
 import ChoicePicker from './ChoicePicker.vue'
 import FournisseurDialog from './FournisseurDialog.vue'
+import PrixTarifDialog from './PrixTarifDialog.vue'
 import QuickAddBar from './QuickAddBar.vue'
-import { createCommandeAchat, createDevisFournisseur, getCommandeAchatOptions, getDevisFournisseurOptions, searchAchatArticles, searchFournisseurs, updateCommandeAchat, updateDevisFournisseur } from '@/lib/api'
+import { createCommandeAchat, createDevisFournisseur, getCommandeAchatOptions, getDevisFournisseurOptions, getPrixAchat, searchAchatArticles, searchFournisseurs, updateCommandeAchat, updateDevisFournisseur } from '@/lib/api'
 import type { AchatArticleChoice, AchatOptions } from '@/lib/achats'
 import { formatQty } from '@/lib/articles'
 import { formatAmount } from '@/lib/clients'
-import { addArticle, dayFromToday, draftTotal, linesForServer, parseNumber, validateDevis, type DevisFormErrors, type DraftLine } from '@/lib/devis'
+import { addArticle, applyTarifs, dayFromToday, draftTotal, linesForServer, parseNumber, prixManuels, validateDevis, type DevisFormErrors, type DraftLine } from '@/lib/devis'
 import type { CommandeAchatDetail } from '@/lib/commandesAchat'
 import type { DevisFournisseurDetail } from '@/lib/devisFournisseur'
 import type { FournisseurChoice } from '@/lib/fournisseurs'
@@ -48,6 +49,7 @@ const form = reactive({
 	fournisseurLabel: props.piece?.fournisseur_label ?? props.fournisseur?.label ?? '',
 	date: (isDevis ? devis?.valable : commande?.reception) ?? '',
 	taxes: props.piece?.taxes_modele ?? '',
+	liste: props.piece?.liste_prix ?? '',
 	reference: devis?.reference ?? '',
 	lignes: props.piece
 		? props.piece.lignes.map((row) => line({ article: row.article, designation: row.designation, unite: row.unite ?? '', quantite: String(row.quantite), prix: String(row.prix) }))
@@ -55,9 +57,18 @@ const form = reactive({
 })
 // Le prix d'achat connu de chaque article : il sert de prix quand le champ reste vide.
 const tarifs = reactive<Record<string, number | null>>(Object.fromEntries([...(props.piece?.lignes ?? []), ...(props.lignesInitiales ?? [])].map((row) => [row.article, row.prix_tarif || null])))
+// Prix de la liste seule (sans le dernier prix payé) : un prix saisi s'y compare pour être reporté dans la liste.
+const tarifsListe = reactive<Record<string, number | null>>({})
 const initial = JSON.parse(JSON.stringify(form)) as typeof form
+// Prix des lignes à l'ouverture : seuls les prix saisis depuis se reportent dans la liste.
+const prixAvant: Record<number, string> = Object.fromEntries(form.lignes.map((line) => [line.key, line.prix]))
 const dirty = computed(() => JSON.stringify(form) !== JSON.stringify(initial))
 const options = ref<(AchatOptions & { validite_jours?: number }) | null>(null)
+// La liste de la pièce reste proposée même désactivée depuis : la fenêtre ne la change pas d'elle-même.
+const listes = computed(() => {
+	const actives = options.value?.listes_prix ?? []
+	return form.liste && !actives.includes(form.liste) ? [form.liste, ...actives] : actives
+})
 const loadError = ref('')
 const serverError = ref('')
 const errors = ref<DevisFormErrors>({})
@@ -73,24 +84,42 @@ onMounted(async () => {
 		if (!editing.value) {
 			form.date ||= dayFromToday(isDevis ? (options.value.validite_jours ?? 30) : 7)
 			form.taxes ||= options.value.taxes_defaut ?? ''
+			form.liste ||= (await listeDuFournisseur()) || options.value.liste_prix || ''
 			// Préremplis : ce n'est pas une saisie, la fermeture ne demande pas de confirmation.
 			initial.date = form.date
 			initial.taxes = form.taxes
+			initial.liste = form.liste
+			if (form.liste !== options.value.liste_prix) refreshTarifs()
 		}
+		chargerTarifsListe()
 	} catch (e) {
 		loadError.value = (e as Error).message
 	}
 })
+
+/** Fournisseur déjà choisi à l'ouverture (depuis sa fiche) : sa propre liste d'achat, s'il en a une active. */
+async function listeDuFournisseur() {
+	if (!props.fournisseur?.name) return ''
+	try {
+		const found = (await searchFournisseurs(props.fournisseur.label, true)).find((item) => item.name === props.fournisseur?.name)
+		return found?.liste_prix && options.value?.listes_prix.includes(found.liste_prix) ? found.liste_prix : ''
+	} catch {
+		return ''
+	}
+}
 
 const findFournisseurs = async (query: string) => (await searchFournisseurs(query, true)).map((item) => ({ ...item, hint: item.wilaya }))
 
 // Fournisseur absent de la recherche : il se crée par-dessus la pièce, qui garde sa saisie, puis il est choisi.
 const newFournisseur = ref<string | null>(null)
 const createdFournisseur = ref('')
-function pickFournisseur(choice: { name: string; label: string }) {
+function pickFournisseur(choice: { name: string; label: string; liste_prix?: string | null }) {
 	form.fournisseur = choice.name
 	form.fournisseurLabel = choice.label
 	delete errors.value.client
+	// Le fournisseur a sa liste : elle s'applique. Sinon la liste en cours reste, avec ses prix propres à ce fournisseur.
+	if (choice.liste_prix && options.value?.listes_prix.includes(choice.liste_prix) && choice.liste_prix !== form.liste) changeListe(choice.liste_prix)
+	else refreshTarifs()
 }
 async function onFournisseurCreated(name: string, fournisseur: FournisseurChoice) {
 	createdFournisseur.value = name
@@ -98,7 +127,41 @@ async function onFournisseurCreated(name: string, fournisseur: FournisseurChoice
 	await nextTick()
 	document.querySelector<HTMLElement>('#achat-date')?.focus()
 }
-const findArticles = (query: string) => searchAchatArticles(query)
+const findArticles = (query: string) => searchAchatArticles(query, form.liste, form.fournisseur)
+
+// Autre liste ou autre fournisseur : les prix d'achat changent. Une seule réponse compte, celle du dernier changement.
+const tarifsError = ref('')
+let lastTarifs = 0
+async function refreshTarifs() {
+	const articles = [...new Set(form.lignes.map((line) => line.article).filter(Boolean))]
+	tarifsError.value = ''
+	if (!articles.length || linesLocked) return
+	const request = ++lastTarifs
+	try {
+		const prix = await getPrixAchat(articles, form.liste, form.fournisseur)
+		if (request !== lastTarifs) return
+		applyTarifs(form.lignes, tarifs, prix.prix)
+		for (const article of articles) tarifsListe[article] = prix.liste[article] ?? null
+	} catch (e) {
+		if (request === lastTarifs) tarifsError.value = (e as Error).message
+	}
+}
+/** À l'ouverture, les prix de la liste seule des lignes déjà là, sans toucher aux lignes. */
+async function chargerTarifsListe() {
+	const articles = [...new Set(form.lignes.map((line) => line.article).filter(Boolean))]
+	if (!articles.length || linesLocked) return
+	try {
+		const prix = await getPrixAchat(articles, form.liste, form.fournisseur)
+		for (const article of articles) if (!(article in tarifsListe)) tarifsListe[article] = prix.liste[article] ?? null
+	} catch {
+		// Sans eux, les prix saisis ne se comparent pas à la liste : ils restent sur la pièce.
+	}
+}
+function changeListe(liste: string) {
+	if (liste === form.liste) return
+	form.liste = liste
+	refreshTarifs()
+}
 // Stock de chaque article ajouté par la barre : affiché sous sa désignation.
 const stocks = reactive<Record<string, number | null | undefined>>({})
 const highlighted = ref<number | null>(null)
@@ -107,6 +170,7 @@ let highlightTimer: ReturnType<typeof setTimeout> | null = null
 /** Ajout par la barre : un article déjà présent voit sa quantité augmenter, et sa ligne s'éclaire un instant. */
 function onAdd(choice: AchatArticleChoice, quantite: number) {
 	tarifs[choice.name] = choice.prix
+	tarifsListe[choice.name] = choice.prix_liste ?? null
 	stocks[choice.name] = choice.stock
 	const target = addArticle(form.lignes, choice, quantite, line)
 	if (errors.value.ligne) delete errors.value.ligne[target.key]
@@ -125,6 +189,25 @@ function lineTotal(target: DraftLine) {
 	return Number.isFinite(quantite * prix) ? formatAmount(quantite * prix) : '—'
 }
 
+// Prix saisis à la main : un article absent de la liste y est ajouté ; un prix autre que celui de la liste attend le
+// choix de la personne (mettre la liste à jour, ou garder ce prix pour cette pièce). `null` : retour à la saisie.
+const ecarts = ref<ReturnType<typeof prixManuels> | null>(null)
+let choixEcarts: ((choice: 'liste' | 'piece' | null) => void) | null = null
+async function tarifsAReporter(): Promise<string[] | null> {
+	if (linesLocked || !form.liste || !canCreate('Item Price')) return []
+	const found = prixManuels(form.lignes, tarifsListe, prixAvant)
+	if (!found.differents.length) return found.nouveaux
+	ecarts.value = found
+	const choice = await new Promise<'liste' | 'piece' | null>((resolve) => (choixEcarts = resolve))
+	ecarts.value = null
+	if (!choice) return null
+	return choice === 'liste' ? [...found.nouveaux, ...found.differents.map((item) => item.article)] : found.nouveaux
+}
+function choisirEcarts(choice: 'liste' | 'piece' | null) {
+	choixEcarts?.(choice)
+	choixEcarts = null
+}
+
 async function submit() {
 	if (busy.value) return
 	errors.value = validateDevis({ client: form.fournisseur, valable: form.date, lignes: form.lignes }, dayFromToday(0), dateLabel)
@@ -139,15 +222,17 @@ async function submit() {
 		emit('close')
 		return
 	}
+	const reportes = await tarifsAReporter()
+	if (!reportes) return
 	busy.value = true
 	try {
 		const lignes = linesLocked ? undefined : linesForServer(form.lignes)
 		if (isDevis) {
-			const values = { valable: form.date, taxes: form.taxes, reference: form.reference.trim(), lignes }
+			const values = { valable: form.date, taxes: form.taxes, liste_prix: form.liste || undefined, tarifs: reportes, reference: form.reference.trim(), lignes }
 			if (devis) emit('saved', await updateDevisFournisseur(devis, values))
 			else emit('created', (await createDevisFournisseur({ ...values, fournisseur: form.fournisseur })).name)
 		} else {
-			const values = { reception: form.date, taxes: form.taxes, lignes }
+			const values = { reception: form.date, taxes: form.taxes, liste_prix: form.liste || undefined, tarifs: reportes, lignes }
 			if (commande) emit('saved', await updateCommandeAchat(commande, values))
 			else emit('created', (await createCommandeAchat({ ...values, fournisseur: form.fournisseur, ...(props.depot ? { depot: props.depot } : {}) })).name)
 		}
@@ -198,6 +283,15 @@ async function submit() {
 					<option value="">Sans TVA</option>
 					<option v-for="item in options?.taxes" :key="item.value" :value="item.value">{{ item.label }}</option>
 				</select>
+			</div>
+			<div class="form-field">
+				<label class="field-label" for="achat-liste">Liste de prix</label>
+				<select v-search id="achat-liste" :value="form.liste" class="field-input" :disabled="linesLocked" @change="changeListe(($event.target as HTMLSelectElement).value)">
+					<option v-if="!listes.length" value="">Aucune liste d'achat active</option>
+					<option v-for="item in listes" :key="item" :value="item">{{ item }}</option>
+				</select>
+				<p v-if="tarifsError" class="field-error" role="alert">{{ tarifsError }}</p>
+				<p v-else-if="linesLocked" class="field-note"><span>Reprise du devis fournisseur : elle se change sur le Desk.</span></p>
 			</div>
 			<div v-if="isDevis" class="form-field">
 				<label class="field-label" for="achat-reference">Référence fournisseur</label>
@@ -250,7 +344,7 @@ async function submit() {
 			<p class="text-sm">Total HT : <strong class="tabular-nums">{{ formatAmount(total) }} DA</strong> <span class="text-ink-gray-6">· TVA calculée à l'enregistrement</span></p>
 		</div>
 		<p v-if="errors.lignes" class="field-error" role="alert">{{ errors.lignes }}</p>
-		<p v-if="!linesLocked" class="field-note"><span>Un prix laissé vide reprend le tarif « {{ options?.liste_prix ?? "d'achat" }} », sinon le dernier prix d'achat. Une ligne sans prix empêche la validation.</span><a v-if="sansPrix && options?.liste_prix && canRead('Item Price')" :href="`/bureau/tarifs/${encodeURIComponent(options.liste_prix)}`" target="_blank" rel="noopener" class="font-medium underline">Ajouter les prix manquants au tarif</a></p>
+		<p v-if="!linesLocked" class="field-note"><span>Un prix laissé vide reprend la liste « {{ form.liste || "d'achat" }} », sinon le dernier prix d'achat<template v-if="form.liste && canCreate('Item Price')"> ; un prix saisi pour un article absent de la liste y est ajouté</template>. Une ligne sans prix empêche la validation.</span><a v-if="sansPrix && form.liste && canRead('Item Price')" :href="`/bureau/tarifs/${encodeURIComponent(form.liste)}`" target="_blank" rel="noopener" class="font-medium underline">Ajouter les prix manquants au tarif</a></p>
 
 		<p v-if="serverError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ serverError }}</p>
 
@@ -259,6 +353,7 @@ async function submit() {
 		</template>
 		<Teleport to="body">
 			<FournisseurDialog v-if="newFournisseur !== null" quick :name="newFournisseur" @close="newFournisseur = null" @created="onFournisseurCreated" @pick="pickFournisseur" />
+			<PrixTarifDialog v-if="ecarts" :liste="form.liste" :piece="isDevis ? 'ce devis fournisseur' : 'cette commande'" :lignes="ecarts.differents" :nouveaux="ecarts.nouveaux.length" @close="choisirEcarts(null)" @choose="choisirEcarts" />
 		</Teleport>
 	</FormDialog>
 </template>

@@ -251,7 +251,7 @@ def search_fournisseurs(search=None, actifs=0):
 		SUPPLIER,
 		filters=filters,
 		or_filters=[["supplier_name", "like", f"%{value}%"], ["name", "like", f"%{value}%"]] if value else None,
-		fields=["name", "supplier_name", "custom_wilaya", "disabled", STATUS_FIELD],
+		fields=["name", "supplier_name", "custom_wilaya", "disabled", STATUS_FIELD, "default_price_list"],
 		order_by="supplier_name asc",
 		limit_page_length=SUPPLIER_SEARCH_LIMIT,
 	)
@@ -261,6 +261,7 @@ def search_fournisseurs(search=None, actifs=0):
 			"label": row.supplier_name or row.name,
 			"wilaya": row.custom_wilaya,
 			"disabled": cint(row.disabled) or int(row.get(STATUS_FIELD) == EXCLU),
+			"liste_prix": row.default_price_list or None,
 		}
 		for row in rows
 	]

@@ -73,6 +73,7 @@ export interface DevisDetail {
 	cree_par: string
 	devise: string
 	taxes_modele: string | null
+	liste_prix: string | null
 	lignes: DevisLine[]
 	/** Une ligne « TVA », et le droit de timbre à part s'il y en a un. */
 	taxes: { description: string; montant: number }[]
@@ -100,6 +101,7 @@ export interface DevisOptions {
 	taxes_defaut: string | null
 	validite_jours: number
 	liste_prix: string | null
+	listes_prix: string[]
 }
 
 export interface DevisArticleChoice {
@@ -189,6 +191,37 @@ export function draftTotal(lines: DraftLine[], tarifs: Record<string, number | n
 		const prix = line.prix.trim() ? parseNumber(line.prix) : (tarifs[line.article] ?? 0)
 		return total + (Number.isFinite(quantite) && Number.isFinite(prix) ? quantite * prix : 0)
 	}, 0)
+}
+
+/**
+ * Nouveaux prix de tarif (autre liste de prix, autre client) : une ligne qui suivait l'ancien tarif, prix vide ou égal
+ * à lui, garde le prix vide et suit le nouveau ; un prix saisi à la main ne bouge pas. Modifie `lines` et `tarifs`.
+ */
+export function applyTarifs(lines: DraftLine[], tarifs: Record<string, number | null>, nouveaux: Record<string, number | null | undefined>) {
+	for (const line of lines) {
+		if (!line.article || !line.prix.trim()) continue
+		const ancien = tarifs[line.article]
+		if (ancien !== null && ancien !== undefined && parseNumber(line.prix) === ancien) line.prix = ''
+	}
+	for (const article of new Set(lines.map((line) => line.article).filter(Boolean))) tarifs[article] = nouveaux[article] ?? null
+}
+
+/**
+ * Prix saisis à la main, à reporter dans la liste de prix : `nouveaux`, articles sans prix dans la liste (ajoutés
+ * d'office) ; `differents`, prix autres que celui de la liste (la personne choisit). Une ligne dont le prix n'a pas
+ * changé depuis l'ouverture (`avant`, par clé de ligne) est laissée de côté : son prix a déjà été traité.
+ */
+export function prixManuels(lines: DraftLine[], tarifs: Record<string, number | null>, avant: Record<number, string> = {}) {
+	const nouveaux = new Set<string>()
+	const differents = new Map<string, { article: string; designation: string; saisi: number; tarif: number }>()
+	for (const line of lines) {
+		const saisi = parseNumber(line.prix)
+		if (!line.article || !line.prix.trim() || !(saisi > 0) || avant[line.key] === line.prix) continue
+		const tarif = tarifs[line.article]
+		if (tarif === null || tarif === undefined) nouveaux.add(line.article)
+		else if (saisi !== tarif) differents.set(line.article, { article: line.article, designation: line.designation, saisi, tarif })
+	}
+	return { nouveaux: [...nouveaux], differents: [...differents.values()] }
 }
 
 export interface DevisFormErrors {

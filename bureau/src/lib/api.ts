@@ -250,12 +250,20 @@ export const getDevisList = (view: DevisView, conditions: Condition[], search: s
 	})
 export const getDevis = (name: string) => call<DevisDetail>(`${DEVIS}.get_devis`, { name })
 export const getDevisOptions = () => call<DevisOptions>(`${DEVIS}.get_devis_options`)
-export const searchDevisArticles = (search: string) => call<DevisArticleChoice[]>(`${DEVIS}.search_devis_articles`, { search: search.trim() || undefined })
+export const searchDevisArticles = (search: string, liste?: string, client?: string) =>
+	call<DevisArticleChoice[]>(`${DEVIS}.search_devis_articles`, { search: search.trim() || undefined, liste_prix: liste || undefined, client: client || undefined })
+/** Prix de ces articles dans une liste de vente, pour ce client ; un article sans prix est absent. */
+export const getPrixVente = (articles: string[], liste?: string, client?: string) =>
+	call<Record<string, number>>(`${DEVIS}.get_prix_vente`, { articles, liste_prix: liste || undefined, client: client || undefined })
 
 export interface DevisValues {
 	client?: string
 	valable?: string
 	taxes?: string
+	/** Articles dont le prix saisi est reporté dans la liste de prix. */
+	tarifs?: string[]
+	/** Liste de prix : vide à la création, celle du tiers ou celle par défaut. */
+	liste_prix?: string
 	lignes?: { article: string; quantite: number; prix: number | null }[]
 }
 export const createDevis = (values: DevisValues) => call<{ name: string }>(`${DEVIS}.create_devis`, { values }, true)
@@ -303,6 +311,10 @@ export interface CommandeValues {
 	client?: string
 	livraison?: string
 	taxes?: string
+	/** Articles dont le prix saisi est reporté dans la liste de prix. */
+	tarifs?: string[]
+	/** Liste de prix : vide à la création, celle du tiers ou celle par défaut. */
+	liste_prix?: string
 	reference?: string
 	lignes?: { article: string; quantite: number; prix: number | null }[]
 }
@@ -455,7 +467,11 @@ export function paiementActivity(name: string): ActivityApi {
 
 /** Pièces d'achat : articles d'achat proposés dans les fenêtres. */
 const ACHATS = 'unicare.api.bureau_achats'
-export const searchAchatArticles = (search: string) => call<AchatArticleChoice[]>(`${ACHATS}.search_achat_articles`, { search: search.trim() || undefined })
+export const searchAchatArticles = (search: string, liste?: string, fournisseur?: string) =>
+	call<AchatArticleChoice[]>(`${ACHATS}.search_achat_articles`, { search: search.trim() || undefined, liste_prix: liste || undefined, fournisseur: fournisseur || undefined })
+/** Prix d'achat de ces articles pour ce fournisseur : `prix` (liste, sinon dernier prix payé) et `liste` (la liste seule). */
+export const getPrixAchat = (articles: string[], liste?: string, fournisseur?: string) =>
+	call<{ prix: Record<string, number>; liste: Record<string, number> }>(`${ACHATS}.get_prix_achat`, { articles, liste_prix: liste || undefined, fournisseur: fournisseur || undefined })
 
 /** Devis fournisseur : liste, aperçu, fiche, création et cycle (valider, commande d'achat, annuler). */
 const DEVIS_F = 'unicare.api.bureau_devis_fournisseur'
@@ -478,6 +494,10 @@ export interface DevisFournisseurValues {
 	valable?: string
 	reference?: string
 	taxes?: string
+	/** Articles dont le prix saisi est reporté dans la liste de prix. */
+	tarifs?: string[]
+	/** Liste de prix : vide à la création, celle du tiers ou celle par défaut. */
+	liste_prix?: string
 	lignes?: AchatLineValues[]
 }
 export const createDevisFournisseur = (values: DevisFournisseurValues) => call<{ name: string }>(`${DEVIS_F}.create_devis_fournisseur`, { values }, true)
@@ -523,6 +543,10 @@ export interface CommandeAchatValues {
 	depot?: string
 	reception?: string
 	taxes?: string
+	/** Articles dont le prix saisi est reporté dans la liste de prix. */
+	tarifs?: string[]
+	/** Liste de prix : vide à la création, celle du tiers ou celle par défaut. */
+	liste_prix?: string
 	lignes?: AchatLineValues[]
 }
 export const createCommandeAchat = (values: CommandeAchatValues) => call<{ name: string }>(`${COMMANDES_ACHAT}.create_commande_achat`, { values }, true)

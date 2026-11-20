@@ -275,7 +275,7 @@ def search_clients(search=None):
 	clients = frappe.get_list(
 		CUSTOMER,
 		or_filters=[["customer_name", "like", f"%{value}%"], ["name", "like", f"%{value}%"]],
-		fields=["name", "customer_name", "custom_wilaya", "disabled"],
+		fields=["name", "customer_name", "custom_wilaya", "disabled", "default_price_list"],
 		order_by="customer_name asc",
 		limit_page_length=CLIENT_SEARCH_LIMIT,
 	)
@@ -285,6 +285,7 @@ def search_clients(search=None):
 			"label": client.customer_name or client.name,
 			"wilaya": client.custom_wilaya,
 			"disabled": cint(client.disabled),
+			"liste_prix": client.default_price_list or None,
 		}
 		for client in clients
 	]

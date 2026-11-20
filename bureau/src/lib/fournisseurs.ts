@@ -123,6 +123,8 @@ export interface FournisseurChoice {
 	label: string
 	wilaya: string | null
 	disabled: number
+	/** Liste de prix d'achat propre au fournisseur. */
+	liste_prix?: string | null
 }
 
 export const FOURNISSEUR_FIELDS = ['supplier_name', 'status', 'categorie', 'commune', 'contact', 'fonction', 'contact_telephone', 'contact_email', 'rc', 'nif', 'nis', 'ai'] as const

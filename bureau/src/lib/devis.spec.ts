@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dayFromToday, DEFAULT_DEVIS_COLUMNS, devisStatus, draftTotal, linesForServer, parseNumber, validateDevis, type DraftLine } from './devis'
+import { applyTarifs, dayFromToday, prixManuels, DEFAULT_DEVIS_COLUMNS, devisStatus, draftTotal, linesForServer, parseNumber, validateDevis, type DraftLine } from './devis'
 
 const line = (values: Partial<DraftLine>): DraftLine => ({ key: 1, article: 'PF-000001', designation: 'Lotion', unite: 'Unité', quantite: '1', prix: '', ...values })
 
@@ -49,5 +49,29 @@ describe("ajout d'un article à la pièce", () => {
 			['PF-2', '1,5'],
 		])
 		expect(again.key).toBe(1)
+	})
+})
+
+describe('changement de liste de prix', () => {
+	it('les lignes qui suivaient le tarif suivent le nouveau ; un prix saisi ne bouge pas', () => {
+		const lines = [line({ key: 1, article: 'A', prix: '' }), line({ key: 2, article: 'B', prix: '450' }), line({ key: 3, article: 'C', prix: '99' })]
+		const tarifs: Record<string, number | null> = { A: 100, B: 450, C: 120 }
+		applyTarifs(lines, tarifs, { A: 90, B: 400 })
+		expect(lines.map((item) => item.prix)).toEqual(['', '', '99'])
+		expect(tarifs).toEqual({ A: 90, B: 400, C: null })
+	})
+})
+
+describe('prix saisis à reporter dans la liste', () => {
+	it('absent de la liste : ajouté ; différent : à choisir ; inchangé depuis l’ouverture ou égal : ignoré', () => {
+		const lines = [
+			line({ key: 1, article: 'A', prix: '90' }),
+			line({ key: 2, article: 'B', prix: '400', designation: 'Crème' }),
+			line({ key: 3, article: 'C', prix: '120' }),
+			line({ key: 4, article: 'D', prix: '75' }),
+			line({ key: 5, article: 'E', prix: '' }),
+		]
+		const tarifs = { A: null, B: 450, C: 120, D: 80, E: null }
+		expect(prixManuels(lines, tarifs, { 4: '75' })).toEqual({ nouveaux: ['A'], differents: [{ article: 'B', designation: 'Crème', saisi: 400, tarif: 450 }] })
 	})
 })
