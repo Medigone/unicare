@@ -64,7 +64,9 @@ class TestListeFournisseurs(FrappeTestCase):
 	def test_options_filtres_et_actions_groupees(self):
 		options = bureau_fournisseurs.get_fournisseur_options()
 		fields = {entry["field"] for entry in options["filter_fields"]}
-		self.assertTrue({"custom_statut", "supplier_group", "custom_wilaya", bureau_list.BELL_FILTER} <= fields)
+		self.assertTrue(
+			{"custom_statut", "supplier_group", "custom_wilaya", bureau_list.BELL_FILTER} <= fields
+		)
 		self.assertEqual(options["statuses"], ["Actif", "Exclu"])
 		bulk = {field["fieldname"] for field in bureau_bulk.get_bulk_options("Supplier")["fields"]}
 		self.assertNotIn("supplier_name", bulk)
@@ -90,6 +92,20 @@ class TestFicheFournisseur(FrappeTestCase):
 		self.assertEqual(fiche["contacts"][0]["nom"], "Samir Test")
 		self.assertEqual(set(fiche["achats"]), set(bureau_fournisseurs.ACHATS))
 
+	def test_fournisseur_etranger(self):
+		name = bureau_fournisseurs.create_fournisseur(
+			json.dumps(_values(supplier_name="Fournisseur Essai Lyon", pays="France"))
+		)["name"]
+		fiche = bureau_fournisseurs.get_fournisseur(name)
+		self.assertEqual((fiche["pays"], fiche["commune"], fiche["wilaya"]), ("France", None, None))
+		trouve = next(
+			row
+			for row in bureau_fournisseurs.search_fournisseurs("Fournisseur Essai Lyon")
+			if row["name"] == name
+		)
+		self.assertEqual(trouve["wilaya"], fiche["pays_label"])
+		self.assertEqual(bureau_fournisseurs.get_fournisseur_options()["pays"][0]["value"], "Algeria")
+
 	def test_creation_refusee(self):
 		with self.assertRaises(frappe.ValidationError):
 			bureau_fournisseurs.create_fournisseur(json.dumps(_values(categorie="")))
@@ -97,7 +113,9 @@ class TestFicheFournisseur(FrappeTestCase):
 			bureau_fournisseurs.create_fournisseur(json.dumps(_values(fonction="Commercial")))
 		bureau_fournisseurs.create_fournisseur(json.dumps(_values()))
 		with self.assertRaises(frappe.ValidationError):
-			bureau_fournisseurs.create_fournisseur(json.dumps(_values(supplier_name="emballages essai bureau")))
+			bureau_fournisseurs.create_fournisseur(
+				json.dumps(_values(supplier_name="emballages essai bureau"))
+			)
 
 	def test_modification_et_version(self):
 		name = bureau_fournisseurs.create_fournisseur(json.dumps(_values()))["name"]

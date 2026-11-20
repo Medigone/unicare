@@ -80,6 +80,9 @@ export interface ClientDetail {
 	status: string | null
 	forme_juridique: string | null
 	categorie: string | null
+	/** Pays (nom du doctype Country, « Algeria » par défaut) ; `pays_label` est son nom affiché. */
+	pays: string
+	pays_label: string
 	/** Identifiant de la commune ; `commune_label` est son nom. */
 	commune: string | null
 	commune_label: string | null
@@ -112,7 +115,16 @@ export interface ClientOptions {
 	formes: string[]
 	categories: string[]
 	wilayas: string[]
+	/** Pays proposés, l'Algérie en tête. */
+	pays: { value: string; label: string }[]
 }
+
+/** Le pays d'un client ou d'un fournisseur s'il n'est pas renseigné. Hors de lui : ni commune ni wilaya. */
+export const PAYS_DEFAUT = 'Algeria'
+export const estEtranger = (pays?: string | null) => Boolean(pays) && pays !== PAYS_DEFAUT
+/** Où se trouve un client ou un fournisseur : « commune, wilaya », ou son pays s'il est à l'étranger. */
+export const lieu = (tiers: { pays?: string | null; pays_label?: string | null; commune_label?: string | null; wilaya?: string | null }) =>
+	estEtranger(tiers.pays) ? tiers.pays_label || '' : [tiers.commune_label, tiers.wilaya].filter(Boolean).join(', ')
 
 /** Montant en dinars, avec une espace insécable pour les milliers : « 1 240 000 ». */
 export function formatAmount(value?: number | null) {
@@ -166,11 +178,11 @@ export interface CommuneChoice {
 }
 
 /** Champs de la fenêtre. Le contact (nom, fonction, téléphone, email) ne sert qu'à la création : il devient un document Contact. */
-export const CLIENT_FIELDS = ['customer_name', 'status', 'forme_juridique', 'categorie', 'commune', 'gps', 'telephone', 'email', 'contact', 'fonction', 'contact_telephone', 'contact_email', 'rc', 'nif', 'nis', 'ai'] as const
+export const CLIENT_FIELDS = ['customer_name', 'status', 'forme_juridique', 'categorie', 'pays', 'commune', 'gps', 'telephone', 'email', 'contact', 'fonction', 'contact_telephone', 'contact_email', 'rc', 'nif', 'nis', 'ai'] as const
 export type ClientField = (typeof CLIENT_FIELDS)[number]
 export type ClientValues = Partial<Record<ClientField, string>>
 /** Ce qu'une modification peut changer : le contact principal se modifie sur son propre document. */
-export const EDIT_FIELDS: readonly ClientField[] = ['customer_name', 'status', 'forme_juridique', 'categorie', 'commune', 'gps', 'telephone', 'email', 'rc', 'nif', 'nis', 'ai']
+export const EDIT_FIELDS: readonly ClientField[] = ['customer_name', 'status', 'forme_juridique', 'categorie', 'pays', 'commune', 'gps', 'telephone', 'email', 'rc', 'nif', 'nis', 'ai']
 
 const REQUIRED: { field: ClientField; message: string }[] = [
 	{ field: 'customer_name', message: 'Saisissez la raison sociale.' },
@@ -185,7 +197,8 @@ const GPS = /^\s*-?\d{1,2}(\.\d+)?\s*[,;]\s*-?\d{1,3}(\.\d+)?\s*$/
 export function validateClient(values: ClientValues, editing = false) {
 	const errors: Partial<Record<ClientField, string>> = {}
 	const value = (field: ClientField) => values[field]?.trim() ?? ''
-	for (const { field, message } of REQUIRED) if (!value(field)) errors[field] = message
+	// À l'étranger, pas de commune.
+	for (const { field, message } of REQUIRED) if (!value(field) && !(field === 'commune' && estEtranger(value('pays')))) errors[field] = message
 	if (editing && !value('status')) errors.status = 'Choisissez le statut du client.'
 	if (!editing && !value('contact') && (value('fonction') || value('contact_telephone') || value('contact_email'))) errors.contact = 'Saisissez le nom du contact.'
 	for (const field of ['email', 'contact_email'] as const) if (value(field) && !EMAIL.test(value(field))) errors[field] = 'Saisissez une adresse email valide.'
@@ -204,6 +217,7 @@ export function clientFormValues(client: ClientDetail): ClientValues {
 		status: client.status ?? '',
 		forme_juridique: client.forme_juridique ?? '',
 		categorie: client.categorie ?? '',
+		pays: client.pays || PAYS_DEFAUT,
 		commune: client.commune ?? '',
 		gps: client.gps ?? '',
 		telephone: client.telephone ?? '',

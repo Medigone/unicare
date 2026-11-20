@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { estEtranger, lieu } from '@/lib/clients'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
@@ -145,7 +146,7 @@ async function supprimer() {
 				<template #flags><StatusPill :status="fournisseur.status" /></template>
 				<template #sub>
 					<span class="tabular-nums">{{ fournisseur.name }}</span>
-					<span v-if="fournisseur.commune_label || fournisseur.wilaya">{{ [fournisseur.commune_label, fournisseur.wilaya].filter(Boolean).join(', ') }}</span>
+					<span v-if="lieu(fournisseur)">{{ lieu(fournisseur) }}</span>
 					<div v-if="fournisseur.tags?.length || fournisseur.can_edit"><TagEditor doctype="Supplier" :name="fournisseur.name" :modified="fournisseur.modified" :tags="fournisseur.tags" :can-edit="fournisseur.can_edit" @changed="onTags" /></div>
 				</template>
 				<template #actions>
@@ -181,7 +182,7 @@ async function supprimer() {
 							<div v-if="fournisseur.solde !== null"><dt><LucideWallet aria-hidden="true" />À payer</dt><dd class="tabular-nums" :class="!fournisseur.solde && 'record-fact-none'">{{ fournisseur.solde ? `${formatAmount(fournisseur.solde)} DA` : 'Rien' }}</dd></div>
 							<div>
 								<dt><LucideMapPin aria-hidden="true" />Adresse</dt>
-								<dd class="min-w-0 whitespace-pre-line">{{ fournisseur.adresse || [fournisseur.commune_label, fournisseur.wilaya].filter(Boolean).join(', ') || 'Non renseignée' }}</dd>
+								<dd class="min-w-0 whitespace-pre-line">{{ fournisseur.adresse || lieu(fournisseur) || 'Non renseignée' }}</dd>
 							</div>
 						</dl>
 					</div>
@@ -221,7 +222,7 @@ async function supprimer() {
 										<div><dt>Raison sociale</dt><dd>{{ fournisseur.fournisseur }}</dd></div>
 										<div><dt>Catégorie</dt><dd>{{ fournisseur.categorie || '—' }}</dd></div>
 										<div><dt>Statut</dt><dd>{{ fournisseur.status || '—' }}</dd></div>
-										<div><dt>Pays</dt><dd>{{ fournisseur.pays || '—' }}</dd></div>
+										<div><dt>Pays</dt><dd>{{ fournisseur.pays_label || '—' }}</dd></div>
 										<div><dt>Téléphone</dt><dd class="tabular-nums">{{ fournisseur.telephone || '—' }}</dd></div>
 										<div><dt>Email</dt><dd>{{ fournisseur.email || '—' }}</dd></div>
 										<div><dt>Code</dt><dd class="tabular-nums">{{ fournisseur.name }}</dd></div>
@@ -310,9 +311,9 @@ async function supprimer() {
 								<h3>Adresse</h3>
 								<dl class="kv">
 									<div><dt>Adresse</dt><dd class="whitespace-pre-line">{{ fournisseur.adresse || '—' }}</dd></div>
-									<div><dt>Commune</dt><dd>{{ fournisseur.commune_label || '—' }}</dd></div>
-									<div><dt>Wilaya</dt><dd>{{ fournisseur.wilaya || '—' }}</dd></div>
-									<div><dt>Pays</dt><dd>{{ fournisseur.pays || '—' }}</dd></div>
+									<template v-if="!estEtranger(fournisseur.pays)"><div><dt>Commune</dt><dd>{{ fournisseur.commune_label || '—' }}</dd></div>
+									<div><dt>Wilaya</dt><dd>{{ fournisseur.wilaya || '—' }}</dd></div></template>
+									<div><dt>Pays</dt><dd>{{ fournisseur.pays_label || '—' }}</dd></div>
 								</dl>
 							</section>
 						</div>

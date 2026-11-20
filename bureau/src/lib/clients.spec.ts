@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { allowedClientColumns, allowedClientViews, changedValues, CLIENT_COLUMNS, clientFormValues, clientSortText, DEFAULT_CLIENT_COLUMNS, formatAmount, normalizeName, validateClient, type ClientDetail, type ClientRow } from './clients'
+import { allowedClientColumns, allowedClientViews, changedValues, CLIENT_COLUMNS, clientFormValues, clientSortText, DEFAULT_CLIENT_COLUMNS, formatAmount, lieu, normalizeName, validateClient, type ClientDetail, type ClientRow } from './clients'
 import { rowsToCsv } from './list'
 import { normalizeColumns, resolveColumns } from './listViews'
 
@@ -42,6 +42,11 @@ describe('clients', () => {
 	it('demande raison sociale, forme juridique, catégorie et commune', () => {
 		expect(Object.keys(validateClient({ customer_name: '  ' }))).toEqual(['customer_name', 'forme_juridique', 'categorie', 'commune'])
 		expect(validateClient({ customer_name: 'A', forme_juridique: 'SARL', categorie: 'Commercial', commune: 'COM-0001' })).toEqual({})
+		// À l'étranger : pas de commune demandée. En Algérie (ou pays vide) : toujours.
+		expect(validateClient({ customer_name: 'A', forme_juridique: 'SARL', categorie: 'Commercial', pays: 'Tunisia' })).toEqual({})
+		expect(Object.keys(validateClient({ customer_name: 'A', forme_juridique: 'SARL', categorie: 'Commercial', pays: 'Algeria' }))).toEqual(['commune'])
+		expect(lieu({ pays: 'Tunisia', pays_label: 'Tunisie', commune_label: 'X', wilaya: 'Y' })).toBe('Tunisie')
+		expect(lieu({ pays: 'Algeria', commune_label: 'Oran', wilaya: 'Oran' })).toBe('Oran, Oran')
 		// En modification, le statut devient obligatoire.
 		expect(Object.keys(validateClient({ customer_name: 'A', forme_juridique: 'SARL', categorie: 'Commercial', commune: 'COM-0001' }, true))).toEqual(['status'])
 	})

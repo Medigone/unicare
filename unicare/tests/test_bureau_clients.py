@@ -150,6 +150,45 @@ class TestFicheClient(FrappeTestCase):
 		self.assertIn(commune.name, [row.name for row in found])
 		self.assertEqual(bureau_clients.search_clients(""), [])
 
+	def test_commune_dont_le_nom_est_la_saisie_en_premier(self):
+		# La wilaya d'Oran compte plus de 12 communes : « Oran » doit passer devant elles.
+		oran = frappe.db.get_value("Commune", {"nom": "Oran"}, "name")
+		if not oran:
+			self.skipTest("Communes d'Algérie absentes.")
+		self.assertEqual(bureau_clients.search_communes("oran")[0].name, oran)
+		self.assertEqual(bureau_clients.search_communes("ORAN ")[0].name, oran)
+		turk = bureau_clients.search_communes("turk ain")
+		self.assertTrue(turk and all("Turk" in row.commune for row in turk))
+
+	def test_client_etranger_sans_commune(self):
+		name = bureau_clients.create_client(
+			json.dumps(_values(customer_name="Client Essai Tunis", commune="", pays="Tunisia"))
+		)["name"]
+		fiche = bureau_clients.get_client(name)
+		self.assertEqual(fiche["pays"], "Tunisia")
+		self.assertIsNone(fiche["commune"])
+		self.assertIsNone(fiche["wilaya"])
+		trouve = next(
+			row for row in bureau_clients.search_clients("Client Essai Tunis") if row["name"] == name
+		)
+		self.assertEqual(trouve["wilaya"], fiche["pays_label"])
+		# Revenir en Algérie redemande la commune.
+		with self.assertRaises(frappe.ValidationError):
+			bureau_clients.update_client(name, str(fiche["modified"]), json.dumps({"pays": "Algeria"}))
+		self.assertRaises(
+			frappe.ValidationError,
+			bureau_clients.create_client,
+			json.dumps(_values(customer_name="Client Essai Pays", pays="Atlantide")),
+		)
+
+	def test_client_algerien_devenu_etranger(self):
+		name = bureau_clients.create_client(json.dumps(_values(customer_name="Client Essai Export")))["name"]
+		fiche = bureau_clients.get_client(name)
+		self.assertEqual(fiche["pays"], "Algeria")
+		self.assertTrue(fiche["commune"])
+		fiche = bureau_clients.update_client(name, str(fiche["modified"]), json.dumps({"pays": "France"}))
+		self.assertEqual((fiche["pays"], fiche["commune"], fiche["wilaya"]), ("France", None, None))
+
 
 class TestSocleListes(FrappeTestCase):
 	def setUp(self):

@@ -5,7 +5,7 @@ import LucideSearch from '~icons/lucide/search'
 import LucideX from '~icons/lucide/x'
 import FormDialog from '@shared/components/FormDialog.vue'
 import { createFournisseur, getFournisseurOptions, searchCommunes, searchFournisseurs, updateFournisseur } from '@/lib/api'
-import type { CommuneChoice } from '@/lib/clients'
+import { estEtranger, PAYS_DEFAUT, type CommuneChoice } from '@/lib/clients'
 import { changedFournisseurValues, fournisseurFormValues, normalizeName, validateFournisseur, type FournisseurChoice, type FournisseurDetail, type FournisseurField, type FournisseurOptions, type FournisseurValues } from '@/lib/fournisseurs'
 
 /**
@@ -16,7 +16,7 @@ const props = defineProps<{ fournisseur?: FournisseurDetail; quick?: boolean; na
 const emit = defineEmits<{ close: []; created: [name: string, fournisseur: FournisseurChoice]; saved: [fournisseur: FournisseurDetail]; pick: [fournisseur: FournisseurChoice] }>()
 
 const editing = computed(() => Boolean(props.fournisseur))
-const EMPTY: FournisseurValues = { supplier_name: '', status: '', categorie: '', commune: '', contact: '', fonction: '', contact_telephone: '', contact_email: '', rc: '', nif: '', nis: '', ai: '' }
+const EMPTY: FournisseurValues = { supplier_name: '', status: '', categorie: '', pays: PAYS_DEFAUT, commune: '', contact: '', fonction: '', contact_telephone: '', contact_email: '', rc: '', nif: '', nis: '', ai: '' }
 // Le nom repris de la recherche n'est pas une saisie : la fermeture ne demande pas de confirmation.
 const initial: FournisseurValues = props.fournisseur ? { ...EMPTY, ...fournisseurFormValues(props.fournisseur) } : { ...EMPTY, supplier_name: props.name?.trim() ?? '' }
 const values = reactive<Record<FournisseurField, string>>({ ...(initial as Record<FournisseurField, string>) })
@@ -40,6 +40,17 @@ onMounted(async () => {
 		options.value = await getFournisseurOptions()
 	} catch (e) {
 		loadError.value = (e as Error).message
+	}
+})
+
+// À l'étranger, pas de commune : la choisir n'aurait plus de sens.
+const etranger = computed(() => estEtranger(values.pays))
+watch(etranger, (now) => {
+	if (now && values.commune) {
+		values.commune = ''
+		communeLabel.value = ''
+		communeWilaya.value = ''
+		communeQuery.value = ''
 	}
 })
 
@@ -232,6 +243,13 @@ onBeforeUnmount(() => {
 				<p v-if="errors.categorie" class="field-error" role="alert">{{ errors.categorie }}</p>
 			</div>
 			<div class="form-field">
+				<label class="field-label" for="fournisseur-pays">Pays</label>
+				<select v-search id="fournisseur-pays" v-model="values.pays" class="field-input" :aria-invalid="Boolean(errors.pays)">
+					<option v-for="item in options?.pays ?? [{ value: values.pays, label: values.pays }]" :key="item.value" :value="item.value">{{ item.label }}</option>
+				</select>
+				<p v-if="errors.pays" class="field-error" role="alert">{{ errors.pays }}</p>
+			</div>
+			<div v-if="!etranger" class="form-field">
 				<label class="field-label" for="fournisseur-commune">Commune</label>
 				<div v-if="values.commune" class="picked">
 					<div class="flex min-w-0 flex-auto flex-wrap items-baseline gap-x-2">

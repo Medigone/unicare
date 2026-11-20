@@ -5,7 +5,7 @@ import LucideSearch from '~icons/lucide/search'
 import LucideX from '~icons/lucide/x'
 import FormDialog from '@shared/components/FormDialog.vue'
 import { createClient, getClientOptions, searchClients, searchCommunes, updateClient } from '@/lib/api'
-import { changedValues, clientFormValues, normalizeName, validateClient, type ClientChoice, type ClientDetail, type ClientField, type ClientOptions, type ClientValues, type CommuneChoice } from '@/lib/clients'
+import { changedValues, clientFormValues, estEtranger, normalizeName, PAYS_DEFAUT, validateClient, type ClientChoice, type ClientDetail, type ClientField, type ClientOptions, type ClientValues, type CommuneChoice } from '@/lib/clients'
 
 /**
  * Nouveau client, ou modification d'un client (`client`) : la même fenêtre. Le contact principal ne se saisit qu'à la création.
@@ -15,7 +15,7 @@ const props = defineProps<{ client?: ClientDetail; quick?: boolean; name?: strin
 const emit = defineEmits<{ close: []; created: [name: string, client: ClientChoice]; saved: [client: ClientDetail]; pick: [client: ClientChoice] }>()
 
 const editing = computed(() => Boolean(props.client))
-const EMPTY: ClientValues = { customer_name: '', status: '', forme_juridique: '', categorie: '', commune: '', gps: '', telephone: '', email: '', contact: '', fonction: '', contact_telephone: '', contact_email: '', rc: '', nif: '', nis: '', ai: '' }
+const EMPTY: ClientValues = { customer_name: '', status: '', forme_juridique: '', categorie: '', pays: PAYS_DEFAUT, commune: '', gps: '', telephone: '', email: '', contact: '', fonction: '', contact_telephone: '', contact_email: '', rc: '', nif: '', nis: '', ai: '' }
 // Le nom repris de la recherche n'est pas une saisie : la fermeture ne demande pas de confirmation.
 const initial: ClientValues = props.client ? { ...EMPTY, ...clientFormValues(props.client) } : { ...EMPTY, customer_name: props.name?.trim() ?? '' }
 const values = reactive<Record<ClientField, string>>({ ...(initial as Record<ClientField, string>) })
@@ -44,6 +44,17 @@ onMounted(async () => {
 		}
 	} catch (e) {
 		loadError.value = (e as Error).message
+	}
+})
+
+// À l'étranger, pas de commune : la choisir n'aurait plus de sens.
+const etranger = computed(() => estEtranger(values.pays))
+watch(etranger, (now) => {
+	if (now && values.commune) {
+		values.commune = ''
+		communeLabel.value = ''
+		communeWilaya.value = ''
+		communeQuery.value = ''
 	}
 })
 
@@ -247,6 +258,13 @@ onBeforeUnmount(() => {
 				<p v-if="errors.categorie" class="field-error" role="alert">{{ errors.categorie }}</p>
 			</div>
 			<div class="form-field">
+				<label class="field-label" for="client-pays">Pays</label>
+				<select v-search id="client-pays" v-model="values.pays" class="field-input" :aria-invalid="Boolean(errors.pays)">
+					<option v-for="item in options?.pays ?? [{ value: values.pays, label: values.pays }]" :key="item.value" :value="item.value">{{ item.label }}</option>
+				</select>
+				<p v-if="errors.pays" class="field-error" role="alert">{{ errors.pays }}</p>
+			</div>
+			<div v-if="!etranger" class="form-field">
 				<label class="field-label" for="client-commune">Commune <span class="req">obligatoire</span></label>
 				<div v-if="values.commune" class="picked">
 					<div class="flex min-w-0 flex-auto flex-wrap items-baseline gap-x-2">

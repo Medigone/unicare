@@ -62,7 +62,9 @@ export interface FournisseurDetail {
 	status: string | null
 	categorie: string | null
 	type: string | null
-	pays: string | null
+	/** Pays (nom du doctype Country, « Algeria » par défaut) ; `pays_label` est son nom affiché. */
+	pays: string
+	pays_label: string
 	commune: string | null
 	commune_label: string | null
 	wilaya: string | null
@@ -88,6 +90,8 @@ export interface FournisseurOptions {
 	statuses: string[]
 	categories: string[]
 	wilayas: string[]
+	/** Pays proposés, l'Algérie en tête. */
+	pays: { value: string; label: string }[]
 }
 
 export const FOURNISSEUR_COLUMNS: Column<FournisseurRow>[] = [
@@ -127,11 +131,11 @@ export interface FournisseurChoice {
 	liste_prix?: string | null
 }
 
-export const FOURNISSEUR_FIELDS = ['supplier_name', 'status', 'categorie', 'commune', 'contact', 'fonction', 'contact_telephone', 'contact_email', 'rc', 'nif', 'nis', 'ai'] as const
+export const FOURNISSEUR_FIELDS = ['supplier_name', 'status', 'categorie', 'pays', 'commune', 'contact', 'fonction', 'contact_telephone', 'contact_email', 'rc', 'nif', 'nis', 'ai'] as const
 export type FournisseurField = (typeof FOURNISSEUR_FIELDS)[number]
 export type FournisseurValues = Partial<Record<FournisseurField, string>>
 /** Ce qu'une modification peut changer : les contacts se modifient sur leur propre document. */
-export const EDIT_FIELDS: readonly FournisseurField[] = ['supplier_name', 'status', 'categorie', 'commune', 'rc', 'nif', 'nis', 'ai']
+export const EDIT_FIELDS: readonly FournisseurField[] = ['supplier_name', 'status', 'categorie', 'pays', 'commune', 'rc', 'nif', 'nis', 'ai']
 
 const REQUIRED: { field: FournisseurField; message: string }[] = [
 	{ field: 'supplier_name', message: 'Saisissez la raison sociale.' },
@@ -156,6 +160,7 @@ export function fournisseurFormValues(fournisseur: FournisseurDetail): Fournisse
 		supplier_name: fournisseur.fournisseur,
 		status: fournisseur.status ?? '',
 		categorie: fournisseur.categorie ?? '',
+		pays: fournisseur.pays || 'Algeria',
 		commune: fournisseur.commune ?? '',
 		rc: number('rc'),
 		nif: number('nif'),

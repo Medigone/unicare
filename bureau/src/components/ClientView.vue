@@ -23,7 +23,7 @@ import VenteDialog from './VenteDialog.vue'
 import RecordHeader from './RecordHeader.vue'
 import TagEditor from './TagEditor.vue'
 import { clientActivity, deleteClient, setClientPiece } from '@/lib/api'
-import { formatAmount, type ClientDetail, type ClientVente, type VenteKey } from '@/lib/clients'
+import { formatAmount, type ClientDetail, type ClientVente, type VenteKey, estEtranger, lieu } from '@/lib/clients'
 import { confirmAction } from '@/lib/confirm'
 import { deskUrl, formatDay } from '@/lib/display'
 import { useClient } from '@/lib/useClient'
@@ -154,7 +154,7 @@ async function supprimer() {
 				<template #sub>
 					<span v-if="client.forme_juridique">{{ client.forme_juridique }}</span>
 					<span class="tabular-nums">{{ client.name }}</span>
-					<span v-if="client.commune_label || client.wilaya">{{ [client.commune_label, client.wilaya].filter(Boolean).join(', ') }}</span>
+					<span v-if="lieu(client)">{{ lieu(client) }}</span>
 					<div v-if="client.tags?.length || client.can_edit"><TagEditor doctype="Customer" :name="client.name" :modified="client.modified" :tags="client.tags" :can-edit="client.can_edit" @changed="onTags" /></div>
 				</template>
 				<template #actions>
@@ -193,7 +193,7 @@ async function supprimer() {
 							<div>
 								<dt><LucideMapPin aria-hidden="true" />Adresse</dt>
 								<dd class="flex items-center justify-between gap-2">
-									<span class="min-w-0 whitespace-pre-line">{{ client.adresse || [client.commune_label, client.wilaya].filter(Boolean).join(', ') || 'Non renseignée' }}</span>
+									<span class="min-w-0 whitespace-pre-line">{{ client.adresse || lieu(client) || 'Non renseignée' }}</span>
 									<a v-if="client.map_url" class="icon-btn" :href="client.map_url" target="_blank" rel="noopener noreferrer" aria-label="Voir sur la carte" title="Voir sur la carte"><LucideMap class="h-4 w-4" aria-hidden="true" /></a>
 								</dd>
 							</div>
@@ -328,9 +328,10 @@ async function supprimer() {
 								<h3>Adresse</h3>
 								<dl class="kv">
 									<div><dt>Adresse</dt><dd class="whitespace-pre-line">{{ client.adresse || '—' }}</dd></div>
-									<div><dt>Commune</dt><dd>{{ client.commune_label || '—' }}</dd></div>
+									<template v-if="!estEtranger(client.pays)"><div><dt>Commune</dt><dd>{{ client.commune_label || '—' }}</dd></div>
 									<div><dt>Wilaya</dt><dd>{{ client.wilaya || '—' }}</dd></div>
-									<div><dt>Région</dt><dd>{{ client.region || '—' }}</dd></div>
+									<div><dt>Région</dt><dd>{{ client.region || '—' }}</dd></div></template>
+									<div v-else><dt>Pays</dt><dd>{{ client.pays_label }}</dd></div>
 									<div><dt>GPS</dt><dd class="tabular-nums"><a v-if="client.map_url" class="ref-link" :href="client.map_url" target="_blank" rel="noopener noreferrer">{{ client.gps }}</a><template v-else>{{ client.gps || '—' }}</template></dd></div>
 								</dl>
 							</section>

@@ -9,7 +9,7 @@ import LucidePhone from '~icons/lucide/phone'
 import LucideX from '~icons/lucide/x'
 import StatusPill from '@shared/components/StatusPill.vue'
 import TagEditor from './TagEditor.vue'
-import { formatAmount, SOLDE_DOCTYPE } from '@/lib/clients'
+import { formatAmount, SOLDE_DOCTYPE, estEtranger, lieu } from '@/lib/clients'
 import { canRead } from '@/lib/droits'
 import { useClient } from '@/lib/useClient'
 import { useDrawerControls } from '@/lib/useDrawerControls'
@@ -59,13 +59,14 @@ function onTags(tags: string[]) {
 						<h2 class="text-xl font-semibold">{{ client.client }}</h2>
 						<StatusPill :status="client.status" />
 					</div>
-					<p class="mt-0.5 text-sm text-ink-gray-7">{{ [client.forme_juridique, client.name, client.commune_label, client.wilaya].filter(Boolean).join(' · ') }}</p>
+					<p class="mt-0.5 text-sm text-ink-gray-7">{{ [client.forme_juridique, client.name, lieu(client)].filter(Boolean).join(' · ') }}</p>
 					<TagEditor class="mt-1.5" doctype="Customer" :name="client.name" :modified="client.modified" :tags="client.tags" :can-edit="client.can_edit" @changed="onTags" />
 				</div>
 
 				<dl class="bureau-drawer-facts">
 					<div><dt>Catégorie</dt><dd class="truncate">{{ client.categorie || '—' }}</dd></div>
-					<div><dt>Wilaya</dt><dd class="truncate">{{ client.wilaya || '—' }}</dd></div>
+					<div v-if="estEtranger(client.pays)"><dt>Pays</dt><dd class="truncate">{{ client.pays_label }}</dd></div>
+					<div v-else><dt>Wilaya</dt><dd class="truncate">{{ client.wilaya || '—' }}</dd></div>
 					<div><dt>Région</dt><dd class="truncate">{{ client.region || '—' }}</dd></div>
 					<div v-if="canRead(SOLDE_DOCTYPE) && client.solde !== null"><dt>Solde</dt><dd class="tabular-nums">{{ client.solde ? `${formatAmount(client.solde)} DA` : 'Aucun' }}</dd></div>
 				</dl>
@@ -92,7 +93,7 @@ function onTags(tags: string[]) {
 				<section class="card flex flex-col gap-1">
 					<h3 class="text-base font-semibold">Adresse</h3>
 					<p v-if="client.adresse" class="whitespace-pre-line">{{ client.adresse }}</p>
-					<p>{{ [client.commune_label, client.wilaya].filter(Boolean).join(', ') || 'Commune non renseignée.' }}</p>
+					<p>{{ lieu(client) || 'Commune non renseignée.' }}</p>
 					<a v-if="client.map_url" class="ref-link self-start" :href="client.map_url" target="_blank" rel="noopener noreferrer"><LucideMapPin class="h-3.5 w-3.5" aria-hidden="true" />Voir sur la carte</a>
 				</section>
 

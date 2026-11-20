@@ -39,6 +39,7 @@ LIST_FIELDS = [
 	"customer_group",
 	"custom_wilaya",
 	"custom_commune",
+	"custom_pays",
 	"custom_nom_contact_principal",
 	PHONE_FIELD,
 	MAIN_PHONE_FIELD,
@@ -66,6 +67,8 @@ SORT_KEYS = {
 	"modified",
 }
 
+# Pays par défaut d'un client ou d'un fournisseur (nom du doctype Country). Un pays vide compte comme lui.
+PAYS_DEFAUT = "Algeria"
 RELATED_LIMIT = 50
 COMMUNE_SEARCH_LIMIT = 12
 CLIENT_SEARCH_LIMIT = 8
@@ -78,6 +81,7 @@ EDITABLE_FIELDS = {
 	"status": "custom_status",
 	"forme_juridique": "custom_forme_juridique",
 	"categorie": "customer_group",
+	"pays": "custom_pays",
 	"commune": "custom_commune",
 	"gps": "custom_gps",
 	"telephone": MAIN_PHONE_FIELD,
@@ -144,7 +148,7 @@ def _list_row(client, soldes):
 		"client": client.customer_name or client.name,
 		"status": client.custom_status,
 		"categorie": client.customer_group,
-		"wilaya": client.custom_wilaya,
+		"wilaya": localisation(client, "custom_pays"),
 		"contact": client.custom_nom_contact_principal,
 		"telephone": client.get(MAIN_PHONE_FIELD) or client.get(PHONE_FIELD),
 		"solde": soldes.get(client.name, 0) if soldes is not None else None,
@@ -241,6 +245,7 @@ def get_client_options():
 		"formes": _select_options("custom_forme_juridique"),
 		"categories": categories,
 		"wilayas": wilayas,
+		"pays": pays_options(),
 		"filter_fields": doctype_filter_fields(
 			CUSTOMER,
 			{
@@ -253,16 +258,49 @@ def get_client_options():
 
 @frappe.whitelist()
 def search_communes(search=None):
-	"""Communes proposées dans la fenêtre : la wilaya et la région en découlent sur le client."""
+	"""Communes proposées dans la fenêtre : la wilaya et la région en découlent sur le client.
+
+	Chaque mot tapé doit se trouver dans le nom ou la wilaya, sans tenir compte des accents. La commune dont le nom
+	est la saisie passe d'abord, puis celles dont le nom commence par elle, puis le contient, puis celles de la
+	wilaya : « oran » donne Oran avant les autres communes de la wilaya d'Oran.
+	"""
+	from unicare.api.bureau_devis import _plain as sans_accents
+
 	require_bureau()
 	value = cstr(search).strip()
-	return frappe.get_list(
+	words = value.split()
+	if not words:
+		return frappe.get_list(
+			"Commune",
+			fields=["name", "nom as commune", "wilaya"],
+			order_by="nom asc",
+			limit_page_length=COMMUNE_SEARCH_LIMIT,
+		)
+	first = words[0]
+	rows = frappe.get_list(
 		"Commune",
-		or_filters=[["nom", "like", f"%{value}%"], ["wilaya", "like", f"%{value}%"]] if value else None,
+		or_filters=[["nom", "like", f"%{first}%"], ["wilaya", "like", f"%{first}%"]],
 		fields=["name", "nom as commune", "wilaya"],
-		order_by="nom asc",
-		limit_page_length=COMMUNE_SEARCH_LIMIT,
+		limit_page_length=0,
 	)
+	query = sans_accents(" ".join(words))
+	wanted = query.split()
+
+	def rang(row):
+		nom = sans_accents(row.commune)
+		if nom == query:
+			return 0
+		if nom.startswith(query):
+			return 1
+		if query in nom:
+			return 2
+		if all(word in nom for word in wanted):
+			return 3
+		return 4
+
+	found = [row for row in rows if all(w in sans_accents(f"{row.commune} {row.wilaya}") for w in wanted)]
+	found.sort(key=lambda row: (rang(row), sans_accents(row.commune)))
+	return found[:COMMUNE_SEARCH_LIMIT]
 
 
 @frappe.whitelist()
@@ -275,7 +313,7 @@ def search_clients(search=None):
 	clients = frappe.get_list(
 		CUSTOMER,
 		or_filters=[["customer_name", "like", f"%{value}%"], ["name", "like", f"%{value}%"]],
-		fields=["name", "customer_name", "custom_wilaya", "disabled", "default_price_list"],
+		fields=["name", "customer_name", "custom_wilaya", "custom_pays", "disabled", "default_price_list"],
 		order_by="customer_name asc",
 		limit_page_length=CLIENT_SEARCH_LIMIT,
 	)
@@ -283,7 +321,7 @@ def search_clients(search=None):
 		{
 			"name": client.name,
 			"label": client.customer_name or client.name,
-			"wilaya": client.custom_wilaya,
+			"wilaya": localisation(client, "custom_pays"),
 			"disabled": cint(client.disabled),
 			"liste_prix": client.default_price_list or None,
 		}
@@ -334,6 +372,58 @@ def _contacts(doc):
 		row.principal = 0 if contacts else cint(row.principal)
 		contacts.append(row)
 	return contacts
+
+
+def est_etranger(pays):
+	"""Hors Algérie : ni commune ni wilaya. Un pays vide compte comme l'Algérie."""
+	return bool(pays) and pays != PAYS_DEFAUT
+
+
+def _noms_pays():
+	"""{nom du doctype Country : nom dans la langue de la personne} : « Tunisia » → « Tunisie ».
+
+	Frappe ne traduit pas les pays ; babel (fourni avec Frappe) les nomme d'après leur code ISO.
+	"""
+	from babel import Locale
+
+	lang = (frappe.local.lang or "fr").replace("-", "_")
+	# Une fois par requête et par langue : une liste peut nommer le pays de chaque ligne.
+	memo = getattr(frappe.local, "unicare_noms_pays", None)
+	if memo is None:
+		memo = frappe.local.unicare_noms_pays = {}
+	if lang not in memo:
+		try:
+			territoires = Locale.parse(lang).territories
+		except Exception:
+			territoires = {}
+		memo[lang] = {
+			row.name: territoires.get(cstr(row.code).upper()) or _(row.name)
+			for row in frappe.get_all("Country", fields=["name", "code"], limit_page_length=0)
+		}
+	return memo[lang]
+
+
+def pays_label(pays):
+	pays = pays or PAYS_DEFAUT
+	return _noms_pays().get(pays) or _(pays)
+
+
+def pays_options():
+	"""Les pays proposés dans les fenêtres, l'Algérie en tête, puis par nom affiché."""
+	noms = _noms_pays()
+	autres = sorted((nom for nom in noms if nom != PAYS_DEFAUT), key=lambda nom: noms[nom].casefold())
+	return [{"value": nom, "label": noms.get(nom, nom)} for nom in [PAYS_DEFAUT, *autres]]
+
+
+def check_pays(pays):
+	if pays and not frappe.db.exists("Country", pays):
+		frappe.throw(_("Choisissez un pays de la liste."))
+
+
+def localisation(row, pays_field, wilaya_field="custom_wilaya"):
+	"""Ce qui situe un tiers dans une liste ou une recherche : sa wilaya, ou son pays s'il est à l'étranger."""
+	pays = row.get(pays_field)
+	return pays_label(pays) if est_etranger(pays) else row.get(wilaya_field)
 
 
 def _commune_label(name):
@@ -420,6 +510,8 @@ def _client_payload(doc, full=False):
 		"status": doc.custom_status,
 		"forme_juridique": doc.custom_forme_juridique,
 		"categorie": doc.customer_group,
+		"pays": doc.get("custom_pays") or PAYS_DEFAUT,
+		"pays_label": pays_label(doc.get("custom_pays")),
 		"commune": doc.custom_commune,
 		"commune_label": _commune_label(doc.custom_commune),
 		"wilaya": doc.custom_wilaya,
@@ -502,6 +594,7 @@ def _check_choices(values):
 		"Customer Group", {"name": values["categorie"], "is_group": 0}
 	):
 		frappe.throw(_("Choisissez une catégorie de la liste."))
+	check_pays(values.get("pays"))
 	if values.get("commune") and not frappe.db.exists("Commune", values["commune"]):
 		frappe.throw(_("Choisissez une commune de la liste."))
 	if values.get("gps") and parse_gps(values["gps"]) == (None, None):
@@ -536,7 +629,10 @@ def create_client(values=None):
 	require_bureau()
 	frappe.has_permission(CUSTOMER, "create", throw=True)
 	values = _clean_values(values)
-	_check_required(values, REQUIRED_VALUES)
+	etranger = est_etranger(values.get("pays"))
+	_check_required(values, [key for key in REQUIRED_VALUES if not (etranger and key == "commune")])
+	if etranger:
+		values["commune"] = ""
 	if not values.get("contact") and any(
 		values.get(key) for key in ("fonction", "contact_telephone", "contact_email")
 	):
@@ -551,7 +647,8 @@ def create_client(values=None):
 			"custom_status": NEW_STATUS,
 			"custom_forme_juridique": values["forme_juridique"],
 			"customer_group": values["categorie"],
-			"custom_commune": values["commune"],
+			"custom_pays": values.get("pays") or PAYS_DEFAUT,
+			"custom_commune": values["commune"] or None,
 			"custom_gps": values.get("gps") or None,
 			MAIN_PHONE_FIELD: values.get("telephone") or None,
 			"custom_email_principal_client": values.get("email") or None,
@@ -583,6 +680,11 @@ def update_client(name, modified, values=None):
 	_check_choices(values)
 	for key, value in values.items():
 		doc.set(EDITABLE_FIELDS[key], value or None)
+	if est_etranger(doc.get("custom_pays")):
+		# À l'étranger : la commune, et la wilaya et la région qui en découlent, n'ont plus de sens.
+		doc.update({"custom_commune": None, "custom_wilaya": None, "custom_région": None})
+	elif not doc.custom_commune:
+		frappe.throw(REQUIRED_VALUES["commune"])
 	doc.save()
 	return _client_payload(doc, full=True)
 

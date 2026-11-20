@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { estEtranger, lieu } from '@/lib/clients'
 import { computed, ref } from 'vue'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronDown from '~icons/lucide/chevron-down'
@@ -58,14 +59,14 @@ function onTags(tags: string[]) {
 						<h2 class="text-xl font-semibold">{{ fournisseur.fournisseur }}</h2>
 						<StatusPill :status="fournisseur.status" />
 					</div>
-					<p class="mt-0.5 text-sm text-ink-gray-7">{{ [fournisseur.name, fournisseur.commune_label, fournisseur.wilaya].filter(Boolean).join(' · ') }}</p>
+					<p class="mt-0.5 text-sm text-ink-gray-7">{{ [fournisseur.name, lieu(fournisseur)].filter(Boolean).join(' · ') }}</p>
 					<TagEditor class="mt-1.5" doctype="Supplier" :name="fournisseur.name" :modified="fournisseur.modified" :tags="fournisseur.tags" :can-edit="fournisseur.can_edit" @changed="onTags" />
 				</div>
 
 				<dl class="bureau-drawer-facts">
 					<div><dt>Catégorie</dt><dd class="truncate">{{ fournisseur.categorie || '—' }}</dd></div>
-					<div><dt>Wilaya</dt><dd class="truncate">{{ fournisseur.wilaya || '—' }}</dd></div>
-					<div><dt>Pays</dt><dd class="truncate">{{ fournisseur.pays || '—' }}</dd></div>
+					<div v-if="!estEtranger(fournisseur.pays)"><dt>Wilaya</dt><dd class="truncate">{{ fournisseur.wilaya || '—' }}</dd></div>
+					<div><dt>Pays</dt><dd class="truncate">{{ fournisseur.pays_label || '—' }}</dd></div>
 					<div v-if="canRead(SOLDE_DOCTYPE) && fournisseur.solde !== null"><dt>À payer</dt><dd class="tabular-nums">{{ fournisseur.solde ? `${formatAmount(fournisseur.solde)} DA` : 'Aucun' }}</dd></div>
 				</dl>
 
@@ -91,7 +92,7 @@ function onTags(tags: string[]) {
 				<section class="card flex flex-col gap-1">
 					<h3 class="text-base font-semibold">Adresse</h3>
 					<p v-if="fournisseur.adresse" class="whitespace-pre-line">{{ fournisseur.adresse }}</p>
-					<p>{{ [fournisseur.commune_label, fournisseur.wilaya].filter(Boolean).join(', ') || 'Commune non renseignée.' }}</p>
+					<p>{{ lieu(fournisseur) || 'Commune non renseignée.' }}</p>
 				</section>
 
 				<section class="card flex flex-col gap-1">

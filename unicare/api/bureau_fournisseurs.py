@@ -12,7 +12,16 @@ from frappe import _
 from frappe.utils import cint, cstr, flt, strip_html, validate_email_address
 
 from unicare.api import activity
-from unicare.api.bureau_clients import ADMIN_PIECES, bind_file
+from unicare.api.bureau_clients import (
+	ADMIN_PIECES,
+	PAYS_DEFAUT,
+	bind_file,
+	check_pays,
+	est_etranger,
+	localisation,
+	pays_label,
+	pays_options,
+)
 from unicare.api.bureau_list import (
 	BELL_FIELD,
 	_parse,
@@ -40,6 +49,7 @@ LIST_FIELDS = [
 	"supplier_group",
 	"custom_wilaya",
 	"custom_commune",
+	"country",
 	"supplier_primary_contact",
 	"mobile_no",
 	"email_id",
@@ -73,6 +83,7 @@ EDITABLE_FIELDS = {
 	"supplier_name": "supplier_name",
 	"status": STATUS_FIELD,
 	"categorie": "supplier_group",
+	"pays": "country",
 	"commune": "custom_commune",
 	"rc": "custom_nº_rc",
 	"nif": "custom_nº_nif",
@@ -137,7 +148,7 @@ def _list_row(fournisseur, soldes, contacts):
 		"fournisseur": fournisseur.supplier_name or fournisseur.name,
 		"status": fournisseur.get(STATUS_FIELD),
 		"categorie": fournisseur.supplier_group,
-		"wilaya": fournisseur.custom_wilaya,
+		"wilaya": localisation(fournisseur, "country"),
 		"contact": (contacts.get(contact) or contact) if contact else None,
 		"telephone": fournisseur.mobile_no,
 		"solde": soldes.get(fournisseur.name, 0) if soldes is not None else None,
@@ -229,6 +240,7 @@ def get_fournisseur_options():
 		"statuses": _statuses(),
 		"categories": categories,
 		"wilayas": wilayas,
+		"pays": pays_options(),
 		"filter_fields": doctype_filter_fields(
 			SUPPLIER,
 			{"supplier_group": _plain(categories), "custom_wilaya": _plain(wilayas)},
@@ -251,7 +263,15 @@ def search_fournisseurs(search=None, actifs=0):
 		SUPPLIER,
 		filters=filters,
 		or_filters=[["supplier_name", "like", f"%{value}%"], ["name", "like", f"%{value}%"]] if value else None,
-		fields=["name", "supplier_name", "custom_wilaya", "disabled", STATUS_FIELD, "default_price_list"],
+		fields=[
+			"name",
+			"supplier_name",
+			"custom_wilaya",
+			"country",
+			"disabled",
+			STATUS_FIELD,
+			"default_price_list",
+		],
 		order_by="supplier_name asc",
 		limit_page_length=SUPPLIER_SEARCH_LIMIT,
 	)
@@ -259,7 +279,7 @@ def search_fournisseurs(search=None, actifs=0):
 		{
 			"name": row.name,
 			"label": row.supplier_name or row.name,
-			"wilaya": row.custom_wilaya,
+			"wilaya": localisation(row, "country"),
 			"disabled": cint(row.disabled) or int(row.get(STATUS_FIELD) == EXCLU),
 			"liste_prix": row.default_price_list or None,
 		}
@@ -371,7 +391,8 @@ def _fournisseur_payload(doc, full=False):
 		"status": doc.get(STATUS_FIELD),
 		"categorie": doc.supplier_group,
 		"type": doc.supplier_type,
-		"pays": doc.country,
+		"pays": doc.country or PAYS_DEFAUT,
+		"pays_label": pays_label(doc.country),
 		"commune": doc.custom_commune,
 		"commune_label": _commune_label(doc.custom_commune),
 		"wilaya": doc.custom_wilaya,
@@ -452,6 +473,7 @@ def _check_choices(values):
 		"Supplier Group", {"name": values["categorie"], "is_group": 0}
 	):
 		frappe.throw(_("Choisissez une catégorie de la liste."))
+	check_pays(values.get("pays"))
 	if values.get("commune") and not frappe.db.exists("Commune", values["commune"]):
 		frappe.throw(_("Choisissez une commune de la liste."))
 	if values.get("contact_email"):
@@ -497,7 +519,9 @@ def create_fournisseur(values=None):
 			"supplier_type": "Company",
 			STATUS_FIELD: ACTIF,
 			"supplier_group": values["categorie"],
-			"custom_commune": values.get("commune") or None,
+			"country": values.get("pays") or PAYS_DEFAUT,
+			# À l'étranger : ni commune ni wilaya.
+			"custom_commune": None if est_etranger(values.get("pays")) else values.get("commune") or None,
 			**{
 				fieldname: values.get(key) or None for key, (_label, fieldname, _file) in ADMIN_PIECES.items()
 			},
@@ -526,6 +550,9 @@ def update_fournisseur(name, modified, values=None):
 	_check_choices(values)
 	for key, value in values.items():
 		doc.set(EDITABLE_FIELDS[key], value or None)
+	if est_etranger(doc.country):
+		# À l'étranger : la commune, et la wilaya qui en découle, n'ont plus de sens.
+		doc.update({"custom_commune": None, "custom_wilaya": None})
 	doc.save()
 	return _fournisseur_payload(doc, full=True)
 
