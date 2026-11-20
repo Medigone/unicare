@@ -7,13 +7,17 @@ import FormDialog from '@shared/components/FormDialog.vue'
 import { createClient, getClientOptions, searchClients, searchCommunes, updateClient } from '@/lib/api'
 import { changedValues, clientFormValues, normalizeName, validateClient, type ClientChoice, type ClientDetail, type ClientField, type ClientOptions, type ClientValues, type CommuneChoice } from '@/lib/clients'
 
-/** Nouveau client, ou modification d'un client (`client`) : la même fenêtre. Le contact principal ne se saisit qu'à la création. */
-const props = defineProps<{ client?: ClientDetail }>()
-const emit = defineEmits<{ close: []; created: [name: string]; saved: [client: ClientDetail] }>()
+/**
+ * Nouveau client, ou modification d'un client (`client`) : la même fenêtre. Le contact principal ne se saisit qu'à la création.
+ * `quick` : création depuis une pièce (devis, commande), réduite aux champs obligatoires et au téléphone ; `name` la préremplit.
+ */
+const props = defineProps<{ client?: ClientDetail; quick?: boolean; name?: string }>()
+const emit = defineEmits<{ close: []; created: [name: string, client: ClientChoice]; saved: [client: ClientDetail]; pick: [client: ClientChoice] }>()
 
 const editing = computed(() => Boolean(props.client))
 const EMPTY: ClientValues = { customer_name: '', status: '', forme_juridique: '', categorie: '', commune: '', gps: '', telephone: '', email: '', contact: '', fonction: '', contact_telephone: '', contact_email: '', rc: '', nif: '', nis: '', ai: '' }
-const initial: ClientValues = props.client ? { ...EMPTY, ...clientFormValues(props.client) } : { ...EMPTY }
+// Le nom repris de la recherche n'est pas une saisie : la fermeture ne demande pas de confirmation.
+const initial: ClientValues = props.client ? { ...EMPTY, ...clientFormValues(props.client) } : { ...EMPTY, customer_name: props.name?.trim() ?? '' }
 const values = reactive<Record<ClientField, string>>({ ...(initial as Record<ClientField, string>) })
 const options = ref<ClientOptions | null>(null)
 const loadError = ref('')
@@ -153,7 +157,9 @@ async function submit() {
 	serverError.value = ''
 	if (Object.keys(errors.value).length) {
 		await nextTick()
-		document.querySelector<HTMLElement>('.dialog [aria-invalid="true"]')?.focus()
+		// La dernière fenêtre ouverte : ouverte depuis un devis, celle-ci est par-dessus.
+		const dialogs = document.querySelectorAll('.dialog')
+		dialogs[dialogs.length - 1]?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
 		return
 	}
 	if (props.client && !Object.keys(changes.value).length) {
@@ -167,7 +173,7 @@ async function submit() {
 		} else {
 			const { status: _status, ...fields } = values
 			const { name } = await createClient(Object.fromEntries(Object.entries(fields).map(([field, value]) => [field, value.trim()])))
-			emit('created', name)
+			emit('created', name, { name, label: savedName.value, wilaya: communeWilaya.value || null, disabled: 0 })
 		}
 		emit('close')
 	} catch (e) {
@@ -186,13 +192,25 @@ onBeforeUnmount(() => {
 <template>
 	<FormDialog :title="editing ? 'Modifier le client' : 'Nouveau client'" :dirty="dirty" :busy="busy" :hint="editing ? 'Ctrl + Entrée pour enregistrer' : 'Ctrl + Entrée pour créer'" @close="emit('close')" @submit="submit">
 		<p v-if="loadError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ loadError }}</p>
+		<p v-if="quick" class="field-note -mt-1"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Le client est choisi pour la pièce en cours. Contact, email, GPS et pièces administratives se complètent ensuite depuis la fiche.</span></p>
 
 		<div class="form-field">
 			<label class="field-label" for="client-raison">Raison sociale <span class="req">obligatoire</span></label>
 			<input id="client-raison" v-model="values.customer_name" class="field-input" placeholder="Nom de la société" autocomplete="off" :aria-invalid="Boolean(errors.customer_name)" />
 			<p v-if="errors.customer_name" class="field-error" role="alert">{{ errors.customer_name }}</p>
 			<p v-else-if="savedName" class="field-note"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Enregistrée ainsi : {{ savedName }}</span></p>
-			<p v-if="similar.length" class="field-note">
+			<p v-if="quick && similar.length" class="field-note">
+				<LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" />
+				<span>
+					Déjà enregistré :
+					<template v-for="(item, index) in similar" :key="item.name"
+						>{{ index ? ', ' : '' }}<template v-if="item.disabled">{{ item.label }} (désactivé)</template
+						><button v-else type="button" class="ref-link" :title="`Choisir ${item.label} pour la pièce`" @click="emit('pick', item), emit('close')">{{ item.label }}</button
+						><template v-if="item.wilaya && !item.disabled"> ({{ item.wilaya }})</template></template
+					>. Cliquez un nom pour le choisir plutôt.
+				</span>
+			</p>
+			<p v-else-if="similar.length" class="field-note">
 				<LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" />
 				<span>
 					Déjà enregistré :
@@ -267,13 +285,18 @@ onBeforeUnmount(() => {
 				</div>
 				<p v-if="errors.commune" class="field-error" role="alert">{{ errors.commune }}</p>
 			</div>
-			<div class="form-field">
+			<div v-if="quick" class="form-field">
+				<label class="field-label" for="client-telephone">Téléphone principal</label>
+				<input id="client-telephone" v-model="values.telephone" class="field-input tabular-nums" type="tel" autocomplete="off" />
+			</div>
+			<div v-else class="form-field">
 				<label class="field-label" for="client-gps">GPS</label>
 				<input id="client-gps" v-model="values.gps" class="field-input tabular-nums" placeholder="36.75, 3.06" autocomplete="off" :aria-invalid="Boolean(errors.gps)" />
 				<p v-if="errors.gps" class="field-error" role="alert">{{ errors.gps }}</p>
 			</div>
 		</div>
 
+		<template v-if="!quick">
 		<h3 class="form-section">Coordonnées de la société</h3>
 		<div class="form-grid">
 			<div class="form-field">
@@ -320,11 +343,12 @@ onBeforeUnmount(() => {
 			</div>
 		</div>
 		<p v-if="!editing" class="field-note"><LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" /><span>Les fichiers des pièces se joignent ensuite depuis la fiche.</span></p>
+		</template>
 
 		<p v-if="serverError" role="alert" class="rounded-control tone-red px-3 py-2 text-sm">{{ serverError }}</p>
 
 		<template #actions>
-			<button type="button" class="btn-primary" :disabled="busy" @click="submit">{{ busy ? 'Enregistrement…' : editing ? 'Enregistrer' : 'Créer le client' }}</button>
+			<button type="button" class="btn-primary" :disabled="busy" @click="submit">{{ busy ? 'Enregistrement…' : editing ? 'Enregistrer' : quick ? 'Créer et choisir' : 'Créer le client' }}</button>
 		</template>
 	</FormDialog>
 </template>

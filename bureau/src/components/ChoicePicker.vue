@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="Choice extends { name: string; label: string; hint?: string | null }">
 import { nextTick, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import LucidePlus from '~icons/lucide/plus'
 import LucideSearch from '~icons/lucide/search'
 import LucideX from '~icons/lucide/x'
 
@@ -12,8 +13,10 @@ const props = defineProps<{
 	placeholder?: string
 	invalid?: boolean
 	compact?: boolean
+	/** Libellé de l'option de création, en fin de liste (« Créer le client ») ; absent : pas de création. */
+	createLabel?: string
 }>()
-const emit = defineEmits<{ pick: [choice: Choice]; clear: [] }>()
+const emit = defineEmits<{ pick: [choice: Choice]; clear: []; create: [query: string] }>()
 
 const query = ref('')
 const choices = shallowRef<Choice[]>([])
@@ -47,8 +50,17 @@ function show() {
 	open.value = true
 	if (!searched.value) run()
 }
+// L'option de création suit les résultats : sans résultat, c'est elle que choisit Entrée.
+const canCreate = () => Boolean(props.createLabel && searched.value)
+function create() {
+	open.value = false
+	emit('create', query.value.trim())
+}
 function pick(choice?: Choice) {
-	if (!choice) return
+	if (!choice) {
+		if (canCreate() && cursor.value === choices.value.length) create()
+		return
+	}
 	open.value = false
 	emit('pick', choice)
 }
@@ -65,7 +77,7 @@ function onKey(event: KeyboardEvent) {
 		open.value = false
 	} else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
 		event.preventDefault()
-		const count = choices.value.length
+		const count = choices.value.length + (canCreate() ? 1 : 0)
 		if (count) cursor.value = (cursor.value + (event.key === 'ArrowDown' ? 1 : count - 1)) % count
 		open.value = true
 	} else if (event.key === 'Enter' && !event.ctrlKey && !event.metaKey && open.value) {
@@ -113,6 +125,10 @@ onBeforeUnmount(() => {
 			<p v-if="error" class="app-menu-title" role="alert">{{ error }}</p>
 			<p v-else-if="searched && !choices.length" class="app-menu-title">{{ query.trim() ? 'Aucun résultat.' : 'Tapez pour rechercher.' }}</p>
 			<p v-else-if="!searched" class="app-menu-title">Recherche…</p>
+			<button v-if="createLabel && searched" type="button" class="app-menu-item" role="option" :aria-selected="cursor === choices.length" @mousedown.prevent @click="create" @pointerenter="cursor = choices.length">
+				<LucidePlus class="h-3.5 w-3.5 flex-none text-accent" aria-hidden="true" />
+				<span class="min-w-0 flex-auto truncate">{{ createLabel }}<template v-if="query.trim()"> « {{ query.trim() }} »</template></span>
+			</button>
 		</div>
 	</div>
 </template>

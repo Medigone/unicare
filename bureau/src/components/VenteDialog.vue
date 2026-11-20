@@ -4,12 +4,13 @@ import LucideInfo from '~icons/lucide/info'
 import LucideTrash2 from '~icons/lucide/trash-2'
 import FormDialog from '@shared/components/FormDialog.vue'
 import ChoicePicker from './ChoicePicker.vue'
+import ClientDialog from './ClientDialog.vue'
 import QuickAddBar from './QuickAddBar.vue'
 import { createCommande, createDevis, getCommandeOptions, getDevisOptions, searchClients, searchDevisArticles, updateCommande, updateDevis } from '@/lib/api'
 import { formatQty } from '@/lib/articles'
-import { formatAmount } from '@/lib/clients'
+import { formatAmount, type ClientChoice } from '@/lib/clients'
 import type { CommandeDetail } from '@/lib/commandes'
-import { canRead } from '@/lib/droits'
+import { canCreate, canRead } from '@/lib/droits'
 import { addArticle, dayFromToday, draftTotal, linesForServer, parseNumber, validateDevis, type DevisArticleChoice, type DevisDetail, type DevisFormErrors, type DraftLine } from '@/lib/devis'
 
 /**
@@ -69,6 +70,21 @@ onMounted(async () => {
 
 const findClients = async (query: string) => (await searchClients(query || ' ')).filter((client) => !client.disabled).map((client) => ({ ...client, hint: client.wilaya }))
 const findArticles = (query: string) => searchDevisArticles(query)
+
+// Client absent de la recherche : il se crée par-dessus la pièce, qui garde sa saisie, puis il est choisi.
+const newClient = ref<string | null>(null)
+const createdClient = ref('')
+function pickClient(choice: { name: string; label: string }) {
+	form.client = choice.name
+	form.clientLabel = choice.label
+	delete errors.value.client
+}
+async function onClientCreated(name: string, client: ClientChoice) {
+	createdClient.value = name
+	pickClient(client)
+	await nextTick()
+	document.querySelector<HTMLElement>('#vente-date')?.focus()
+}
 // Stock de chaque article ajouté par la barre : affiché sous sa désignation.
 const stocks = reactive<Record<string, number | null | undefined>>({})
 const highlighted = ref<number | null>(null)
@@ -145,10 +161,16 @@ async function submit() {
 					input-id="vente-client"
 					placeholder="Raison sociale ou code"
 					:invalid="Boolean(errors.client)"
-					@pick="(choice) => ((form.client = choice.name), (form.clientLabel = choice.label), delete errors.client)"
+					:create-label="canCreate('Customer') ? 'Créer le client' : undefined"
+					@pick="pickClient"
 					@clear="(form.client = ''), (form.clientLabel = '')"
+					@create="(query) => (newClient = query)"
 				/>
 				<p v-if="errors.client" class="field-error" role="alert">{{ errors.client }}</p>
+				<p v-else-if="form.client && form.client === createdClient" class="field-note">
+					<LucideInfo class="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" />
+					<span>Client créé. <a class="ref-link" :href="`/bureau/clients/${encodeURIComponent(createdClient)}`" target="_blank" rel="noopener noreferrer">Compléter la fiche</a></span>
+				</p>
 			</div>
 			<div class="form-field">
 				<label class="field-label" for="vente-date">{{ isDevis ? "Valable jusqu'au" : 'Livraison prévue le' }} <span class="req">obligatoire</span></label>
@@ -220,5 +242,8 @@ async function submit() {
 		<template #actions>
 			<button type="button" class="btn-primary" :disabled="busy" @click="submit">{{ busy ? 'Enregistrement…' : editing ? 'Enregistrer' : `Créer ${isDevis ? 'le devis' : 'la commande'}` }}</button>
 		</template>
+		<Teleport to="body">
+			<ClientDialog v-if="newClient !== null" quick :name="newClient" @close="newClient = null" @created="onClientCreated" @pick="pickClient" />
+		</Teleport>
 	</FormDialog>
 </template>
