@@ -62,8 +62,12 @@ def appliquer_defaults(company, force=False):
 	"""Comptes par défaut de la société selon unicare_defaults du plan. force : remplace les valeurs déjà posées."""
 	doc = company if not isinstance(company, str) else frappe.get_doc("Company", company)
 	defaults = get_unicare_defaults(doc.chart_of_accounts)
+	meta = frappe.get_meta("Company")
 	values = {}
 	for fieldname, account_number in defaults.items():
+		# Un champ que cette version d'ERPNext n'a pas (v16 : expenses_included_in_valuation) est ignoré.
+		if not meta.has_field(fieldname):
+			continue
 		account = get_account(doc.name, account_number)
 		if account and (force or not doc.get(fieldname)) and doc.get(fieldname) != account:
 			values[fieldname] = account

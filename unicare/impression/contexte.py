@@ -127,17 +127,33 @@ def _taxes(doc):
 	return tva, timbres
 
 
+def _detail_par_ligne(doc, ligne):
+	"""{item_code: taux} d'une ligne de taxe, tel qu'ERPNext l'a calculé.
+
+	v15 : un JSON sur la ligne de taxe (`item_wise_tax_detail`, {code: [taux, montant]}).
+	v16 : un tableau de la pièce (`item_wise_tax_details`), une ligne par article et par taxe, reliées par leur `name`.
+	"""
+	if doc.get("item_wise_tax_details") is not None:
+		codes = {item.name: item.item_code or item.item_name for item in doc.items}
+		detail = {}
+		for row in doc.get("item_wise_tax_details") or []:
+			if row.tax_row == ligne.name and row.item_row in codes:
+				detail.setdefault(codes[row.item_row], flt(row.rate))
+		return detail
+	try:
+		brut = json.loads(ligne.get("item_wise_tax_detail") or "{}")
+	except ValueError:
+		return {}
+	return {code: flt(valeur[0]) for code, valeur in brut.items() if isinstance(valeur, list) and valeur}
+
+
 def _taux_par_article(doc, lignes_tva):
 	"""{item_code: taux} : le taux de chaque article, lu dans le détail de chaque ligne de taxe."""
 	taux_articles = {}
 	for ligne in lignes_tva:
-		try:
-			detail = json.loads(ligne.item_wise_tax_detail or "{}")
-		except ValueError:
-			detail = {}
+		detail = _detail_par_ligne(doc, ligne)
 		for code in _uniques(item.item_code or item.item_name for item in doc.items):
-			valeur = detail.get(code)
-			rate = flt(valeur[0]) if isinstance(valeur, list) and valeur else flt(ligne.rate)
+			rate = detail[code] if code in detail else flt(ligne.rate)
 			taux_articles[code] = flt(taux_articles.get(code)) + rate
 	return taux_articles
 

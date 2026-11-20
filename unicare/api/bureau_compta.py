@@ -67,7 +67,25 @@ COMPTES = (
 		),
 	),
 )
-CHAMPS = {field: (label, filtre, requis) for _groupe, rows in COMPTES for field, label, _aide, filtre, requis in rows}
+
+
+def _comptes_societe():
+	"""COMPTES, sans les champs absents de la société dans cette version d'ERPNext.
+
+	ERPNext v16 a retiré `expenses_included_in_valuation` : il n'est ni affiché ni enregistré.
+	"""
+	meta = frappe.get_meta(SOCIETE)
+	return tuple(
+		(groupe, tuple(row for row in rows if meta.has_field(row[0]))) for groupe, rows in COMPTES
+	)
+
+
+def _champs():
+	return {
+		field: (label, filtre, requis)
+		for _groupe, rows in _comptes_societe()
+		for field, label, _aide, filtre, requis in rows
+	}
 
 
 def _societe():
@@ -224,7 +242,7 @@ def _bilan(societe, valeurs, tva, modes, exercices, timbre):
 	else:
 		exercice = point("exercice", "Exercice comptable", "ok", _("Exercice {0} en cours.").format(en_cours["name"]), "exercices")
 
-	manquants = [CHAMPS[field][0] for field, (_l, _f, requis) in CHAMPS.items() if requis and not valeurs.get(field)]
+	manquants = [label for field, (label, _f, requis) in _champs().items() if requis and not valeurs.get(field)]
 	sans_compte = [row["name"] for row in modes if row["actif"] and not row["compte"]]
 	sans_repli = [row["name"] for row in modes if row["actif"] and not row["compte"] and not row["repli"]]
 
@@ -290,7 +308,7 @@ def get_compta():
 	frappe.has_permission(COMPTE, "read", throw=True)
 	company = _societe()
 	societe = frappe.get_doc(SOCIETE, company)
-	valeurs = {field: societe.get(field) for field in CHAMPS}
+	valeurs = {field: societe.get(field) for field in _champs()}
 	tva = {sens: _tva(company, sens) for sens in TVA}
 	modes = _modes(company)
 	exercices = _exercices(company)
@@ -307,9 +325,9 @@ def get_compta():
 						for field, label, aide, _filtre, requis in rows
 					],
 				}
-				for groupe, rows in COMPTES
+				for groupe, rows in _comptes_societe()
 			],
-			"options": {field: _comptes(company, filtre) for field, (_l, filtre, _r) in CHAMPS.items()},
+			"options": {field: _comptes(company, filtre) for field, (_l, filtre, _r) in _champs().items()},
 		},
 		"tva": tva,
 		"modes": modes,
@@ -341,7 +359,7 @@ def save_comptes(modified, values=None):
 	doc.check_permission("write")
 	_stale(doc, modified)
 	values = _parse(values) or {}
-	for field, (label, filtre, requis) in CHAMPS.items():
+	for field, (label, filtre, requis) in _champs().items():
 		if field not in values:
 			continue
 		compte = cstr(values.get(field)).strip()

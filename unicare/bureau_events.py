@@ -41,7 +41,7 @@ WATCHED = {
 
 def _muted():
 	flags = frappe.flags
-	return bool(flags.in_migrate or flags.in_patch or flags.in_install or flags.in_import or flags.in_test)
+	return bool(flags.in_migrate or flags.in_patch or flags.in_install or flags.in_import or flags.in_test or getattr(frappe, "in_test", False))
 
 
 def recipients():

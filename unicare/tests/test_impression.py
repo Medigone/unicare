@@ -152,3 +152,38 @@ class TestContexte(FrappeTestCase):
 		)
 		self.assertIn("Total TTC", texte)
 		self.assertIn("P.U. HT", texte)
+
+
+class _Piece:
+	"""Une pièce réduite à ses lignes et, en v16, au détail de TVA par article."""
+
+	def __init__(self, items, details=None):
+		self.items, self.details = items, details
+
+	def get(self, key):
+		return self.details if key == "item_wise_tax_details" else None
+
+
+class TestTauxParArticle(FrappeTestCase):
+	"""Le taux de TVA de chaque article : JSON de la ligne de taxe (ERPNext v15) ou tableau de la pièce (v16)."""
+
+	ITEMS = (frappe._dict(name="L1", item_code="A"), frappe._dict(name="L2", item_code="B"))
+
+	def test_v15_json_sur_la_ligne_de_taxe(self):
+		from unicare.impression.contexte import _taux_par_article
+
+		tva = frappe._dict(name="T1", rate=19, item_wise_tax_detail='{"A": [19, 19.0], "B": [9, 9.0]}')
+		self.assertEqual(_taux_par_article(_Piece(self.ITEMS), [tva]), {"A": 19, "B": 9})
+
+	def test_v16_tableau_de_la_piece(self):
+		from unicare.impression.contexte import _taux_par_article
+
+		tva = frappe._dict(name="T1", rate=19)
+		details = [
+			frappe._dict(item_row="L1", tax_row="T1", rate=19),
+			frappe._dict(item_row="L2", tax_row="T1", rate=9),
+			frappe._dict(item_row="L2", tax_row="T2", rate=5),
+		]
+		self.assertEqual(_taux_par_article(_Piece(self.ITEMS, details), [tva]), {"A": 19, "B": 9})
+		# Sans détail pour un article : le taux de la ligne de taxe.
+		self.assertEqual(_taux_par_article(_Piece(self.ITEMS, details[:1]), [tva]), {"A": 19, "B": 19})
